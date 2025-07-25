@@ -2,12 +2,12 @@ name: spaghetti-platform
 services:
 - name: react-frontend
   dockerfile_path: Dockerfile
-  source_dir: /
+  source_dir: src/frontend
   github:
     branch: master
     deploy_on_push: true
     repo: twitchyvr/Spaghetti
-  http_port: 8080
+  http_port: 3000
   instance_count: 1
   instance_size_slug: basic-xxs
   routes:
