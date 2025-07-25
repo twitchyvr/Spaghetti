@@ -183,6 +183,7 @@ dotnet ef migrations script --project src/core/infrastructure
 - Keep the codebase modular and decoupled to facilitate testing and maintenance 
 - Use environment variables for configuration to avoid hardcoding sensitive data
 - Regularly back up critical data and configurations
+- Always build and test the docker build locally before committing to git and pushing to origin, but do that every single time.
 
 ## Version History Tracking
 - Maintain a `CHANGELOG.md` file to track all changes, features, and bug fixes
