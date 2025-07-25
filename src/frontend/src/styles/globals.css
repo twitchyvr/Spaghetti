@@ -1,168 +1,93 @@
+@import './theme.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 84% 4.9%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 94.1%;
-  }
-}
-
+/* Base Styles */
 @layer base {
   * {
-    @apply border-border;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  html {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   
   body {
-    @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+    line-height: 1.5;
+    overflow-x: hidden;
   }
   
+  /* Headings */
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold tracking-tight;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--color-text-primary);
   }
   
-  h1 {
-    @apply text-4xl;
+  h1 { font-size: var(--font-5xl); }
+  h2 { font-size: var(--font-4xl); }
+  h3 { font-size: var(--font-3xl); }
+  h4 { font-size: var(--font-2xl); }
+  h5 { font-size: var(--font-xl); }
+  h6 { font-size: var(--font-lg); }
+  
+  /* Links */
+  a {
+    color: var(--color-brand-primary);
+    text-decoration: none;
+    transition: color var(--transition-base);
   }
   
-  h2 {
-    @apply text-3xl;
+  a:hover {
+    color: var(--color-brand-secondary);
   }
   
-  h3 {
-    @apply text-2xl;
-  }
-  
-  h4 {
-    @apply text-xl;
-  }
-  
-  h5 {
-    @apply text-lg;
-  }
-  
-  h6 {
-    @apply text-base;
+  /* Focus styles for accessibility */
+  :focus-visible {
+    outline: 2px solid var(--color-brand-primary);
+    outline-offset: 2px;
   }
 }
 
+/* Custom Component Styles */
 @layer components {
-  .btn {
-    @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background;
+  /* Scrollbar Styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
   }
   
-  .btn-primary {
-    @apply btn bg-primary text-primary-foreground hover:bg-primary/90;
+  ::-webkit-scrollbar-track {
+    background: var(--color-bg-tertiary);
   }
   
-  .btn-secondary {
-    @apply btn bg-secondary text-secondary-foreground hover:bg-secondary/80;
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-border-secondary);
+    border-radius: var(--radius-sm);
   }
   
-  .btn-outline {
-    @apply btn border border-input bg-background hover:bg-accent hover:text-accent-foreground;
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-muted);
   }
   
-  .btn-ghost {
-    @apply btn hover:bg-accent hover:text-accent-foreground;
-  }
-  
-  .btn-destructive {
-    @apply btn bg-destructive text-destructive-foreground hover:bg-destructive/90;
-  }
-  
-  .btn-sm {
-    @apply h-9 px-3;
-  }
-  
-  .btn-md {
-    @apply h-10 px-4 py-2;
-  }
-  
-  .btn-lg {
-    @apply h-11 px-8;
-  }
-  
-  .input {
-    @apply flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
-  }
-  
-  .textarea {
-    @apply flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
-  }
-  
-  .card {
-    @apply rounded-lg border bg-card text-card-foreground shadow-sm;
-  }
-  
-  .card-header {
-    @apply flex flex-col space-y-1.5 p-6;
-  }
-  
-  .card-title {
-    @apply text-2xl font-semibold leading-none tracking-tight;
-  }
-  
-  .card-description {
-    @apply text-sm text-muted-foreground;
-  }
-  
-  .card-content {
-    @apply p-6 pt-0;
-  }
-  
-  .card-footer {
-    @apply flex items-center p-6 pt-0;
+  /* Selection */
+  ::selection {
+    background-color: var(--color-brand-light);
+    color: var(--color-brand-dark);
   }
 }
 
+/* Utility Extensions */
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-  
+  /* Hide scrollbar but keep functionality */
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -171,18 +96,33 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+  
+  /* Text balance for better readability */
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  /* Smooth scroll behavior */
+  .scroll-smooth {
+    scroll-behavior: smooth;
+  }
 }
 
-/* Loading and transition animations */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+/* Animation Utilities */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
-@keyframes slideInFromTop {
-  from {
+@keyframes pulse-gentle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes slide-up {
+  from { 
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -190,67 +130,46 @@
   }
 }
 
-@keyframes slideInFromBottom {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.animate-shimmer {
+  animation: shimmer 2s infinite;
 }
 
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
+.animate-pulse-gentle {
+  animation: pulse-gentle 2s ease-in-out infinite;
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.2s ease-out;
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
 }
 
-.animate-slide-in-from-top {
-  animation: slideInFromTop 0.3s ease-out;
+/* Loading States */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-tertiary) 25%,
+    var(--color-bg-accent) 50%,
+    var(--color-bg-tertiary) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
 }
 
-.animate-slide-in-from-bottom {
-  animation: slideInFromBottom 0.3s ease-out;
-}
-
-.animate-pulse-slow {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* Focus states for accessibility */
-.focus-ring {
-  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
-}
-
-/* Responsive utilities */
-@media (max-width: 640px) {
-  .container {
-    @apply px-4;
-  }
-}
-
-/* Print styles */
+/* Print Styles */
 @media print {
   .no-print {
-    display: none;
+    display: none !important;
   }
   
   body {
-    color: black;
     background: white;
+    color: black;
   }
   
-  .card {
-    border: 1px solid #ccc;
-    box-shadow: none;
+  .app-sidebar {
+    display: none;
+  }
+  
+  .app-main {
+    margin-left: 0;
   }
 }

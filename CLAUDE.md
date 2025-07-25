@@ -164,6 +164,7 @@ npm run dev
 - **API Endpoints**: `/api/admin/*` endpoints available for database management
 - **Frontend**: PWA-ready with manifest.json and mobile optimization
 - **Security**: Production-grade HTTP headers and CORS configuration
+- **UI Fix**: Dashboard layout properly centered with responsive containers (July 25, 2025)
 
 ### 🚀 Available API Endpoints
 
