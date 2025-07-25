@@ -189,18 +189,18 @@ CI/CD:        Jenkins + GitLab
 │   (React/TS)    │◄──►│   (NGINX/Kong)  │◄──►│   (Azure LB)    │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
                                  │
-                    ┌────────────┼────────────┐
-                    ▼            ▼            ▼
+                    ┌────────────┼───────────────┐
+                    ▼            ▼               ▼
          ┌─────────────────┐ ┌─────────────┐ ┌─────────────────┐
          │   Auth Service  │ │ User Service│ │Document Service │
          │   (.NET Core)   │ │ (.NET Core) │ │   (.NET Core)   │
          └─────────────────┘ └─────────────┘ └─────────────────┘
-                    │            │            │
-                    ▼            ▼            ▼
-         ┌─────────────────┐ ┌─────────────┐ ┌─────────────────┐
-         │ AI/ML Service   │ │Search Service│ │ Audit Service   │
+                    │            │               │
+                    ▼            ▼               ▼
+         ┌─────────────────┐ ┌───────────────┐ ┌─────────────────┐
+         │ AI/ML Service   │ │Search Service │ │ Audit Service   │
          │  (Python/C#)    │ │(Elasticsearch)│ │   (.NET Core)   │
-         └─────────────────┘ └─────────────┘ └─────────────────┘
+         └─────────────────┘ └───────────────┘ └─────────────────┘
                     │            │            │
                     └────────────┼────────────┘
                                  ▼
@@ -320,7 +320,7 @@ Auto-Scaling Groups:
 
 ## Development Roadmap
 
-### Phase 1: Foundation (Months 1-3)
+### Phase 1: Foundation
 
 - [ ] Core platform architecture setup
 - [ ] Basic user authentication and authorization
@@ -328,7 +328,7 @@ Auto-Scaling Groups:
 - [ ] MVP AI integration for document generation
 - [ ] Basic web interface (React + TypeScript)
 
-### Phase 2: Core Features (Months 4-6)
+### Phase 2: Core Features
 
 - [ ] Advanced AI document processing
 - [ ] Multi-modal input handling (voice, screen, files)
@@ -336,7 +336,7 @@ Auto-Scaling Groups:
 - [ ] Search and retrieval functionality
 - [ ] Basic reporting and analytics
 
-### Phase 3: Enterprise Features (Months 7-9)
+### Phase 3: Enterprise Features
 
 - [ ] Multi-tenant architecture
 - [ ] Advanced security controls
@@ -344,7 +344,7 @@ Auto-Scaling Groups:
 - [ ] On-premises deployment options
 - [ ] Advanced monitoring and alerting
 
-### Phase 4: Advanced Capabilities (Months 10-12)
+### Phase 4: Advanced Capabilities
 
 - [ ] AI model fine-tuning and customization
 - [ ] Advanced workflow automation
@@ -477,7 +477,7 @@ Auto-Scaling Groups:
 #### ADR-001: Cloud Provider Selection
 
 **Status:** Accepted  
-**Date:** 2024-01-15  
+**Date:** 2025-07-24  
 **Decision:** Microsoft Azure as primary cloud provider  
 
 **Context:**
@@ -502,7 +502,7 @@ Selected Microsoft Azure based on:
 #### ADR-002: Multi-Tenant vs Single-Tenant Architecture
 
 **Status:** Accepted  
-**Date:** 2024-01-20  
+**Date:** 2025-07-24  
 **Decision:** Multi-tenant architecture with tenant isolation  
 
 **Context:**
@@ -526,7 +526,7 @@ Implement multi-tenant architecture with:
 #### ADR-003: AI/ML Model Deployment Strategy
 
 **Status:** Accepted  
-**Date:** 2024-01-25  
+**Date:** 2025-07-24  
 **Decision:** Hybrid AI approach with Azure OpenAI + self-hosted models  
 
 **Context:**
@@ -549,35 +549,35 @@ Implement hybrid approach:
 
 ### Implementation Timeline
 
-#### Phase 1: Foundation (Months 1-2)
+#### Phase 1: Foundation
 
 - [ ] Set up Azure landing zone following Well-Architected Framework
 - [ ] Implement basic security controls (Azure AD, Key Vault)
 - [ ] Configure monitoring and logging infrastructure
 - [ ] Establish CI/CD pipeline with quality gates
 
-#### Phase 2: Core Services (Months 3-4)
+#### Phase 2: Core Services
 
 - [ ] Deploy multi-tenant application architecture
 - [ ] Implement database design with tenant isolation
 - [ ] Configure auto-scaling and performance optimization
 - [ ] Set up backup and disaster recovery procedures
 
-#### Phase 3: Advanced Features (Months 5-6)
+#### Phase 3: Advanced Features
 
 - [ ] Implement AI/ML services integration
 - [ ] Configure global distribution and CDN
 - [ ] Set up advanced threat protection
 - [ ] Implement cost optimization strategies
 
-#### Phase 4: Production Hardening (Months 7-8)
+#### Phase 4: Production Hardening
 
 - [ ] Complete compliance framework implementation
 - [ ] Conduct Well-Architected Framework review
 - [ ] Perform security and penetration testing
 - [ ] Implement advanced monitoring and alerting
 
-#### Phase 5: Optimization (Months 9-12)
+#### Phase 5: Optimization
 
 - [ ] Continuous optimization based on metrics
 - [ ] Advanced AI/ML model fine-tuning
