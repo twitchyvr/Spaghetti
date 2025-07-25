@@ -7,14 +7,27 @@ interface DashboardStats {
   recentDocuments: number;
   activeProjects: number;
   teamMembers: number;
+  completedToday: number;
+  avgProcessingTime: string;
 }
 
 interface RecentActivity {
   id: string;
-  type: 'created' | 'updated' | 'shared';
+  type: 'created' | 'updated' | 'shared' | 'reviewed' | 'completed';
   title: string;
   timestamp: string;
   user: string;
+  avatar: string;
+  status: 'success' | 'pending' | 'warning';
+}
+
+interface QuickStat {
+  label: string;
+  value: string;
+  change: string;
+  changeType: 'positive' | 'negative' | 'neutral';
+  icon: string;
+  color: string;
 }
 
 export default function Dashboard() {
@@ -23,9 +36,12 @@ export default function Dashboard() {
     totalDocuments: 0,
     recentDocuments: 0,
     activeProjects: 0,
-    teamMembers: 0
+    teamMembers: 0,
+    completedToday: 0,
+    avgProcessingTime: '0s'
   });
   const [activities, setActivities] = useState<RecentActivity[]>([]);
+  const [quickStats, setQuickStats] = useState<QuickStat[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -33,43 +49,106 @@ export default function Dashboard() {
     const fetchDashboardData = async () => {
       try {
         // This will be replaced with real API calls
-        await new Promise(resolve => setTimeout(resolve, 800));
+        await new Promise(resolve => setTimeout(resolve, 1200));
         
         setStats({
           totalDocuments: 247,
           recentDocuments: 12,
           activeProjects: 8,
-          teamMembers: 15
+          teamMembers: 15,
+          completedToday: 6,
+          avgProcessingTime: '2.3s'
         });
+
+        setQuickStats([
+          {
+            label: 'Total Documents',
+            value: '247',
+            change: '+12%',
+            changeType: 'positive',
+            icon: '📊',
+            color: 'from-blue-500 to-blue-600'
+          },
+          {
+            label: 'Active Projects',
+            value: '8',
+            change: '+2',
+            changeType: 'positive',
+            icon: '🚀',
+            color: 'from-purple-500 to-purple-600'
+          },
+          {
+            label: 'Team Members',
+            value: '15',
+            change: 'Stable',
+            changeType: 'neutral',
+            icon: '👥',
+            color: 'from-green-500 to-green-600'
+          },
+          {
+            label: 'Completed Today',
+            value: '6',
+            change: '+150%',
+            changeType: 'positive',
+            icon: '✅',
+            color: 'from-orange-500 to-orange-600'
+          }
+        ]);
 
         setActivities([
           {
             id: '1',
-            type: 'created',
-            title: 'Legal Contract Template v2.1',
-            timestamp: '2 hours ago',
-            user: 'Sarah Johnson'
+            type: 'completed',
+            title: 'Corporate Merger Agreement - Acme Corp & Beta LLC',
+            timestamp: '15 minutes ago',
+            user: 'Sarah Johnson',
+            avatar: 'SJ',
+            status: 'success'
           },
           {
             id: '2',
-            type: 'updated',
-            title: 'Employee Handbook - Remote Work Policy',
-            timestamp: '4 hours ago',
-            user: 'Mike Chen'
+            type: 'reviewed',
+            title: 'Employment Contract Template - Senior Associates',
+            timestamp: '1 hour ago',
+            user: 'Michael Chen',
+            avatar: 'MC',
+            status: 'success'
           },
           {
             id: '3',
-            type: 'shared',
-            title: 'Q4 Financial Report',
-            timestamp: '1 day ago',
-            user: 'Alex Rivera'
+            type: 'created',
+            title: 'Digital Transformation Roadmap - Fortune 500 Client',
+            timestamp: '2 hours ago',
+            user: 'Dr. Robert Williams',
+            avatar: 'RW',
+            status: 'pending'
           },
           {
             id: '4',
+            type: 'updated',
+            title: 'Product Requirements Document - Mobile Banking App',
+            timestamp: '3 hours ago',
+            user: 'Alex Thompson',
+            avatar: 'AT',
+            status: 'warning'
+          },
+          {
+            id: '5',
+            type: 'shared',
+            title: 'Operations Efficiency Analysis - Manufacturing Sector',
+            timestamp: '4 hours ago',
+            user: 'Lisa Davis',
+            avatar: 'LD',
+            status: 'success'
+          },
+          {
+            id: '6',
             type: 'created',
-            title: 'Client Onboarding Checklist',
-            timestamp: '2 days ago',
-            user: 'Emma Davis'
+            title: 'Go-to-Market Strategy Q2 2024',
+            timestamp: '6 hours ago',
+            user: 'Jamie Park',
+            avatar: 'JP',
+            status: 'success'
           }
         ]);
         
