@@ -9,6 +9,15 @@ import { ErrorBoundary } from './components/ui/ErrorBoundary';
 
 import './styles/globals.css';
 
+// Force remove loading screen as a fallback
+setTimeout(() => {
+  document.body.classList.add('app-ready');
+  const loadingContainer = document.querySelector('.loading-container');
+  if (loadingContainer) {
+    (loadingContainer as HTMLElement).style.display = 'none';
+  }
+}, 1000);
+
 // Global error handler for unhandled promise rejections
 window.addEventListener('unhandledrejection', (event) => {
   console.error('Unhandled promise rejection:', event.reason);
