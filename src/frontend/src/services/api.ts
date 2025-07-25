@@ -1,13 +1,6 @@
 // API Service Layer for Enterprise Docs Platform
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
-
-// Generic API response type
-interface ApiResponse<T> {
-  data?: T;
-  error?: string;
-  message?: string;
-}
+const API_BASE_URL = import.meta.env['VITE_API_BASE_URL'] || 'http://localhost:5000/api';
 
 // API Error class
 export class ApiError extends Error {
@@ -24,7 +17,7 @@ async function fetchApi<T>(
 ): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
   
-  const defaultHeaders = {
+  const defaultHeaders: { [key: string]: string } = {
     'Content-Type': 'application/json',
   };
 
