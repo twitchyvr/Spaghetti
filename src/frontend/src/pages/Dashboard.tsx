@@ -3,15 +3,12 @@ import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
 import '../styles/dashboard.css';
 import { 
-  TrendingUp, 
   Users, 
   FileText, 
   Download,
   Plus,
   ArrowUpRight,
   ArrowDownRight,
-  Clock,
-  DollarSign,
   Activity,
   Target,
   Database,
