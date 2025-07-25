@@ -26,6 +26,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<UserAuditEntry> UserAuditEntries => Set<UserAuditEntry>();
     public DbSet<TenantModule> TenantModules => Set<TenantModule>();
     public DbSet<TenantAuditEntry> TenantAuditEntries => Set<TenantAuditEntry>();
+    public DbSet<ImpersonationSession> ImpersonationSessions => Set<ImpersonationSession>();
+    public DbSet<PlatformAdminAuditLog> PlatformAdminAuditLogs => Set<PlatformAdminAuditLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -313,6 +315,26 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<TenantModule>()
             .HasIndex(e => new { e.TenantId, e.ModuleName })
             .IsUnique();
+
+        // Impersonation session indexes
+        modelBuilder.Entity<ImpersonationSession>()
+            .HasIndex(e => new { e.AdminUserId, e.IsActive });
+
+        modelBuilder.Entity<ImpersonationSession>()
+            .HasIndex(e => new { e.TargetUserId, e.StartedAt });
+
+        modelBuilder.Entity<ImpersonationSession>()
+            .HasIndex(e => e.ExpiresAt);
+
+        // Platform admin audit log indexes
+        modelBuilder.Entity<PlatformAdminAuditLog>()
+            .HasIndex(e => new { e.AdminUserId, e.Timestamp });
+
+        modelBuilder.Entity<PlatformAdminAuditLog>()
+            .HasIndex(e => new { e.Action, e.Timestamp });
+
+        modelBuilder.Entity<PlatformAdminAuditLog>()
+            .HasIndex(e => new { e.TargetEntityType, e.TargetEntityId });
     }
 
     private static void SeedDefaultData(ModelBuilder modelBuilder)

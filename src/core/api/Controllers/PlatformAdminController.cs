@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Spaghetti.Core.Domain.Entities;
-using Spaghetti.Core.Infrastructure.Data;
+using EnterpriseDocsCore.Domain.Entities;
+using EnterpriseDocsCore.Infrastructure.Data;
 using System.ComponentModel.DataAnnotations;
 
-namespace Spaghetti.Core.Api.Controllers;
+namespace EnterpriseDocsCore.Api.Controllers;
 
 /// <summary>
 /// Platform Administration Controller
