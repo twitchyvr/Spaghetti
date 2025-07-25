@@ -5,6 +5,7 @@ import { LoadingSpinner } from './components/ui/LoadingSpinner';
 
 // Lazy load pages for better performance
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
+const PlatformAdminDashboard = React.lazy(() => import('./pages/PlatformAdminDashboard'));
 const Documents = React.lazy(() => import('./pages/Documents'));
 const DatabaseAdmin = React.lazy(() => import('./pages/DatabaseAdmin'));
 const Login = React.lazy(() => import('./pages/Login'));
@@ -69,7 +70,16 @@ function App() {
                 <AppLayout>
                   <Routes>
                     <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route 
+                      path="/dashboard" 
+                      element={
+                        // Determine dashboard based on user type
+                        // For now, showing Platform Admin dashboard for demo
+                        // TODO: Add user role detection logic
+                        <PlatformAdminDashboard />
+                      } 
+                    />
+                    <Route path="/client-dashboard" element={<Dashboard />} />
                     <Route path="/documents/*" element={<Documents />} />
                     <Route path="/database/*" element={<DatabaseAdmin />} />
                     <Route path="/settings/*" element={<Settings />} />

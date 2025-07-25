@@ -6,25 +6,30 @@ public class User
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     
-    [Required]
     [MaxLength(100)]
     public string FirstName { get; set; } = string.Empty;
     
-    [Required]
     [MaxLength(100)]
     public string LastName { get; set; } = string.Empty;
     
-    [Required]
     [EmailAddress]
     [MaxLength(255)]
-    public string Email { get; set; } = string.Empty;
+    public string? Email { get; set; } // Nullable for guest users
     
-    public string FullName => $"{FirstName} {LastName}";
+    public string FullName => string.IsNullOrEmpty(FirstName) && string.IsNullOrEmpty(LastName) 
+        ? "Guest User" : $"{FirstName} {LastName}".Trim();
+    
+    // User type classification
+    public UserType UserType { get; set; } = UserType.RegisteredUser;
     
     public bool IsActive { get; set; } = true;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? LastLoginAt { get; set; }
+    
+    // For guest users - track session and analytics
+    public string? SessionId { get; set; }
+    public DateTime? SessionExpiresAt { get; set; }
     
     // Multi-tenant support
     public Guid? TenantId { get; set; }
@@ -231,4 +236,68 @@ public class UserAuditEntry
     
     public bool IsSuccess { get; set; } = true;
     public string? ErrorMessage { get; set; }
+}
+
+public enum UserType
+{
+    PlatformAdmin,      // Spaghetti platform team member
+    ClientAdmin,        // Organization admin (tenant admin)
+    RegisteredUser,     // Authenticated user within a tenant
+    GuestUser,          // Anonymous/public viewer (temporary session)
+    APIUser,            // Service account for integrations
+    ImpersonatedUser    // Platform admin impersonating other user
+}
+
+public static class SystemRoles
+{
+    // Platform-level roles (cross-tenant)
+    public const string PLATFORM_ADMIN = "Platform.Admin";
+    public const string PLATFORM_SUPPORT = "Platform.Support";
+    public const string PLATFORM_DEVELOPER = "Platform.Developer";
+    public const string PLATFORM_VIEWER = "Platform.Viewer";
+    
+    // Tenant-level roles
+    public const string CLIENT_ADMIN = "Client.Admin";
+    public const string CLIENT_MANAGER = "Client.Manager";
+    public const string CLIENT_USER = "Client.User";
+    public const string CLIENT_GUEST = "Client.Guest";
+    
+    // Document-level roles
+    public const string DOCUMENT_OWNER = "Document.Owner";
+    public const string DOCUMENT_EDITOR = "Document.Editor";
+    public const string DOCUMENT_REVIEWER = "Document.Reviewer";
+    public const string DOCUMENT_VIEWER = "Document.Viewer";
+    public const string DOCUMENT_PUBLIC_VIEWER = "Document.PublicViewer";
+    
+    // Specialized roles
+    public const string BILLING_ADMIN = "Billing.Admin";
+    public const string COMPLIANCE_OFFICER = "Compliance.Officer";
+    public const string INTEGRATION_USER = "Integration.User";
+}
+
+public static class SystemPermissions
+{
+    // Platform management
+    public const string MANAGE_TENANTS = "platform.manage_tenants";
+    public const string MANAGE_USERS = "platform.manage_users";
+    public const string VIEW_PLATFORM_ANALYTICS = "platform.view_analytics";
+    public const string IMPERSONATE_USERS = "platform.impersonate";
+    
+    // Client management
+    public const string MANAGE_CLIENT_USERS = "client.manage_users";
+    public const string MANAGE_CLIENT_SETTINGS = "client.manage_settings";
+    public const string VIEW_CLIENT_ANALYTICS = "client.view_analytics";
+    public const string MANAGE_CLIENT_BILLING = "client.manage_billing";
+    
+    // Document management
+    public const string CREATE_DOCUMENTS = "document.create";
+    public const string READ_DOCUMENTS = "document.read";
+    public const string UPDATE_DOCUMENTS = "document.update";
+    public const string DELETE_DOCUMENTS = "document.delete";
+    public const string PUBLISH_DOCUMENTS = "document.publish";
+    public const string SHARE_DOCUMENTS = "document.share";
+    
+    // Public access
+    public const string VIEW_PUBLIC_DOCUMENTS = "document.view_public";
+    public const string ACCESS_PUBLIC_PORTAL = "portal.access_public";
 }

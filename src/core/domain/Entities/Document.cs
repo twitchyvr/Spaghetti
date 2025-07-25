@@ -22,6 +22,22 @@ public class Document
     
     public DocumentStatus Status { get; set; } = DocumentStatus.Draft;
     
+    // Public publishing settings
+    public PublicAccessLevel PublicAccessLevel { get; set; } = PublicAccessLevel.Private;
+    public string? PublicSlug { get; set; } // URL-friendly identifier for public access
+    public DateTime? PublishedAt { get; set; }
+    public Guid? PublishedBy { get; set; }
+    public User? PublishedByUser { get; set; }
+    
+    // SEO and public metadata
+    public string? MetaDescription { get; set; }
+    public List<string> MetaKeywords { get; set; } = new();
+    public bool IndexBySearchEngines { get; set; } = true;
+    
+    // Access analytics
+    public int PublicViewCount { get; set; } = 0;
+    public DateTime? LastPublicViewAt { get; set; }
+    
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     
@@ -65,6 +81,17 @@ public enum DocumentStatus
     Published,
     Archived,
     Deleted
+}
+
+public enum PublicAccessLevel
+{
+    Private,            // Only authenticated users with permissions
+    TenantUsers,        // All users within the tenant organization
+    AuthenticatedUsers, // Any authenticated user across platform
+    Public,             // Anyone on the internet (completely public)
+    PublicWithEmail,    // Public but requires email for analytics
+    IPRestricted,       // Public but restricted to specific IP ranges
+    PasswordProtected   // Public but requires password
 }
 
 public class DocumentMetadata

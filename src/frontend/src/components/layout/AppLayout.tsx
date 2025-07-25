@@ -10,7 +10,12 @@ import {
   Menu, 
   X,
   ChevronRight,
-  User
+  User,
+  Building2,
+  Users,
+  BarChart3,
+  Shield,
+  Activity
 } from 'lucide-react';
 
 interface AppLayoutProps {
@@ -30,32 +35,61 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Platform Admin Navigation Items
+  // TODO: Make this dynamic based on user role (Platform Admin vs Client User)
   const navigationItems: NavItem[] = [
     { 
       id: 'dashboard', 
-      label: 'Dashboard', 
+      label: 'Platform Overview', 
       icon: <LayoutDashboard size={20} />, 
       path: '/dashboard' 
     },
     { 
-      id: 'documents', 
-      label: 'Documents', 
-      icon: <FileText size={20} />, 
-      path: '/documents' 
+      id: 'clients', 
+      label: 'Client Management', 
+      icon: <Building2 size={20} />, 
+      path: '/clients',
+      badge: 'ADMIN'
+    },
+    { 
+      id: 'users', 
+      label: 'User Administration', 
+      icon: <Users size={20} />, 
+      path: '/users',
+      badge: 'ADMIN'
+    },
+    { 
+      id: 'analytics', 
+      label: 'Platform Analytics', 
+      icon: <BarChart3 size={20} />, 
+      path: '/analytics'
+    },
+    { 
+      id: 'impersonation', 
+      label: 'User Impersonation', 
+      icon: <Shield size={20} />, 
+      path: '/impersonation',
+      badge: 'SUPPORT'
+    },
+    { 
+      id: 'monitoring', 
+      label: 'System Health', 
+      icon: <Activity size={20} />, 
+      path: '/monitoring'
     },
     { 
       id: 'database', 
       label: 'Database Admin', 
       icon: <Database size={20} />, 
       path: '/database', 
-      badge: 'ADMIN' 
+      badge: 'DEV' 
     },
     { 
       id: 'settings', 
-      label: 'Settings', 
+      label: 'Platform Settings', 
       icon: <Settings size={20} />, 
       path: '/settings' 
-    },
+    }
   ];
 
   const isActiveRoute = (path: string) => {
