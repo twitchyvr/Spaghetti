@@ -89,14 +89,7 @@
     </style>
   </head>
   <body>
-    <!-- Loading screen outside root for proper React mounting -->
-    <div class="loading-container">
-      <div>
-        <div class="loading-spinner"></div>
-        <div class="loading-text">Loading Enterprise Docs Platform...</div>
-      </div>
-    </div>
-    
+    <!-- Removed loading screen for production - React app shows immediately -->
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
