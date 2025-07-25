@@ -77,10 +77,8 @@ builder.Services.ConfigureAIServices(builder.Configuration);
 builder.Services.ConfigureModuleSystem(builder.Configuration);
 
 // Add core services
+builder.Services.AddUnitOfWork();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IAIService, AIService>();
-builder.Services.AddScoped<IModuleLoader, ModuleLoader>();
 
 // Add Redis caching if configured
 var redisConnection = builder.Configuration.GetConnectionString("Redis");

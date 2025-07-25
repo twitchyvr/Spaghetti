@@ -170,13 +170,6 @@ public class DocumentAnalytics
     public Dictionary<string, int> ViewsByDay { get; set; } = new();
 }
 
-public class UserActivity
-{
-    public required User User { get; set; }
-    public int Count { get; set; }
-    public DateTime LastActivity { get; set; }
-}
-
 public class DocumentActivity
 {
     public Guid Id { get; set; }
@@ -236,13 +229,3 @@ public class BulkOperationError
     public string? Details { get; set; }
 }
 
-public class PagedResult<T>
-{
-    public List<T> Items { get; set; } = new();
-    public int Page { get; set; }
-    public int PageSize { get; set; }
-    public int TotalPages { get; set; }
-    public int TotalItems { get; set; }
-    public bool HasNextPage => Page < TotalPages;
-    public bool HasPreviousPage => Page > 1;
-}

@@ -71,11 +71,11 @@ public static class ServiceExtensions
 
     private static void ConfigureJwtAuthentication(IServiceCollection services, IConfiguration configuration)
     {
-        var jwtSettings = configuration.GetSection("Jwt");
-        var secretKey = jwtSettings.GetValue<string>("SecretKey") ?? 
+        var authSettings = configuration.GetSection("Authentication");
+        var secretKey = authSettings.GetValue<string>("SecretKey") ?? 
                         throw new InvalidOperationException("JWT SecretKey is required");
-        var issuer = jwtSettings.GetValue<string>("Issuer") ?? "EnterpriseDocsAPI";
-        var audience = jwtSettings.GetValue<string>("Audience") ?? "EnterpriseDocsClient";
+        var issuer = authSettings.GetValue<string>("Issuer") ?? "EnterpriseDocsAPI";
+        var audience = authSettings.GetValue<string>("Audience") ?? "EnterpriseDocsClient";
 
         services.AddAuthentication(options =>
         {
@@ -117,7 +117,7 @@ public static class ServiceExtensions
 
     private static void ConfigureAzureADAuthentication(IServiceCollection services, IConfiguration configuration)
     {
-        var azureAdSettings = configuration.GetSection("AzureAd");
+        var azureAdSettings = configuration.GetSection("Authentication:Providers:AzureAD");
         
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
@@ -134,7 +134,7 @@ public static class ServiceExtensions
 
     private static void ConfigureAuth0Authentication(IServiceCollection services, IConfiguration configuration)
     {
-        var auth0Settings = configuration.GetSection("Auth0");
+        var auth0Settings = configuration.GetSection("Authentication:Providers:Auth0");
         var domain = auth0Settings["Domain"] ?? throw new InvalidOperationException("Auth0 Domain is required");
         var audience = auth0Settings["Audience"] ?? throw new InvalidOperationException("Auth0 Audience is required");
 
