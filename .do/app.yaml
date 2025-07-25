@@ -1,8 +1,39 @@
 name: spaghetti-platform
-services:
-- dockerfile_path: Dockerfile
+
+# Frontend as static site (serves React app at root)
+static_sites:
+- name: frontend
+  source_dir: /src/frontend
   github:
     branch: master
     deploy_on_push: true
     repo: twitchyvr/Spaghetti
-  name: spaghetti-platform
+  build_command: npm ci && npm run build
+  output_dir: /dist
+  index_document: index.html
+  error_document: index.html
+  routes:
+  - path: /
+  envs:
+  - key: VITE_API_BASE_URL
+    value: https://${api.PRIVATE_URL}/api
+  - key: VITE_ENVIRONMENT
+    value: production
+
+# Backend API service
+services:
+- name: api
+  dockerfile_path: Dockerfile
+  source_dir: /
+  github:
+    branch: master
+    deploy_on_push: true
+    repo: twitchyvr/Spaghetti
+  http_port: 8080
+  routes:
+  - path: /api
+  health_check:
+    http_path: /health
+  envs:
+  - key: ASPNETCORE_ENVIRONMENT
+    value: Production

@@ -1,0 +1,203 @@
+# Enterprise Documentation Platform - Production Environment
+version: '3.8'
+
+services:
+  # Reverse Proxy (Nginx)
+  nginx:
+    image: nginx:alpine
+    container_name: enterprise-docs-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./src/frontend/dist:/usr/share/nginx/html:ro
+    networks:
+      - enterprise-docs-network
+    depends_on:
+      - api
+      - frontend
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: enterprise-docs-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-enterprisedocs}
+      POSTGRES_USER: ${POSTGRES_USER:-enterprisedocs}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/db-init:/docker-entrypoint-initdb.d
+    networks:
+      - enterprise-docs-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-enterprisedocs} -d ${POSTGRES_DB:-enterprisedocs}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: enterprise-docs-cache
+    volumes:
+      - redis_data:/data
+    networks:
+      - enterprise-docs-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # Elasticsearch for document search
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: enterprise-docs-search
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+      - xpack.security.enabled=false
+      - xpack.security.enrollment.enabled=false
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - enterprise-docs-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # API Backend (.NET Core)
+  api:
+    build:
+      context: .
+      dockerfile: src/core/api/Dockerfile
+      target: production
+    container_name: enterprise-docs-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=${POSTGRES_DB:-enterprisedocs};Username=${POSTGRES_USER:-enterprisedocs};Password=${POSTGRES_PASSWORD}
+      - ConnectionStrings__Redis=redis:6379,password=${REDIS_PASSWORD}
+      - ConnectionStrings__Elasticsearch=http://elasticsearch:9200
+      - Authentication__Provider=jwt
+      - JWT__SecretKey=${JWT_SECRET_KEY}
+      - JWT__Issuer=EnterpriseDocsAPI
+      - JWT__Audience=EnterpriseDocsClient
+      - Storage__Provider=local
+      - Storage__LocalPath=/app/uploads
+      - AI__Provider=${AI_PROVIDER:-mock}
+      - Modules__Directory=/app/modules
+      - Serilog__MinimumLevel=${LOG_LEVEL:-Information}
+      - AllowedHosts=${ALLOWED_HOSTS:-*}
+    volumes:
+      - ./uploads:/app/uploads
+      - ./modules:/app/modules
+      - ./logs:/app/logs
+    networks:
+      - enterprise-docs-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend (React) - Build Stage
+  frontend:
+    build:
+      context: .
+      dockerfile: src/frontend/Dockerfile
+      target: production
+    container_name: enterprise-docs-frontend
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - frontend_dist:/usr/share/nginx/html
+    networks:
+      - enterprise-docs-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Monitoring - Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: enterprise-docs-prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - enterprise-docs-network
+    restart: unless-stopped
+    profiles:
+      - monitoring
+
+  # Monitoring - Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: enterprise-docs-grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_DOMAIN=${DOMAIN:-localhost}
+      - GF_SERVER_ROOT_URL=https://${DOMAIN:-localhost}/grafana/
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana:/etc/grafana/provisioning
+    networks:
+      - enterprise-docs-network
+    restart: unless-stopped
+    profiles:
+      - monitoring
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  elasticsearch_data:
+    driver: local
+  grafana_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  frontend_dist:
+    driver: local
+
+networks:
+  enterprise-docs-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16
