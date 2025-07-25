@@ -9,6 +9,7 @@ Enterprise Documentation Platform - A comprehensive AI-powered document generati
 ## Deployment Information
 
 - The current project's publicly accessible URL after being built and hosted is `https://spaghetti-platform-drgev.ondigitalocean.app/`
+- You are supposed to always commit every change, document it/them, etc.. and then push to github; which at that point triggers a ~30-45 second build from DigitalOcean before it becomes available at `https://spaghetti-platform-drgev.ondigitalocean.app/` if the build is successful
 
 ## Technology Stack
 
