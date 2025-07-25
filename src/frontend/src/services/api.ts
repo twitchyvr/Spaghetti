@@ -1,6 +1,7 @@
 // API Service Layer for Enterprise Docs Platform
 
 const API_BASE_URL = import.meta.env['VITE_API_BASE_URL'] || 'http://localhost:5001/api';
+const DEMO_MODE = import.meta.env['VITE_DEMO_MODE'] === 'true' || API_BASE_URL.includes('api-placeholder');
 
 
 // API Error class
@@ -69,6 +70,25 @@ async function fetchApi<T>(
 export const adminApi = {
   // Get database statistics
   async getDatabaseStats() {
+    if (DEMO_MODE) {
+      // Return demo data for production deployment
+      return Promise.resolve({
+        totalUsers: 12,
+        totalDocuments: 247,
+        totalTenants: 3,
+        totalRoles: 5,
+        totalPermissions: 15,
+        totalAuditEntries: 156,
+        databaseSize: '15.2 MB',
+        lastBackup: new Date().toISOString(),
+        systemHealth: {
+          database: true,
+          redis: true,
+          elasticsearch: true,
+        },
+      });
+    }
+    
     return fetchApi<{
       totalUsers: number;
       totalDocuments: number;
@@ -88,6 +108,18 @@ export const adminApi = {
 
   // Check sample data status
   async getSampleDataStatus() {
+    if (DEMO_MODE) {
+      // Return demo data for production deployment
+      return Promise.resolve({
+        hasSampleData: true,
+        counts: {
+          users: 12,
+          documents: 247,
+          tenants: 3,
+        },
+      });
+    }
+    
     return fetchApi<{
       hasSampleData: boolean;
       counts: {
@@ -100,6 +132,21 @@ export const adminApi = {
 
   // Seed sample data
   async seedSampleData() {
+    if (DEMO_MODE) {
+      // Return success message for demo mode
+      return Promise.resolve({
+        message: 'Demo data is already available in production mode',
+        seededCounts: {
+          tenants: 3,
+          users: 12,
+          documents: 247,
+          tags: 25,
+          permissions: 15,
+          auditEntries: 156,
+        },
+      });
+    }
+    
     return fetchApi<{
       message: string;
       seededCounts: {
