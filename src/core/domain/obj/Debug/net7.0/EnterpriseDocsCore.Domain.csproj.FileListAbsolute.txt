@@ -1,4 +1,0 @@
-/Users/mattrogers/Documents/Spaghetti/src/core/domain/obj/Debug/net7.0/EnterpriseDocsCore.Domain.GeneratedMSBuildEditorConfig.editorconfig
-/Users/mattrogers/Documents/Spaghetti/src/core/domain/obj/Debug/net7.0/EnterpriseDocsCore.Domain.AssemblyInfoInputs.cache
-/Users/mattrogers/Documents/Spaghetti/src/core/domain/obj/Debug/net7.0/EnterpriseDocsCore.Domain.AssemblyInfo.cs
-/Users/mattrogers/Documents/Spaghetti/src/core/domain/obj/Debug/net7.0/EnterpriseDocsCore.Domain.csproj.CoreCompileInputs.cache
