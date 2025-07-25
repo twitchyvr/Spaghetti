@@ -1,78 +1,8 @@
 name: spaghetti-platform
-
 services:
-  # API service configuration for DigitalOcean App Platform
-  - name: api
-    # Relative directory of the .NET Core API within the repository
-    source_dir: src/core/api
-    github:
-      # Replace with your GitHub repo name (namespace/repo)
-      repo: twitchyvr/Spaghetti
-      branch: main
-      # Rebuild and deploy when commits are pushed to the branch above
-      deploy_on_push: true
-    # Use the production build output from the Dockerfile
-    run_command: dotnet EnterpriseDocsCore.API.dll
-    # App Platform runtime for .NET Core
-    environment_slug: dotnet
-    instance_count: 1
-    # Choose an appropriate size for your API; upgrade for more traffic
-    instance_size_slug: basic-xxs
-    http_port: 5000
-    health_check:
-      http_path: /health
-    # Define environment variables and secrets required by the API
-    envs:
-      - key: ASPNETCORE_ENVIRONMENT
-        value: Production
-      # Database connection string (PostgreSQL).  Use App Platform secrets for sensitive data
-      - key: ConnectionStrings__DefaultConnection
-        type: SECRET
-      # Redis connection string.  Use a managed Redis instance if configured
-      - key: ConnectionStrings__Redis
-        type: SECRET
-      # Elasticsearch endpoint if used in production
-      - key: ConnectionStrings__Elasticsearch
-        type: SECRET
-      # JWT secret key for token signing
-      - key: JWT__SecretKey
-        type: SECRET
-
-  # Frontend service configuration for DigitalOcean App Platform
-  - name: frontend
-    # Relative directory of the React frontend within the repository
-    source_dir: src/frontend
-    github:
-      repo: twitchyvr/Spaghetti
-      branch: main
-      deploy_on_push: true
-    # Build the React application for production
-    build_command: npm run build
-    # Start the production server (uses npm start to run the built app)
-    run_command: npm start
-    # App Platform runtime for Node.js
-    environment_slug: node-js
-    instance_count: 1
-    instance_size_slug: basic-xxs
-    http_port: 3000
-    routes:
-      - path: /
-    envs:
-      # URL for the API; update the domain to your actual API host
-      - key: VITE_API_BASE_URL
-        value: https://api.yourdomain.com/api
-      - key: VITE_ENVIRONMENT
-        value: production
-
-databases:
-  # Optional managed PostgreSQL database configuration.  Remove if using an external DB
-  - name: postgres-db
-    engine: PG
-    version: "14"
-    size: db-s-1vcpu-1gb
-    num_nodes: 1
-  # Optional managed Redis instance for caching.  Remove if using an external Redis
-  - name: redis-cache
-    engine: REDIS
-    version: "6"
-    size: db-s-1vcpu-1gb
+- dockerfile_path: Dockerfile
+  github:
+    branch: master
+    deploy_on_push: true
+    repo: twitchyvr/Spaghetti
+  name: spaghetti-platform
