@@ -23,10 +23,17 @@ function App() {
     checkAuthStatus();
     
     // Remove loading container once app is ready
-    const loadingContainer = document.querySelector('.loading-container');
-    if (loadingContainer) {
+    const timer = setTimeout(() => {
       document.body.classList.add('app-ready');
-    }
+      
+      // Also directly hide the loading container for extra safety
+      const loadingContainer = document.querySelector('.loading-container');
+      if (loadingContainer) {
+        (loadingContainer as HTMLElement).style.display = 'none';
+      }
+    }, 500); // Longer delay to ensure everything is loaded
+    
+    return () => clearTimeout(timer);
   }, [checkAuthStatus]);
 
   // Show loading spinner while checking authentication
