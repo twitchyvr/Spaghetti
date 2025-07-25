@@ -13,20 +13,14 @@ WORKDIR /app
 
 # Copy package files
 COPY src/frontend/package.json src/frontend/package-lock.json* ./
-RUN npm ci --only=production && npm cache clean --force
-
-# Development dependencies
-FROM base AS dev-deps
-WORKDIR /app
-COPY src/frontend/package.json src/frontend/package-lock.json* ./
-RUN npm ci && npm cache clean --force
+RUN npm ci --include=dev && npm cache clean --force
 
 # Development stage
 FROM base AS development
 WORKDIR /app
 
 # Copy dependencies
-COPY --from=dev-deps /app/node_modules ./node_modules
+COPY --from=deps /app/node_modules ./node_modules
 
 # Copy source code
 COPY src/frontend/ .
@@ -55,49 +49,52 @@ FROM base AS builder
 WORKDIR /app
 
 # Copy dependencies
-COPY --from=dev-deps /app/node_modules ./node_modules
+COPY --from=deps /app/node_modules ./node_modules
 
 # Copy source code
 COPY src/frontend/ .
 
-# Build application
+# Build application with production environment
 ENV NODE_ENV=production
 ENV VITE_API_BASE_URL=/api
+ENV VITE_ENVIRONMENT=production
+
+# Build the application
 RUN npm run build
 
-# Production stage
+# Verify build output
+RUN ls -la /app/dist && \
+    test -f /app/dist/index.html || (echo "Build failed: index.html not found" && exit 1)
+
+# Production stage - simple static file server
 FROM nginx:alpine AS production
-WORKDIR /app
+WORKDIR /usr/share/nginx/html
 
 # Install curl for health checks
 RUN apk add --no-cache curl
 
-# Copy built application
+# Remove default nginx files
+RUN rm -rf /usr/share/nginx/html/*
+
+# Copy built application from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copy nginx configuration
+# Ensure index.html exists
+RUN test -f /usr/share/nginx/html/index.html || (echo "Production build failed: index.html not found" && exit 1)
+
+# Copy optimized nginx configuration for static serving
 COPY src/frontend/nginx.conf /etc/nginx/nginx.conf
 
-# Create non-root user
-RUN addgroup -g 1001 -S nginx
-RUN adduser -S nginx -u 1001
-
-# Set permissions
+# Set proper permissions
 RUN chown -R nginx:nginx /usr/share/nginx/html
-RUN chown -R nginx:nginx /var/cache/nginx
-RUN chown -R nginx:nginx /var/log/nginx
-RUN chown -R nginx:nginx /etc/nginx/conf.d
-RUN touch /var/run/nginx.pid
-RUN chown -R nginx:nginx /var/run/nginx.pid
-
-# Switch to non-root user
-USER nginx
+RUN chmod -R 755 /usr/share/nginx/html
 
 # Expose port
 EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost:3000 || exit 1
+    CMD curl -f http://localhost:3000/health || exit 1
 
+# Start nginx
 CMD ["nginx", "-g", "daemon off;"]
