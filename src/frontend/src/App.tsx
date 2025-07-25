@@ -16,34 +16,28 @@ const AppLayout = React.lazy(() => import('./components/layout/AppLayout'));
 const AuthLayout = React.lazy(() => import('./components/layout/AuthLayout'));
 
 function App() {
-  const { user, isLoading, checkAuthStatus } = useAuth();
+  const { user, checkAuthStatus } = useAuth();
 
   useEffect(() => {
     // Check authentication status on app load
     checkAuthStatus();
     
-    // Remove loading container once app is ready
-    const timer = setTimeout(() => {
-      document.body.classList.add('app-ready');
-      
-      // Also directly hide the loading container for extra safety
-      const loadingContainer = document.querySelector('.loading-container');
-      if (loadingContainer) {
-        (loadingContainer as HTMLElement).style.display = 'none';
-      }
-    }, 500); // Longer delay to ensure everything is loaded
-    
-    return () => clearTimeout(timer);
+    // Immediately remove loading container
+    document.body.classList.add('app-ready');
+    const loadingContainer = document.querySelector('.loading-container');
+    if (loadingContainer) {
+      (loadingContainer as HTMLElement).style.display = 'none';
+    }
   }, [checkAuthStatus]);
 
-  // Show loading spinner while checking authentication
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <LoadingSpinner size="lg" />
-      </div>
-    );
-  }
+  // Skip loading screen in production - go directly to app
+  // if (isLoading) {
+  //   return (
+  //     <div className="min-h-screen flex items-center justify-center bg-background">
+  //       <LoadingSpinner size="lg" />
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
