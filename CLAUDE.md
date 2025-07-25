@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Enterprise Documentation Platform - A comprehensive AI-powered document generation system targeting legal professionals, with expansion planned for insurance, consulting, and other professional domains. This is a **production-ready enterprise platform** designed for multi-tenant deployment across various hosting environments.
 
+## Deployment Information
+
+- The current project's publicly accessible URL after being built and hosted is `https://spaghetti-platform-drgev.ondigitalocean.app/`
+
 ## Technology Stack
 
 ### Backend (.NET Core 8)
