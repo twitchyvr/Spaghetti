@@ -1,18 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import api from '../services/api';
 import '../styles/dashboard.css';
 import { 
   Users, 
   Building2,
   DollarSign,
   TrendingUp,
-  Server,
   Activity,
   AlertCircle,
   Plus,
   Search,
-  Filter,
   Eye,
   Settings,
   BarChart3,
@@ -86,7 +83,7 @@ export default function PlatformAdminDashboard() {
   const [clients, setClients] = useState<ClientSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedTimeRange, setSelectedTimeRange] = useState('30d');
+  const [selectedTimeRange] = useState('30d');
   const [clientSearchTerm, setClientSearchTerm] = useState('');
   const [clientFilter, setClientFilter] = useState('all');
 
