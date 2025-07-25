@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
+using EnterpriseDocsCore.Domain.Entities;
 using EnterpriseDocsCore.Domain.Interfaces;
 using EnterpriseDocsCore.Infrastructure.Data.Repositories;
 
@@ -12,7 +14,7 @@ namespace EnterpriseDocsCore.Infrastructure.Data;
 public class UnitOfWork : IUnitOfWork
 {
     private readonly ApplicationDbContext _context;
-    private readonly ILogger<UnitOfWork> _logger;
+    private readonly ILoggerFactory _loggerFactory;
     private IDbContextTransaction? _transaction;
     private bool _disposed = false;
 
@@ -32,55 +34,55 @@ public class UnitOfWork : IUnitOfWork
     private ITenantModuleRepository? _tenantModules;
     private ITenantAuditEntryRepository? _tenantAuditEntries;
 
-    public UnitOfWork(ApplicationDbContext context, ILogger<UnitOfWork> logger)
+    public UnitOfWork(ApplicationDbContext context, ILoggerFactory loggerFactory)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
     }
 
     #region Repository Properties
 
     public IDocumentRepository Documents =>
-        _documents ??= new DocumentRepository(_context, _logger.CreateLogger<DocumentRepository>());
+        _documents ??= new DocumentRepository(_context, _loggerFactory.CreateLogger<DocumentRepository>());
 
     public IUserRepository Users =>
-        _users ??= new UserRepository(_context, _logger.CreateLogger<UserRepository>());
+        _users ??= new UserRepository(_context, _loggerFactory.CreateLogger<UserRepository>());
 
     public ITenantRepository Tenants =>
-        _tenants ??= new TenantRepository(_context, _logger.CreateLogger<TenantRepository>());
+        _tenants ??= new TenantRepository(_context, _loggerFactory.CreateLogger<TenantRepository>());
 
     public IRoleRepository Roles =>
-        _roles ??= new RoleRepository(_context, _logger.CreateLogger<RoleRepository>());
+        _roles ??= new RoleRepository(_context, _loggerFactory.CreateLogger<RoleRepository>());
 
     public IDocumentTagRepository DocumentTags =>
-        _documentTags ??= new DocumentTagRepository(_context, _logger.CreateLogger<DocumentTagRepository>());
+        _documentTags ??= new DocumentTagRepository(_context, _loggerFactory.CreateLogger<DocumentTagRepository>());
 
     public IDocumentAttachmentRepository DocumentAttachments =>
-        _documentAttachments ??= new DocumentAttachmentRepository(_context, _logger.CreateLogger<DocumentAttachmentRepository>());
+        _documentAttachments ??= new DocumentAttachmentRepository(_context, _loggerFactory.CreateLogger<DocumentAttachmentRepository>());
 
     public IDocumentPermissionRepository DocumentPermissions =>
-        _documentPermissions ??= new DocumentPermissionRepository(_context, _logger.CreateLogger<DocumentPermissionRepository>());
+        _documentPermissions ??= new DocumentPermissionRepository(_context, _loggerFactory.CreateLogger<DocumentPermissionRepository>());
 
     public IDocumentAuditEntryRepository DocumentAuditEntries =>
-        _documentAuditEntries ??= new DocumentAuditEntryRepository(_context, _logger.CreateLogger<DocumentAuditEntryRepository>());
+        _documentAuditEntries ??= new DocumentAuditEntryRepository(_context, _loggerFactory.CreateLogger<DocumentAuditEntryRepository>());
 
     public IUserRoleRepository UserRoles =>
-        _userRoles ??= new UserRoleRepository(_context, _logger.CreateLogger<UserRoleRepository>());
+        _userRoles ??= new UserRoleRepository(_context, _loggerFactory.CreateLogger<UserRoleRepository>());
 
     public IRolePermissionRepository RolePermissions =>
-        _rolePermissions ??= new RolePermissionRepository(_context, _logger.CreateLogger<RolePermissionRepository>());
+        _rolePermissions ??= new RolePermissionRepository(_context, _loggerFactory.CreateLogger<RolePermissionRepository>());
 
     public IUserAuthenticationRepository UserAuthentications =>
-        _userAuthentications ??= new UserAuthenticationRepository(_context, _logger.CreateLogger<UserAuthenticationRepository>());
+        _userAuthentications ??= new UserAuthenticationRepository(_context, _loggerFactory.CreateLogger<UserAuthenticationRepository>());
 
     public IUserAuditEntryRepository UserAuditEntries =>
-        _userAuditEntries ??= new UserAuditEntryRepository(_context, _logger.CreateLogger<UserAuditEntryRepository>());
+        _userAuditEntries ??= new UserAuditEntryRepository(_context, _loggerFactory.CreateLogger<UserAuditEntryRepository>());
 
     public ITenantModuleRepository TenantModules =>
-        _tenantModules ??= new TenantModuleRepository(_context, _logger.CreateLogger<TenantModuleRepository>());
+        _tenantModules ??= new TenantModuleRepository(_context, _loggerFactory.CreateLogger<TenantModuleRepository>());
 
     public ITenantAuditEntryRepository TenantAuditEntries =>
-        _tenantAuditEntries ??= new TenantAuditEntryRepository(_context, _logger.CreateLogger<TenantAuditEntryRepository>());
+        _tenantAuditEntries ??= new TenantAuditEntryRepository(_context, _loggerFactory.CreateLogger<TenantAuditEntryRepository>());
 
     #endregion
 
@@ -94,7 +96,7 @@ public class UnitOfWork : IUnitOfWork
         }
 
         _transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
-        _logger.LogDebug("Database transaction started with ID: {TransactionId}", _transaction.TransactionId);
+        _loggerFactory.CreateLogger<UnitOfWork>().LogDebug("Database transaction started with ID: {TransactionId}", _transaction.TransactionId);
     }
 
     public async Task CommitTransactionAsync(CancellationToken cancellationToken = default)
@@ -107,11 +109,11 @@ public class UnitOfWork : IUnitOfWork
         try
         {
             await _transaction.CommitAsync(cancellationToken);
-            _logger.LogDebug("Database transaction committed successfully with ID: {TransactionId}", _transaction.TransactionId);
+            _loggerFactory.CreateLogger<UnitOfWork>().LogDebug("Database transaction committed successfully with ID: {TransactionId}", _transaction.TransactionId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to commit transaction with ID: {TransactionId}", _transaction.TransactionId);
+            _loggerFactory.CreateLogger<UnitOfWork>().LogError(ex, "Failed to commit transaction with ID: {TransactionId}", _transaction.TransactionId);
             await RollbackTransactionAsync(cancellationToken);
             throw;
         }
@@ -126,18 +128,18 @@ public class UnitOfWork : IUnitOfWork
     {
         if (_transaction == null)
         {
-            _logger.LogWarning("Attempted to rollback transaction, but no transaction is in progress");
+            _loggerFactory.CreateLogger<UnitOfWork>().LogWarning("Attempted to rollback transaction, but no transaction is in progress");
             return;
         }
 
         try
         {
             await _transaction.RollbackAsync(cancellationToken);
-            _logger.LogDebug("Database transaction rolled back successfully with ID: {TransactionId}", _transaction.TransactionId);
+            _loggerFactory.CreateLogger<UnitOfWork>().LogDebug("Database transaction rolled back successfully with ID: {TransactionId}", _transaction.TransactionId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to rollback transaction with ID: {TransactionId}", _transaction.TransactionId);
+            _loggerFactory.CreateLogger<UnitOfWork>().LogError(ex, "Failed to rollback transaction with ID: {TransactionId}", _transaction.TransactionId);
             throw;
         }
         finally
@@ -156,17 +158,17 @@ public class UnitOfWork : IUnitOfWork
         try
         {
             var changes = await _context.SaveChangesAsync(cancellationToken);
-            _logger.LogDebug("Saved {ChangeCount} changes to database", changes);
+            _loggerFactory.CreateLogger<UnitOfWork>().LogDebug("Saved {ChangeCount} changes to database", changes);
             return changes;
         }
         catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, "Database update failed: {Message}", ex.Message);
+            _loggerFactory.CreateLogger<UnitOfWork>().LogError(ex, "Database update failed: {Message}", ex.Message);
             
             // Log detailed information about the failed entities
             foreach (var entry in ex.Entries)
             {
-                _logger.LogError("Failed to save entity of type {EntityType} with state {State}", 
+                _loggerFactory.CreateLogger<UnitOfWork>().LogError("Failed to save entity of type {EntityType} with state {State}", 
                     entry.Entity.GetType().Name, entry.State);
             }
             
@@ -174,7 +176,7 @@ public class UnitOfWork : IUnitOfWork
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unexpected error occurred while saving changes: {Message}", ex.Message);
+            _loggerFactory.CreateLogger<UnitOfWork>().LogError(ex, "Unexpected error occurred while saving changes: {Message}", ex.Message);
             throw;
         }
     }
@@ -200,12 +202,12 @@ public class UnitOfWork : IUnitOfWork
         try
         {
             var result = await _context.Database.ExecuteSqlRawAsync(sql, cancellationToken);
-            _logger.LogDebug("Executed SQL command affecting {RowCount} rows", result);
+            _loggerFactory.CreateLogger<UnitOfWork>().LogDebug("Executed SQL command affecting {RowCount} rows", result);
             return result;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to execute SQL command: {SQL}", sql);
+            _loggerFactory.CreateLogger<UnitOfWork>().LogError(ex, "Failed to execute SQL command: {SQL}", sql);
             throw;
         }
     }
@@ -225,12 +227,12 @@ public class UnitOfWork : IUnitOfWork
         try
         {
             var result = await _context.Database.ExecuteSqlRawAsync(sql, parameters, cancellationToken);
-            _logger.LogDebug("Executed parameterized SQL command affecting {RowCount} rows", result);
+            _loggerFactory.CreateLogger<UnitOfWork>().LogDebug("Executed parameterized SQL command affecting {RowCount} rows", result);
             return result;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to execute parameterized SQL command: {SQL}", sql);
+            _loggerFactory.CreateLogger<UnitOfWork>().LogError(ex, "Failed to execute parameterized SQL command: {SQL}", sql);
             throw;
         }
     }
@@ -358,7 +360,7 @@ public class UnitOfWork : IUnitOfWork
             // Rollback any uncommitted transaction
             if (_transaction != null)
             {
-                _logger.LogWarning("Disposing UnitOfWork with uncommitted transaction. Rolling back...");
+                _loggerFactory.CreateLogger<UnitOfWork>().LogWarning("Disposing UnitOfWork with uncommitted transaction. Rolling back...");
                 _transaction.Rollback();
                 _transaction.Dispose();
             }

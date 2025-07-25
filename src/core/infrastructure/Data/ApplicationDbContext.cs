@@ -163,22 +163,22 @@ public class ApplicationDbContext : DbContext
                 {
                     var maxLength = property.Name switch
                     {
-                        "Email" => 255,
-                        "Title" => 500,
-                        "Name" or "DisplayName" => 200,
-                        "FirstName" or "LastName" => 100,
-                        "Description" => 1000,
+                        "Email" => (int?)255,
+                        "Title" => (int?)500,
+                        "Name" or "DisplayName" => (int?)200,
+                        "FirstName" or "LastName" => (int?)100,
+                        "Description" => (int?)1000,
                         "Content" => null, // No limit for content fields
-                        "PhoneNumber" => 20,
-                        "TimeZone" => 50,
-                        "Language" => 10,
-                        "Currency" => 3,
-                        "IPAddress" => 45,
-                        "UserAgent" => 500,
-                        _ when property.Name.EndsWith("Url") => 2000,
-                        _ when property.Name.EndsWith("Path") => 500,
-                        _ when property.Name.EndsWith("Color") => 7,
-                        _ => 100
+                        "PhoneNumber" => (int?)20,
+                        "TimeZone" => (int?)50,
+                        "Language" => (int?)10,
+                        "Currency" => (int?)3,
+                        "IPAddress" => (int?)45,
+                        "UserAgent" => (int?)500,
+                        _ when property.Name.EndsWith("Url") => (int?)2000,
+                        _ when property.Name.EndsWith("Path") => (int?)500,
+                        _ when property.Name.EndsWith("Color") => (int?)7,
+                        _ => (int?)100
                     };
 
                     if (maxLength.HasValue)
@@ -425,11 +425,3 @@ public interface ITrackable
     DateTime UpdatedAt { get; set; }
 }
 
-// Update entities to implement ITrackable
-namespace EnterpriseDocsCore.Domain.Entities
-{
-    public partial class User : ITrackable { }
-    public partial class Tenant : ITrackable { }
-    public partial class Document : ITrackable { }
-    public partial class Role : ITrackable { }
-}

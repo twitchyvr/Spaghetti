@@ -34,8 +34,8 @@ public class ExceptionHandlingMiddleware
 
         var (statusCode, message, details) = exception switch
         {
-            ArgumentException argEx => (HttpStatusCode.BadRequest, "Invalid request", argEx.Message),
             ArgumentNullException => (HttpStatusCode.BadRequest, "Required parameter is missing", exception.Message),
+            ArgumentException argEx => (HttpStatusCode.BadRequest, "Invalid request", argEx.Message),
             UnauthorizedAccessException => (HttpStatusCode.Forbidden, "Access denied", "You do not have permission to perform this action"),
             KeyNotFoundException => (HttpStatusCode.NotFound, "Resource not found", exception.Message),
             InvalidOperationException => (HttpStatusCode.Conflict, "Invalid operation", exception.Message),

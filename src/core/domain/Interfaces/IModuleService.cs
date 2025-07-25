@@ -76,8 +76,8 @@ public class PlatformModule
     public bool IsSystemModule { get; set; } = false;
     public bool IsEnabled { get; set; } = false;
     public ModuleType Type { get; set; } = ModuleType.Integration;
-    public ModuleConfiguration Configuration { get; set; } = new();
-    public ModuleManifest Manifest { get; set; } = new();
+    public ModuleConfiguration Configuration { get; set; } = new() { ModuleName = "" };
+    public ModuleManifest Manifest { get; set; } = new() { Name = "", Version = "1.0.0" };
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? EnabledAt { get; set; }
@@ -153,7 +153,7 @@ public class ModuleManifest
     public List<string> Keywords { get; set; } = new();
     public List<ModuleDependency> Dependencies { get; set; } = new();
     public List<ModuleCapability> Capabilities { get; set; } = new();
-    public ModuleCompatibility Compatibility { get; set; } = new();
+    public ModuleCompatibility Compatibility { get; set; } = new() { MinPlatformVersion = "1.0.0" };
     public Dictionary<string, object> CustomMetadata { get; set; } = new();
 }
 
@@ -354,7 +354,7 @@ public class ModuleInfo
     public DateTime PublishedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public int DownloadCount { get; set; }
-    public ModuleManifest Manifest { get; set; } = new();
+    public ModuleManifest Manifest { get; set; } = new() { Name = "", Version = "1.0.0" };
 }
 
 public class ModuleRating

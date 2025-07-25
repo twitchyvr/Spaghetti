@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using EnterpriseDocsCore.Domain.Interfaces;
-using EnterpriseDocsCore.Infrastructure.Services;
 
 namespace EnterpriseDocsCore.API.Extensions;
 
@@ -250,6 +249,36 @@ public class AzureBlobStorageService : IStorageService
     {
         throw new NotImplementedException("Azure Blob Storage implementation needed");
     }
+
+    public Task<string?> GetFileUrlAsync(string storagePath, TimeSpan? expiry = null, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("Azure Blob Storage implementation needed");
+    }
+
+    public Task<bool> FileExistsAsync(string storagePath, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("Azure Blob Storage implementation needed");
+    }
+
+    public Task<FileMetadata?> GetFileMetadataAsync(string storagePath, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("Azure Blob Storage implementation needed");
+    }
+
+    public Task<string> CopyFileAsync(string sourceStoragePath, string destinationFileName, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("Azure Blob Storage implementation needed");
+    }
+
+    public Task<long> GetStorageUsageAsync(string tenantId, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("Azure Blob Storage implementation needed");
+    }
+
+    public Task<IEnumerable<EnterpriseDocsCore.Domain.Interfaces.FileInfo>> ListFilesAsync(string path = "", CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("Azure Blob Storage implementation needed");
+    }
 }
 
 public class AwsS3StorageService : IStorageService
@@ -268,6 +297,36 @@ public class AwsS3StorageService : IStorageService
     {
         throw new NotImplementedException("AWS S3 implementation needed");
     }
+
+    public Task<string?> GetFileUrlAsync(string storagePath, TimeSpan? expiry = null, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("AWS S3 implementation needed");
+    }
+
+    public Task<bool> FileExistsAsync(string storagePath, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("AWS S3 implementation needed");
+    }
+
+    public Task<FileMetadata?> GetFileMetadataAsync(string storagePath, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("AWS S3 implementation needed");
+    }
+
+    public Task<string> CopyFileAsync(string sourceStoragePath, string destinationFileName, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("AWS S3 implementation needed");
+    }
+
+    public Task<long> GetStorageUsageAsync(string tenantId, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("AWS S3 implementation needed");
+    }
+
+    public Task<IEnumerable<EnterpriseDocsCore.Domain.Interfaces.FileInfo>> ListFilesAsync(string path = "", CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("AWS S3 implementation needed");
+    }
 }
 
 public class DigitalOceanSpacesStorageService : IStorageService
@@ -283,6 +342,36 @@ public class DigitalOceanSpacesStorageService : IStorageService
     }
 
     public Task<bool> DeleteFileAsync(string storagePath, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("DigitalOcean Spaces implementation needed");
+    }
+
+    public Task<string?> GetFileUrlAsync(string storagePath, TimeSpan? expiry = null, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("DigitalOcean Spaces implementation needed");
+    }
+
+    public Task<bool> FileExistsAsync(string storagePath, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("DigitalOcean Spaces implementation needed");
+    }
+
+    public Task<FileMetadata?> GetFileMetadataAsync(string storagePath, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("DigitalOcean Spaces implementation needed");
+    }
+
+    public Task<string> CopyFileAsync(string sourceStoragePath, string destinationFileName, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("DigitalOcean Spaces implementation needed");
+    }
+
+    public Task<long> GetStorageUsageAsync(string tenantId, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("DigitalOcean Spaces implementation needed");
+    }
+
+    public Task<IEnumerable<EnterpriseDocsCore.Domain.Interfaces.FileInfo>> ListFilesAsync(string path = "", CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException("DigitalOcean Spaces implementation needed");
     }
@@ -329,6 +418,36 @@ public class LocalFileStorageService : IStorageService
         }
 
         return Task.FromResult(false);
+    }
+
+    public Task<string?> GetFileUrlAsync(string storagePath, TimeSpan? expiry = null, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("Local File Storage implementation needed");
+    }
+
+    public Task<bool> FileExistsAsync(string storagePath, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("Local File Storage implementation needed");
+    }
+
+    public Task<FileMetadata?> GetFileMetadataAsync(string storagePath, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("Local File Storage implementation needed");
+    }
+
+    public Task<string> CopyFileAsync(string sourceStoragePath, string destinationFileName, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("Local File Storage implementation needed");
+    }
+
+    public Task<long> GetStorageUsageAsync(string tenantId, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("Local File Storage implementation needed");
+    }
+
+    public Task<IEnumerable<EnterpriseDocsCore.Domain.Interfaces.FileInfo>> ListFilesAsync(string path = "", CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("Local File Storage implementation needed");
     }
 }
 
