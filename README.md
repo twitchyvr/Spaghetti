@@ -4,7 +4,6 @@ An AI-powered work assistant that passively observes professional work and autom
 
 ## 📚 Documentation Quick Links
 
-- **[🚀 Development Setup & Guidelines](CLAUDE.md)** - Start here for development
 - **[🏗️ Enterprise Architecture Vision](docs/vision/Enterprise-Platform-Vision.md)** - Salesforce-scale platform strategy  
 - **[☁️ DigitalOcean Deployment Guide](docs/deployment/DigitalOcean-Deployment-Guide.md)** - Complete deployment instructions
 - **[🌐 Multi-Cloud Integration](docs/architecture/Multi-Cloud-Integration.md)** - Cloud-agnostic architecture
