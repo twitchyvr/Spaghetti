@@ -79,6 +79,7 @@ builder.Services.ConfigureModuleSystem(builder.Configuration);
 // Add core services
 builder.Services.AddUnitOfWork();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
+builder.Services.AddScoped<DatabaseSeedingService>();
 
 // Add Redis caching if configured
 var redisConnection = builder.Configuration.GetConnectionString("Redis");
