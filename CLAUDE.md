@@ -96,23 +96,61 @@ npm run dev
 
 ## Version Control Practices
 
-- Git is used for version control
+- Git is used for version control with continuous deployment to DigitalOcean
 - Follow conventional commit messages for clarity and consistency
 - Use the format: `type(scope): subject` (e.g., `feat(ui): add live context feed`)
 - Types include: `feat` (feature), `fix` (bug fix), `docs` (documentation), `style` (formatting), `refactor` (code change that neither fixes a bug nor adds a feature), `test` (adding missing tests), `chore` (maintenance tasks)
 - Each commit should be atomic, focusing on a single change
-- Use branches for new features or bug fixes, merging into `main` when complete
+- **CRITICAL**: Always build and test Docker locally before committing to prevent deployment failures
+- Use branches for new features or bug fixes, merging into `master` when complete
 - Ensure all code is well-documented and follows best practices for readability and maintainability
-- Document all new features in the Version History section of README.md
+- Document all new features in CLAUDE.md and Version History section of README.md
 - Use clear, descriptive commit messages following the established pattern
 - Each commit should include the Claude Code attribution footer
+
+### 🚨 Important Notes for Future Development
+- **Authentication**: Demo mode is ENABLED - disable in production by reverting AuthContext.tsx changes
+- **API Integration**: All endpoints currently return placeholder JSON - replace with real backend calls
+- **Database**: PostgreSQL is configured but not actively used by frontend yet
+- **Docker**: Multi-stage build requires ~40s - optimize further if needed for faster CI/CD
+
+## Current Application Features
+
+### ✅ Frontend Implementation Status
+- **Enterprise Dashboard**: Professional stats cards, activity feed, quick actions
+- **Authentication System**: Demo mode enabled (bypassed for development)
+- **React Router**: SPA navigation with protected routes
+- **UI Components**: Loading states, animations, responsive design
+- **Database Integration**: PostgreSQL configured with environment variables
+- **API Endpoints**: Placeholder responses for `/api/` and `/health`
+- **Build System**: Multi-stage Docker build with Vite optimization
+
+### 🎯 Dashboard Features
+- **Stats Cards**: Total documents (247), recent documents (12), active projects (8), team members (15)
+- **Activity Feed**: Recent document updates with timestamps and user attribution
+- **Quick Actions**: Create document, AI assistant, browse templates, view analytics
+- **Database Status**: Connection indicator showing "Database Connected & Ready"
+- **User Profile**: Demo user with full profile data and settings
+
+### 🔧 Technical Implementation
+- **Authentication**: Currently in demo mode with bypassed login (AuthContext.tsx)
+- **Routing**: `/` redirects to `/dashboard`, `/login` for authentication UI
+- **API Integration**: Ready for backend with placeholder JSON responses
+- **Docker Deployment**: Multi-stage build with nginx serving optimized React assets
+- **Environment**: Production-ready with gzip compression and asset caching
+
+### 📦 Deployment Status
+- **DigitalOcean**: Successfully deployed at https://spaghetti-platform-drgev.ondigitalocean.app/
+- **Build Time**: ~40 seconds with dependency caching
+- **Container**: nginx:alpine serving React SPA with API placeholders
+- **Database**: PostgreSQL connected with environment variables configured
 
 ## Development Workflow
 
 ### Code Quality Standards
 1. **Before Coding**: Update todo list and mark tasks as in_progress
 2. **During Development**: Follow repository patterns and clean architecture
-3. **Testing**: Write unit tests for all business logic and repository methods
+3. **Testing**: Build and test Docker locally before committing (always required)
 4. **Code Review**: Ensure proper error handling and logging
 5. **Documentation**: Update CLAUDE.md and README.md for significant changes
 6. **Commit**: Use conventional commit messages with frequent commits

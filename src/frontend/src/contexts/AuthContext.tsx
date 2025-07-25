@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useCallback, useEffect } from 'react';
-import { User } from '../types';
+import { User, PrivacyLevel } from '../types';
 import { authService } from '../services/authService';
 import { toast } from 'sonner';
 
@@ -37,11 +37,50 @@ type AuthAction =
   | { type: 'SET_TOKEN'; payload: { token: string; refreshToken?: string } };
 
 const initialState: AuthState = {
-  user: null,
-  isLoading: true,
-  isAuthenticated: false,
-  token: localStorage.getItem('auth_token'),
-  refreshToken: localStorage.getItem('refresh_token'),
+  user: {
+    id: 'demo-user',
+    firstName: 'Demo',
+    lastName: 'User',
+    email: 'demo@enterprise-docs.com',
+    fullName: 'Demo User',
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    lastLoginAt: new Date().toISOString(),
+    tenantId: 'demo-tenant',
+    profile: {
+      jobTitle: 'Platform Administrator',
+      department: 'IT',
+      industry: 'Professional Services',
+      timeZone: 'America/New_York',
+      language: 'en',
+      customFields: {}
+    },
+    settings: {
+      enableAIAssistance: true,
+      enableAutoDocumentation: true,
+      enableVoiceCapture: true,
+      enableScreenCapture: true,
+      enableFileMonitoring: true,
+      privacyLevel: PrivacyLevel.Standard,
+      allowDataRetention: true,
+      dataRetentionDays: 365,
+      enableEmailNotifications: true,
+      enablePushNotifications: true,
+      enableSlackNotifications: false,
+      enableTeamsNotifications: false,
+      theme: 'system' as const,
+      defaultDocumentType: 'general',
+      favoriteAgents: [],
+      moduleSettings: {},
+      customSettings: {}
+    },
+    userRoles: []
+  },
+  isLoading: false,
+  isAuthenticated: true,
+  token: 'demo-token',
+  refreshToken: 'demo-refresh-token',
 };
 
 function authReducer(state: AuthState, action: AuthAction): AuthState {
@@ -168,27 +207,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const checkAuthStatus = useCallback(async () => {
-    if (!state.token) {
-      dispatch({ type: 'SET_LOADING', payload: false });
-      return;
-    }
-
-    try {
-      const user = await authService.getCurrentUser();
-      dispatch({
-        type: 'LOGIN_SUCCESS',
-        payload: {
-          user,
-          token: state.token,
-          refreshToken: state.refreshToken || '',
-        },
-      });
-    } catch (error) {
-      // Token is invalid, clear it
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('refresh_token');
-      dispatch({ type: 'LOGIN_FAILURE' });
-    }
+    // Demo mode - always authenticated
+    dispatch({ type: 'SET_LOADING', payload: false });
+    return;
+    
+    // Original code commented out for demo
+    // if (!state.token) {
+    //   dispatch({ type: 'SET_LOADING', payload: false });
+    //   return;
+    // }
+    // try {
+    //   const user = await authService.getCurrentUser();
+    //   dispatch({
+    //     type: 'LOGIN_SUCCESS',
+    //     payload: {
+    //       user,
+    //       token: state.token,
+    //       refreshToken: state.refreshToken || '',
+    //     },
+    //   });
+    // } catch (error) {
+    //   localStorage.removeItem('auth_token');
+    //   localStorage.removeItem('refresh_token');
+    //   dispatch({ type: 'LOGIN_FAILURE' });
+    // }
   }, [state.token, state.refreshToken]);
 
   const refreshAuthToken = useCallback(async () => {
