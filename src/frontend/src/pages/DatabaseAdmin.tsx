@@ -2,19 +2,19 @@ import { useState, useEffect } from 'react';
 import api from '../services/api';
 
 interface DatabaseStats {
-  tenants: number;
-  users: number;
-  documents: number;
-  documentTags: number;
-  documentPermissions: number;
-  roles: number;
-  userRoles: number;
-  tenantModules: number;
-  documentAudits: number;
-  userAudits: number;
-  tenantAudits: number;
-  databaseStatus: string;
-  lastChecked: string;
+  totalUsers: number;
+  totalDocuments: number;
+  totalTenants: number;
+  totalRoles: number;
+  totalPermissions: number;
+  totalAuditEntries: number;
+  databaseSize: string;
+  lastBackup: string | null;
+  systemHealth: {
+    database: boolean;
+    redis: boolean;
+    elasticsearch: boolean;
+  };
 }
 
 interface TableInfo {
@@ -27,11 +27,11 @@ interface TableInfo {
 
 interface SampleDataStatus {
   hasSampleData: boolean;
-  hasDemoUser: boolean;
-  sampleTenantsCount: number;
-  totalUsers: number;
-  totalDocuments: number;
-  lastChecked: string;
+  counts: {
+    users: number;
+    documents: number;
+    tenants: number;
+  };
 }
 
 export default function DatabaseAdmin() {
@@ -66,63 +66,63 @@ export default function DatabaseAdmin() {
         setTables([
           {
             name: 'Users',
-            rowCount: dbStats?.users || 0,
+            rowCount: dbStats?.totalUsers || 0,
             description: 'System users with authentication and profile data',
             primaryKey: 'Id (Guid)',
             relationships: ['Tenants', 'UserRoles', 'Documents', 'UserAuditEntries']
           },
           {
             name: 'Tenants',
-            rowCount: dbStats?.tenants || 0,
+            rowCount: dbStats?.totalTenants || 0,
             description: 'Multi-tenant organizations with billing and configuration',
             primaryKey: 'Id (Guid)',
             relationships: ['Users', 'Documents', 'TenantModules', 'Roles']
           },
           {
             name: 'Documents',
-            rowCount: dbStats?.documents || 0,
+            rowCount: dbStats?.totalDocuments || 0,
             description: 'Core documents with content, metadata, and versioning',
             primaryKey: 'Id (Guid)',
             relationships: ['Users', 'Tenants', 'DocumentTags', 'DocumentPermissions', 'DocumentAuditEntries']
           },
           {
             name: 'Roles',
-            rowCount: dbStats?.roles || 0,
+            rowCount: dbStats?.totalRoles || 0,
             description: 'System and tenant-specific user roles',
             primaryKey: 'Id (Guid)',
             relationships: ['UserRoles', 'RolePermissions', 'DocumentPermissions']
           },
           {
             name: 'DocumentTags',
-            rowCount: dbStats?.documentTags || 0,
+            rowCount: 0, // Not available in current API
             description: 'Document categorization and search tags',
             primaryKey: 'Id (Guid)',
             relationships: ['Documents']
           },
           {
             name: 'DocumentPermissions',
-            rowCount: dbStats?.documentPermissions || 0,
+            rowCount: 0, // Not available in current API
             description: 'Access control for documents by user or role',
             primaryKey: 'Id (Guid)',
             relationships: ['Documents', 'Users', 'Roles']
           },
           {
             name: 'UserRoles',
-            rowCount: dbStats?.userRoles || 0,
+            rowCount: 0, // Not available in current API
             description: 'User role assignments with expiration support',
             primaryKey: 'Id (Guid)',
             relationships: ['Users', 'Roles']
           },
           {
             name: 'TenantModules',
-            rowCount: dbStats?.tenantModules || 0,
+            rowCount: 0, // Not available in current API
             description: 'Module configurations per tenant',
             primaryKey: 'Id (Guid)',
             relationships: ['Tenants']
           },
           {
             name: 'AuditEntries',
-            rowCount: (dbStats?.documentAudits || 0) + (dbStats?.userAudits || 0) + (dbStats?.tenantAudits || 0),
+            rowCount: dbStats?.totalAuditEntries || 0,
             description: 'Comprehensive audit trail for all system activities',
             primaryKey: 'Id (Guid)',
             relationships: ['Documents', 'Users', 'Tenants']
@@ -137,7 +137,7 @@ export default function DatabaseAdmin() {
     };
 
     fetchDatabaseInfo();
-  }, [dbStats?.users, dbStats?.tenants, dbStats?.documents, dbStats?.roles, dbStats?.documentTags, dbStats?.documentPermissions, dbStats?.userRoles, dbStats?.tenantModules, dbStats?.documentAudits, dbStats?.userAudits, dbStats?.tenantAudits]);
+  }, [dbStats?.totalUsers, dbStats?.totalTenants, dbStats?.totalDocuments, dbStats?.totalRoles]);
 
   const handleSeedSampleData = async () => {
     try {
@@ -252,7 +252,7 @@ export default function DatabaseAdmin() {
               <div>
                 <h2 className="text-xl font-semibold">Database Status</h2>
                 <p className="text-green-100 mt-1">
-                  PostgreSQL • {dbStats?.databaseStatus || 'Unknown'} • Last checked: {dbStats?.lastChecked ? new Date(dbStats.lastChecked).toLocaleString() : 'Never'}
+                  PostgreSQL • {dbStats?.systemHealth?.database ? 'Connected' : 'Disconnected'} • Size: {dbStats?.databaseSize || 'Unknown'}
                 </p>
               </div>
               <div className="text-4xl">✅</div>
@@ -263,32 +263,32 @@ export default function DatabaseAdmin() {
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             <div className="bg-white p-4 rounded-lg border shadow-sm text-center">
               <div className="text-2xl mb-2">🏢</div>
-              <div className="text-2xl font-bold text-gray-900">{dbStats?.tenants || 0}</div>
+              <div className="text-2xl font-bold text-gray-900">{dbStats?.totalTenants || 0}</div>
               <div className="text-sm text-gray-600">Tenants</div>
             </div>
             <div className="bg-white p-4 rounded-lg border shadow-sm text-center">
               <div className="text-2xl mb-2">👥</div>
-              <div className="text-2xl font-bold text-gray-900">{dbStats?.users || 0}</div>
+              <div className="text-2xl font-bold text-gray-900">{dbStats?.totalUsers || 0}</div>
               <div className="text-sm text-gray-600">Users</div>
             </div>
             <div className="bg-white p-4 rounded-lg border shadow-sm text-center">
               <div className="text-2xl mb-2">📄</div>
-              <div className="text-2xl font-bold text-gray-900">{dbStats?.documents || 0}</div>
+              <div className="text-2xl font-bold text-gray-900">{dbStats?.totalDocuments || 0}</div>
               <div className="text-sm text-gray-600">Documents</div>
             </div>
             <div className="bg-white p-4 rounded-lg border shadow-sm text-center">
               <div className="text-2xl mb-2">🏷️</div>
-              <div className="text-2xl font-bold text-gray-900">{dbStats?.documentTags || 0}</div>
+              <div className="text-2xl font-bold text-gray-900">0</div>
               <div className="text-sm text-gray-600">Tags</div>
             </div>
             <div className="bg-white p-4 rounded-lg border shadow-sm text-center">
               <div className="text-2xl mb-2">🔐</div>
-              <div className="text-2xl font-bold text-gray-900">{dbStats?.documentPermissions || 0}</div>
+              <div className="text-2xl font-bold text-gray-900">{dbStats?.totalPermissions || 0}</div>
               <div className="text-sm text-gray-600">Permissions</div>
             </div>
             <div className="bg-white p-4 rounded-lg border shadow-sm text-center">
               <div className="text-2xl mb-2">📝</div>
-              <div className="text-2xl font-bold text-gray-900">{(dbStats?.documentAudits || 0) + (dbStats?.userAudits || 0) + (dbStats?.tenantAudits || 0)}</div>
+              <div className="text-2xl font-bold text-gray-900">{dbStats?.totalAuditEntries || 0}</div>
               <div className="text-sm text-gray-600">Audit Entries</div>
             </div>
           </div>
@@ -374,33 +374,28 @@ export default function DatabaseAdmin() {
                 <div className="text-xs text-gray-600">{sampleStatus?.hasSampleData ? 'Present' : 'Not Found'}</div>
               </div>
               <div className="text-center">
-                <div className={`text-3xl mb-2 ${sampleStatus?.hasDemoUser ? 'text-green-600' : 'text-red-600'}`}>
-                  {sampleStatus?.hasDemoUser ? '👤' : '❌'}
+                <div className={`text-3xl mb-2 ${sampleStatus?.hasSampleData ? 'text-green-600' : 'text-red-600'}`}>
+                  {sampleStatus?.hasSampleData ? '👤' : '❌'}
                 </div>
-                <div className="text-sm font-medium text-gray-900">Demo User</div>
-                <div className="text-xs text-gray-600">{sampleStatus?.hasDemoUser ? 'Available' : 'Missing'}</div>
+                <div className="text-sm font-medium text-gray-900">Sample Data</div>
+                <div className="text-xs text-gray-600">{sampleStatus?.hasSampleData ? 'Available' : 'Missing'}</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl mb-2 text-blue-600">🏢</div>
-                <div className="text-sm font-medium text-gray-900">{sampleStatus?.sampleTenantsCount || 0}</div>
+                <div className="text-sm font-medium text-gray-900">{sampleStatus?.counts?.tenants || 0}</div>
                 <div className="text-xs text-gray-600">Sample Tenants</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl mb-2 text-purple-600">👥</div>
-                <div className="text-sm font-medium text-gray-900">{sampleStatus?.totalUsers || 0}</div>
+                <div className="text-sm font-medium text-gray-900">{sampleStatus?.counts?.users || 0}</div>
                 <div className="text-xs text-gray-600">Total Users</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl mb-2 text-orange-600">📄</div>
-                <div className="text-sm font-medium text-gray-900">{sampleStatus?.totalDocuments || 0}</div>
+                <div className="text-sm font-medium text-gray-900">{sampleStatus?.counts?.documents || 0}</div>
                 <div className="text-xs text-gray-600">Total Documents</div>
               </div>
             </div>
-            {sampleStatus?.lastChecked && (
-              <div className="mt-4 text-sm text-gray-500">
-                Last checked: {new Date(sampleStatus.lastChecked).toLocaleString()}
-              </div>
-            )}
           </div>
 
           {/* Sample Data Details */}
