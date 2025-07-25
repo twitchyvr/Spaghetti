@@ -57,6 +57,7 @@ export default function Dashboard() {
     try {
       setIsLoading(true);
       setError(null);
+      let currentStats: DashboardStats | null = null;
 
       // Try to fetch database stats, with fallback to demo data
       try {
@@ -77,6 +78,7 @@ export default function Dashboard() {
         };
 
         setStats(dashboardStats);
+        currentStats = dashboardStats;
       } catch (apiError) {
         // API not available - use demo data
         console.log('API not available, using demo data');
@@ -96,15 +98,16 @@ export default function Dashboard() {
         };
 
         setStats(demoStats);
+        currentStats = demoStats;
       }
 
       // Update metrics with current stats data (real or demo)
-      if (stats) {
+      if (currentStats) {
         const updatedMetrics: MetricCard[] = [
           {
             id: 'documents',
             title: 'Total Documents',
-            value: stats.totalDocuments,
+            value: currentStats.totalDocuments,
             change: 18.2,
             changeType: 'positive',
             icon: <FileText size={24} />,
@@ -114,7 +117,7 @@ export default function Dashboard() {
           {
             id: 'users',
             title: 'Active Users',
-            value: stats.totalUsers,
+            value: currentStats.totalUsers,
             change: 12.5,
             changeType: 'positive',
             icon: <Users size={24} />,
@@ -124,7 +127,7 @@ export default function Dashboard() {
           {
             id: 'tenants',
             title: 'Organizations',
-            value: stats.totalTenants,
+            value: currentStats.totalTenants,
             change: 5.1,
             changeType: 'positive',
             icon: <Server size={24} />,
@@ -134,7 +137,7 @@ export default function Dashboard() {
           {
             id: 'storage',
             title: 'Database Size',
-            value: stats.databaseSize,
+            value: currentStats.databaseSize,
             icon: <HardDrive size={24} />,
             color: 'info',
             description: 'Total database storage used'
