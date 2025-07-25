@@ -6,7 +6,7 @@
 FROM node:18-alpine as frontend-builder
 WORKDIR /app
 COPY src/frontend/package*.json ./
-RUN npm ci --only=production
+RUN npm ci --include=dev
 COPY src/frontend/ ./
 ENV NODE_ENV=production
 ENV VITE_API_BASE_URL=/api
