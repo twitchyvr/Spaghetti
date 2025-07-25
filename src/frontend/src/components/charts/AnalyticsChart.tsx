@@ -15,9 +15,8 @@ import {
   Tooltip as RechartsTooltip, 
   Legend, 
   ResponsiveContainer,
-  TooltipProps
 } from 'recharts';
-import { Download, TrendingUp, TrendingDown, Minus, Info } from 'lucide-react';
+import { Download, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { Tooltip, HelpTooltip } from '../ui/Tooltip';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -98,10 +97,26 @@ const METRIC_CONFIGS = {
 };
 
 // Custom tooltip component for professional appearance
-const CustomTooltip: React.FC<TooltipProps<any, any> & { 
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    value: any;
+    name?: string;
+    color?: string;
+    payload?: any;
+  }>;
+  label?: string;
   formatValue?: (value: any) => string;
   metricType?: keyof typeof METRIC_CONFIGS;
-}> = ({ active, payload, label, formatValue, metricType }) => {
+}
+
+const CustomTooltip: React.FC<CustomTooltipProps> = ({ 
+  active, 
+  payload, 
+  label, 
+  formatValue, 
+  metricType 
+}) => {
   if (!active || !payload || !payload.length) return null;
 
   const config = metricType ? METRIC_CONFIGS[metricType] : null;
@@ -112,7 +127,7 @@ const CustomTooltip: React.FC<TooltipProps<any, any> & {
         {config && <span>{config.icon}</span>}
         <span>{label}</span>
       </div>
-      {payload.map((entry, index) => (
+      {payload.map((entry: any, index: number) => (
         <div key={index} className="flex items-center justify-between space-x-3 mb-1">
           <div className="flex items-center space-x-2">
             <div 
@@ -160,7 +175,6 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
   showExport = true,
   dataKey = 'value',
   xAxisKey = 'name',
-  yAxisKey = 'value',
   formatValue,
   className = '',
   helpText,
@@ -295,7 +309,13 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
               tickFormatter={formatValue}
             />
             <RechartsTooltip 
-              content={<CustomTooltip formatValue={formatValue} metricType={metricType} />}
+              content={(props: any) => (
+                <CustomTooltip 
+                  {...props}
+                  formatValue={formatValue}
+                  metricType={metricType}
+                />
+              )}
             />
             {showLegend && <Legend />}
             <Line 
@@ -303,8 +323,8 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
               dataKey={dataKey} 
               stroke={colors[0]} 
               strokeWidth={3}
-              dot={{ fill: colors[0], strokeWidth: 2, r: 4 }}
-              activeDot={{ r: 6, stroke: colors[0], strokeWidth: 2, fill: '#fff' }}
+              dot={{ fill: colors[0] || '#3B82F6', strokeWidth: 2, r: 4 }}
+              activeDot={{ r: 6, stroke: colors[0] || '#3B82F6', strokeWidth: 2, fill: '#fff' }}
             />
           </LineChart>
         );
@@ -324,7 +344,13 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
               tickFormatter={formatValue}
             />
             <RechartsTooltip 
-              content={<CustomTooltip formatValue={formatValue} metricType={metricType} />}
+              content={(props: any) => (
+                <CustomTooltip 
+                  {...props}
+                  formatValue={formatValue}
+                  metricType={metricType}
+                />
+              )}
             />
             {showLegend && <Legend />}
             <Area 
@@ -352,7 +378,13 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
               tickFormatter={formatValue}
             />
             <RechartsTooltip 
-              content={<CustomTooltip formatValue={formatValue} metricType={metricType} />}
+              content={(props: any) => (
+                <CustomTooltip 
+                  {...props}
+                  formatValue={formatValue}
+                  metricType={metricType}
+                />
+              )}
             />
             {showLegend && <Legend />}
             <Bar 
@@ -375,12 +407,18 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
               dataKey={dataKey}
               nameKey={xAxisKey}
             >
-              {data.map((entry, index) => (
+              {data.map((_, index) => (
                 <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
               ))}
             </Pie>
             <RechartsTooltip 
-              content={<CustomTooltip formatValue={formatValue} metricType={metricType} />}
+              content={(props: any) => (
+                <CustomTooltip 
+                  {...props}
+                  formatValue={formatValue}
+                  metricType={metricType}
+                />
+              )}
             />
             {showLegend && <Legend />}
           </PieChart>
@@ -408,6 +446,7 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
                 <h3 className="text-lg font-bold text-gray-900">{title}</h3>
                 {helpText && (
                   <HelpTooltip 
+                    content={helpText}
                     title={title}
                     description={helpText}
                     position="top"
@@ -486,7 +525,7 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
       {/* Chart */}
       <div className="p-6" ref={chartRef}>
         <ResponsiveContainer width="100%" height={height}>
-          {renderChart()}
+          {renderChart() || <div className="flex items-center justify-center h-full text-gray-500">No chart available</div>}
         </ResponsiveContainer>
       </div>
     </div>

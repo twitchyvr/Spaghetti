@@ -1,6 +1,21 @@
-
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { 
+  TrendingUp, 
+  Users, 
+  FileText, 
+  Download,
+  Search,
+  MessageCircle,
+  Plus,
+  ArrowUpRight,
+  ArrowDownRight,
+  Zap,
+  Target,
+  Activity
+} from 'lucide-react';
+import { HelpTooltip } from '../components/ui/Tooltip';
+import { AnalyticsChart } from '../components/charts/AnalyticsChart';
 
 interface DashboardStats {
   totalDocuments: number;
@@ -9,18 +24,39 @@ interface DashboardStats {
   teamMembers: number;
   completedToday: number;
   avgProcessingTime: string;
+  documentGrowth: number;
+  projectCompletionRate: number;
+  teamUtilization: number;
+  systemHealth: number;
 }
 
-interface RecentActivity {
+interface ActivityItem {
   id: string;
-  type: 'created' | 'updated' | 'shared' | 'reviewed' | 'completed';
+  type: 'created' | 'updated' | 'shared' | 'reviewed' | 'completed' | 'commented';
   title: string;
+  description: string;
   timestamp: string;
-  user: string;
-  avatar: string;
-  status: 'success' | 'pending' | 'warning';
+  user: {
+    name: string;
+    avatar: string;
+    role: string;
+  };
+  status: 'success' | 'pending' | 'warning' | 'error';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
 }
 
+interface MetricCard {
+  id: string;
+  title: string;
+  value: string;
+  change: number;
+  changeType: 'positive' | 'negative' | 'neutral';
+  icon: React.ReactNode;
+  color: string;
+  description: string;
+  target?: string;
+  trend: number[];
+}
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -30,82 +66,147 @@ export default function Dashboard() {
     activeProjects: 0,
     teamMembers: 0,
     completedToday: 0,
-    avgProcessingTime: '0s'
+    avgProcessingTime: '0s',
+    documentGrowth: 0,
+    projectCompletionRate: 0,
+    teamUtilization: 0,
+    systemHealth: 0
   });
-  const [activities, setActivities] = useState<RecentActivity[]>([]);
+  
+  const [activities, setActivities] = useState<ActivityItem[]>([]);
+  const [metrics, setMetrics] = useState<MetricCard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedTimeframe, setSelectedTimeframe] = useState('7d');
+
 
   useEffect(() => {
-    // Simulate API call to fetch dashboard data
     const fetchDashboardData = async () => {
       try {
-        // This will be replaced with real API calls
-        await new Promise(resolve => setTimeout(resolve, 1200));
+        setIsLoading(true);
+        
+        // Simulate realistic loading time
+        await new Promise(resolve => setTimeout(resolve, 800));
         
         setStats({
-          totalDocuments: 247,
-          recentDocuments: 12,
-          activeProjects: 8,
-          teamMembers: 15,
-          completedToday: 6,
-          avgProcessingTime: '2.3s'
+          totalDocuments: 1247,
+          recentDocuments: 89,
+          activeProjects: 23,
+          teamMembers: 34,
+          completedToday: 12,
+          avgProcessingTime: '1.2s',
+          documentGrowth: 18.5,
+          projectCompletionRate: 94.2,
+          teamUtilization: 87.3,
+          systemHealth: 99.1
         });
 
+        setMetrics([
+          {
+            id: 'revenue',
+            title: 'Monthly Revenue',
+            value: '$284,590',
+            change: 12.5,
+            changeType: 'positive',
+            icon: <TrendingUp className="w-6 h-6" />,
+            color: 'from-emerald-500 to-emerald-600',
+            description: 'Total revenue from client work',
+            target: '$300,000',
+            trend: [220000, 235000, 248000, 267000, 284590]
+          },
+          {
+            id: 'efficiency',
+            title: 'Process Efficiency',
+            value: '94.2%',
+            change: 8.3,
+            changeType: 'positive',
+            icon: <Zap className="w-6 h-6" />,
+            color: 'from-blue-500 to-blue-600',
+            description: 'Document processing efficiency',
+            target: '95%',
+            trend: [87, 89, 91, 93, 94.2]
+          },
+          {
+            id: 'satisfaction',
+            title: 'Client Satisfaction',
+            value: '4.8/5.0',
+            change: 2.1,
+            changeType: 'positive',
+            icon: <Target className="w-6 h-6" />,
+            color: 'from-purple-500 to-purple-600',
+            description: 'Average client satisfaction score',
+            target: '4.9/5.0',
+            trend: [4.6, 4.65, 4.7, 4.75, 4.8]
+          },
+          {
+            id: 'response',
+            title: 'Response Time',
+            value: '1.2s',
+            change: -15.2,
+            changeType: 'positive',
+            icon: <Activity className="w-6 h-6" />,
+            color: 'from-orange-500 to-orange-600',
+            description: 'Average system response time',
+            target: '< 1.0s',
+            trend: [1.8, 1.6, 1.4, 1.3, 1.2]
+          }
+        ]);
 
         setActivities([
           {
             id: '1',
             type: 'completed',
-            title: 'Corporate Merger Agreement - Acme Corp & Beta LLC',
-            timestamp: '15 minutes ago',
-            user: 'Sarah Johnson',
-            avatar: 'SJ',
-            status: 'success'
+            title: 'Corporate Merger Agreement - Finalized',
+            description: 'Acme Corp & Beta LLC merger documentation complete',
+            timestamp: '2 minutes ago',
+            user: {
+              name: 'Sarah Johnson',
+              avatar: 'SJ',
+              role: 'Senior Partner'
+            },
+            status: 'success',
+            priority: 'high'
           },
           {
             id: '2',
             type: 'reviewed',
-            title: 'Employment Contract Template - Senior Associates',
-            timestamp: '1 hour ago',
-            user: 'Michael Chen',
-            avatar: 'MC',
-            status: 'success'
+            title: 'Employment Contract Template - Approved',
+            description: 'Legal review completed for senior associate positions',
+            timestamp: '15 minutes ago',
+            user: {
+              name: 'Michael Chen',
+              avatar: 'MC',
+              role: 'Legal Counsel'
+            },
+            status: 'success',
+            priority: 'medium'
           },
           {
             id: '3',
             type: 'created',
-            title: 'Digital Transformation Roadmap - Fortune 500 Client',
-            timestamp: '2 hours ago',
-            user: 'Dr. Robert Williams',
-            avatar: 'RW',
-            status: 'pending'
+            title: 'Digital Transformation Strategy',
+            description: 'New strategic roadmap for Fortune 500 client',
+            timestamp: '1 hour ago',
+            user: {
+              name: 'Dr. Robert Williams',
+              avatar: 'RW',
+              role: 'Strategy Director'
+            },
+            status: 'pending',
+            priority: 'high'
           },
           {
             id: '4',
-            type: 'updated',
-            title: 'Product Requirements Document - Mobile Banking App',
-            timestamp: '3 hours ago',
-            user: 'Alex Thompson',
-            avatar: 'AT',
-            status: 'warning'
-          },
-          {
-            id: '5',
-            type: 'shared',
-            title: 'Operations Efficiency Analysis - Manufacturing Sector',
-            timestamp: '4 hours ago',
-            user: 'Lisa Davis',
-            avatar: 'LD',
-            status: 'success'
-          },
-          {
-            id: '6',
-            type: 'created',
-            title: 'Go-to-Market Strategy Q2 2024',
-            timestamp: '6 hours ago',
-            user: 'Jamie Park',
-            avatar: 'JP',
-            status: 'success'
+            type: 'commented',
+            title: 'Product Requirements Document',
+            description: 'Stakeholder feedback on mobile banking features',
+            timestamp: '2 hours ago',
+            user: {
+              name: 'Alex Thompson',
+              avatar: 'AT',
+              role: 'Product Manager'
+            },
+            status: 'warning',
+            priority: 'medium'
           }
         ]);
         
@@ -117,116 +218,85 @@ export default function Dashboard() {
     };
 
     fetchDashboardData();
-  }, []);
+  }, [selectedTimeframe]);
 
-
-  const getActivityIcon = (type: RecentActivity['type']) => {
-    switch (type) {
-      case 'completed':
-        return '✅';
-      case 'created':
-        return '📄';
-      case 'updated':
-        return '✏️';
-      case 'shared':
-        return '📤';
-      case 'reviewed':
-        return '👁️';
-      default:
-        return '📋';
-    }
+  const formatChange = (change: number, type: 'positive' | 'negative' | 'neutral') => {
+    const icon = change > 0 ? ArrowUpRight : change < 0 ? ArrowDownRight : null;
+    const colorClass = type === 'positive' ? 'text-emerald-600' : 
+                     type === 'negative' ? 'text-red-600' : 'text-gray-600';
+    
+    return (
+      <div className={`flex items-center space-x-1 ${colorClass}`}>
+        {icon && <span className="w-4 h-4">{React.createElement(icon, { className: 'w-4 h-4' })}</span>}
+        <span className="text-sm font-medium">{Math.abs(change)}%</span>
+      </div>
+    );
   };
 
-  const getActivityColor = (type: RecentActivity['type']) => {
-    switch (type) {
-      case 'completed':
-        return 'text-green-600 bg-green-50';
-      case 'created':
-        return 'text-blue-600 bg-blue-50';
-      case 'updated':
-        return 'text-orange-600 bg-orange-50';
-      case 'shared':
-        return 'text-purple-600 bg-purple-50';
-      case 'reviewed':
-        return 'text-indigo-600 bg-indigo-50';
-      default:
-        return 'text-gray-600 bg-gray-50';
-    }
+  const getActivityIcon = (type: ActivityItem['type']) => {
+    const icons = {
+      created: <Plus className="w-4 h-4" />,
+      updated: <FileText className="w-4 h-4" />,
+      shared: <Users className="w-4 h-4" />,
+      reviewed: <Search className="w-4 h-4" />,
+      completed: <TrendingUp className="w-4 h-4" />,
+      commented: <MessageCircle className="w-4 h-4" />
+    };
+    return icons[type] || <FileText className="w-4 h-4" />;
   };
 
+  const getPriorityColor = (priority: ActivityItem['priority']) => {
+    const colors = {
+      low: 'bg-gray-100 text-gray-600',
+      medium: 'bg-blue-100 text-blue-600',
+      high: 'bg-orange-100 text-orange-600',
+      urgent: 'bg-red-100 text-red-600'
+    };
+    return colors[priority];
+  };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
-        <div className="container mx-auto px-6 py-8 max-w-7xl">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
+        <div className="max-w-8xl mx-auto px-8 py-8">
           <div className="animate-pulse space-y-8">
             {/* Header Skeleton */}
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
-              <div className="space-y-3">
-                <div className="h-10 bg-gradient-to-r from-gray-200 to-gray-300 rounded-lg w-80"></div>
-                <div className="h-6 bg-gray-200 rounded w-96"></div>
+            <div className="flex justify-between items-start">
+              <div className="space-y-4">
+                <div className="h-12 bg-gradient-to-r from-slate-200 to-slate-300 rounded-lg w-96"></div>
+                <div className="h-6 bg-slate-200 rounded w-[500px]"></div>
               </div>
-              <div className="flex space-x-3">
-                <div className="h-12 bg-gray-200 rounded-lg w-24"></div>
-                <div className="h-12 bg-gray-200 rounded-lg w-32"></div>
+              <div className="flex space-x-4">
+                <div className="h-12 bg-slate-200 rounded-lg w-32"></div>
+                <div className="h-12 bg-slate-200 rounded-lg w-40"></div>
               </div>
             </div>
-
-            {/* Stats Cards Skeleton */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+            
+            {/* Metrics Grid Skeleton */}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="card bg-white/80 p-6">
+                <div key={i} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
                   <div className="flex items-start justify-between mb-4">
-                    <div className="space-y-2">
-                      <div className="h-4 bg-gray-200 rounded w-24"></div>
-                      <div className="h-8 bg-gray-200 rounded w-16"></div>
+                    <div className="space-y-3">
+                      <div className="h-4 bg-slate-200 rounded w-24"></div>
+                      <div className="h-8 bg-slate-200 rounded w-20"></div>
                     </div>
-                    <div className="w-12 h-12 bg-gray-200 rounded-xl"></div>
+                    <div className="w-12 h-12 bg-slate-200 rounded-xl"></div>
                   </div>
-                  <div className="h-4 bg-gray-200 rounded w-20"></div>
+                  <div className="h-4 bg-slate-200 rounded w-16"></div>
                 </div>
               ))}
             </div>
-
-            {/* Content Skeleton */}
+            
+            {/* Charts Grid Skeleton */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-              <div className="xl:col-span-2">
-                <div className="card bg-white/80 p-6">
-                  <div className="mb-6">
-                    <div className="h-6 bg-gray-200 rounded w-40 mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded w-56"></div>
-                  </div>
-                  <div className="space-y-6">
-                    {[...Array(5)].map((_, i) => (
-                      <div key={i} className="flex items-start space-x-4 p-4 bg-gray-50 rounded-xl">
-                        <div className="w-12 h-12 bg-gray-200 rounded-xl"></div>
-                        <div className="flex-1 space-y-2">
-                          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                          <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                          <div className="h-3 bg-gray-200 rounded w-1/3"></div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+              <div className="xl:col-span-2 bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
+                <div className="h-6 bg-slate-200 rounded w-48 mb-6"></div>
+                <div className="h-80 bg-slate-100 rounded-xl"></div>
               </div>
-              <div className="space-y-6">
-                <div className="card bg-white/80 p-6">
-                  <div className="h-6 bg-gray-200 rounded w-32 mb-6"></div>
-                  <div className="space-y-3">
-                    {[...Array(4)].map((_, i) => (
-                      <div key={i} className="h-16 bg-gray-100 rounded-xl"></div>
-                    ))}
-                  </div>
-                </div>
-                <div className="card bg-white/80 p-6">
-                  <div className="h-6 bg-gray-200 rounded w-28 mb-6"></div>
-                  <div className="space-y-3">
-                    {[...Array(3)].map((_, i) => (
-                      <div key={i} className="h-12 bg-gray-100 rounded-lg"></div>
-                    ))}
-                  </div>
-                </div>
+              <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
+                <div className="h-6 bg-slate-200 rounded w-32 mb-6"></div>
+                <div className="h-80 bg-slate-100 rounded-xl"></div>
               </div>
             </div>
           </div>
@@ -236,327 +306,243 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
-      <div className="container mx-auto px-6 py-8 max-w-7xl">
-        {/* Header Section */}
-        <div className="mb-8">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            <div className="space-y-2">
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-gray-900 bg-clip-text text-transparent">
-                Enterprise Dashboard
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
+      <div className="w-full px-6 py-8 space-y-8">
+        {/* Modern Header */}
+        <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-6">
+          <div className="space-y-2">
+            <div className="flex items-center space-x-4">
+              <h1 className="text-5xl font-bold bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 bg-clip-text text-transparent">
+                Executive Dashboard
               </h1>
-              <p className="text-lg text-muted-foreground max-w-2xl">
-                Welcome back, <span className="font-semibold text-foreground">{user?.email || 'Professional User'}</span>! 
-                Here's your comprehensive overview of document management and team activity.
-              </p>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></div>
+                <span className="text-sm font-medium text-emerald-600">Live</span>
+              </div>
             </div>
-            <div className="flex items-center gap-3">
-              <button className="btn-outline btn-lg group">
-                <span className="mr-2">📊</span>
-                Analytics
-              </button>
-              <button className="btn-primary btn-lg group shadow-lg shadow-primary/20">
-                <span className="mr-2">✨</span>
-                New Document
-                <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
-              </button>
+            <p className="text-xl text-slate-600 max-w-3xl">
+              Welcome back, <span className="font-semibold text-slate-900">{user?.email?.split('@')[0] || 'Executive'}</span>! 
+              Your enterprise operations at a glance with real-time insights and performance metrics.
+            </p>
+          </div>
+          
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center bg-white rounded-xl shadow-sm border border-slate-200 p-1">
+              {['24h', '7d', '30d', '90d'].map(period => (
+                <button
+                  key={period}
+                  onClick={() => setSelectedTimeframe(period)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    selectedTimeframe === period
+                      ? 'bg-slate-900 text-white shadow-md'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                  }`}
+                >
+                  {period}
+                </button>
+              ))}
             </div>
+            
+            <button className="flex items-center space-x-2 bg-slate-900 text-white px-6 py-3 rounded-xl font-medium hover:bg-slate-800 transition-colors shadow-lg hover:shadow-xl">
+              <Download className="w-5 h-5" />
+              <span>Export</span>
+            </button>
+            
+            <button className="flex items-center space-x-2 bg-blue-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl">
+              <Plus className="w-5 h-5" />
+              <span>New Document</span>
+            </button>
           </div>
         </div>
 
-        {/* Professional Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-          {/* Total Documents Card */}
-          <div className="group">
-            <div className="card hover:shadow-elevation-3 transition-all duration-300 group-hover:-translate-y-1 bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200/60">
-              <div className="card-content p-6">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-3">
-                    <p className="text-sm font-medium text-blue-700/80 uppercase tracking-wide">Total Documents</p>
-                    <div className="flex items-baseline space-x-2">
-                      <span className="text-3xl font-bold text-blue-900">{stats.totalDocuments}</span>
-                      <span className="text-sm text-blue-600 font-medium bg-blue-200/50 px-2 py-1 rounded-full">+12%</span>
+        {/* Executive Metrics Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+          {metrics.map((metric) => (
+            <div key={metric.id} className="group">
+              <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-lg hover:border-slate-300 transition-all duration-300 group-hover:-translate-y-1">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <p className="text-sm font-semibold text-slate-600 uppercase tracking-wider">{metric.title}</p>
+                      <HelpTooltip 
+                        content={metric.description}
+                        description={metric.description}
+                        title={metric.title}
+                      />
+                    </div>
+                    <div className="flex items-baseline space-x-3">
+                      <span className="text-3xl font-bold text-slate-900">{metric.value}</span>
+                      {formatChange(metric.change, metric.changeType)}
                     </div>
                   </div>
-                  <div className="p-3 bg-blue-500/10 rounded-xl group-hover:bg-blue-500/20 transition-colors">
-                    <span className="text-2xl">📊</span>
+                  <div className={`p-3 rounded-xl bg-gradient-to-r ${metric.color} text-white shadow-sm`}>
+                    {metric.icon}
                   </div>
                 </div>
-                <div className="mt-4 flex items-center text-sm text-blue-600">
-                  <span className="w-2 h-2 bg-success-500 rounded-full mr-2 animate-pulse"></span>
-                  Growing this month
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Recent Documents Card */}
-          <div className="group">
-            <div className="card hover:shadow-elevation-3 transition-all duration-300 group-hover:-translate-y-1 bg-gradient-to-br from-emerald-50 to-emerald-100/50 border-emerald-200/60">
-              <div className="card-content p-6">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-3">
-                    <p className="text-sm font-medium text-emerald-700/80 uppercase tracking-wide">Recent Activity</p>
-                    <div className="flex items-baseline space-x-2">
-                      <span className="text-3xl font-bold text-emerald-900">{stats.recentDocuments}</span>
-                      <span className="text-sm text-emerald-600 font-medium bg-emerald-200/50 px-2 py-1 rounded-full">7 days</span>
-                    </div>
-                  </div>
-                  <div className="p-3 bg-emerald-500/10 rounded-xl group-hover:bg-emerald-500/20 transition-colors">
-                    <span className="text-2xl">📄</span>
-                  </div>
-                </div>
-                <div className="mt-4 flex items-center text-sm text-emerald-600">
-                  <span className="w-2 h-2 bg-emerald-500 rounded-full mr-2 animate-pulse"></span>
-                  Active workflow
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Active Projects Card */}
-          <div className="group">
-            <div className="card hover:shadow-elevation-3 transition-all duration-300 group-hover:-translate-y-1 bg-gradient-to-br from-amber-50 to-amber-100/50 border-amber-200/60">
-              <div className="card-content p-6">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-3">
-                    <p className="text-sm font-medium text-amber-700/80 uppercase tracking-wide">Active Projects</p>
-                    <div className="flex items-baseline space-x-2">
-                      <span className="text-3xl font-bold text-amber-900">{stats.activeProjects}</span>
-                      <span className="text-sm text-amber-600 font-medium bg-amber-200/50 px-2 py-1 rounded-full">3 due</span>
-                    </div>
-                  </div>
-                  <div className="p-3 bg-amber-500/10 rounded-xl group-hover:bg-amber-500/20 transition-colors">
-                    <span className="text-2xl">🚀</span>
-                  </div>
-                </div>
-                <div className="mt-4 flex items-center text-sm text-amber-600">
-                  <span className="w-2 h-2 bg-warning-500 rounded-full mr-2 animate-pulse"></span>
-                  Deadlines this week
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Team Members Card */}
-          <div className="group">
-            <div className="card hover:shadow-elevation-3 transition-all duration-300 group-hover:-translate-y-1 bg-gradient-to-br from-purple-50 to-purple-100/50 border-purple-200/60">
-              <div className="card-content p-6">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-3">
-                    <p className="text-sm font-medium text-purple-700/80 uppercase tracking-wide">Team Members</p>
-                    <div className="flex items-baseline space-x-2">
-                      <span className="text-3xl font-bold text-purple-900">{stats.teamMembers}</span>
-                      <span className="text-sm text-purple-600 font-medium bg-purple-200/50 px-2 py-1 rounded-full">4 depts</span>
-                    </div>
-                  </div>
-                  <div className="p-3 bg-purple-500/10 rounded-xl group-hover:bg-purple-500/20 transition-colors">
-                    <span className="text-2xl">👥</span>
-                  </div>
-                </div>
-                <div className="mt-4 flex items-center text-sm text-purple-600">
-                  <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
-                  Cross-functional
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-          {/* Recent Activity Feed */}
-          <div className="xl:col-span-2">
-            <div className="card shadow-elevation-2 bg-white/80 backdrop-blur-sm">
-              <div className="card-header border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="card-title text-2xl font-bold text-gray-900">Recent Activity</h2>
-                    <p className="card-description text-base">Latest updates and team collaboration</p>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-success-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm text-success-600 font-medium">Live</span>
-                  </div>
-                </div>
-              </div>
-              <div className="card-content p-6">
-                <div className="space-y-6">
-                  {activities.map((activity, index) => (
-                    <div key={activity.id} className={`group flex items-start space-x-4 p-4 rounded-xl transition-all duration-200 hover:bg-gray-50/80 ${index === 0 ? 'bg-blue-50/50 border border-blue-100' : ''}`}>
-                      <div className="flex-shrink-0">
-                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${getActivityColor(activity.type)} group-hover:scale-110 transition-transform`}>
-                          <span className="text-lg">{getActivityIcon(activity.type)}</span>
-                        </div>
-                      </div>
-                      <div className="flex-1 min-w-0 space-y-2">
-                        <div className="flex items-start justify-between">
-                          <h3 className="font-semibold text-gray-900 group-hover:text-primary transition-colors line-clamp-2">
-                            {activity.title}
-                          </h3>
-                          {index === 0 && (
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 ml-3">
-                              Latest
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex items-center space-x-3 text-sm">
-                          <div className="flex items-center space-x-2">
-                            <div className="w-6 h-6 bg-gradient-to-r from-gray-400 to-gray-500 rounded-full flex items-center justify-center text-white text-xs font-semibold">
-                              {activity.avatar}
-                            </div>
-                            <span className="font-medium text-gray-700">{activity.user}</span>
-                          </div>
-                          <span className="text-gray-400">•</span>
-                          <span className="text-gray-500">{activity.timestamp}</span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium capitalize ${
-                            activity.type === 'completed' ? 'bg-success-100 text-success-700' :
-                            activity.type === 'created' ? 'bg-blue-100 text-blue-700' :
-                            activity.type === 'updated' ? 'bg-amber-100 text-amber-700' :
-                            activity.type === 'shared' ? 'bg-purple-100 text-purple-700' :
-                            activity.type === 'reviewed' ? 'bg-indigo-100 text-indigo-700' :
-                            'bg-gray-100 text-gray-700'
-                          }`}>
-                            {activity.type}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
+                
+                {/* Mini trend chart */}
+                <div className="flex items-end space-x-1 h-8">
+                  {metric.trend.map((value, i) => (
+                    <div
+                      key={i}
+                      className={`bg-gradient-to-t ${metric.color} rounded-sm flex-1 opacity-60 hover:opacity-100 transition-opacity`}
+                      style={{ height: `${(value / Math.max(...metric.trend)) * 100}%` }}
+                    />
                   ))}
                 </div>
-                <div className="mt-8 text-center">
-                  <button className="btn-outline btn-md group">
-                    <span className="mr-2">📋</span>
-                    View All Activity
-                    <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
-                  </button>
+                
+                <div className="mt-3 text-xs text-slate-500">
+                  Target: {metric.target}
                 </div>
               </div>
             </div>
+          ))}
+        </div>
+
+        {/* Professional Analytics Charts */}
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+          {/* Document Trends Chart */}
+          <div className="xl:col-span-2">
+            <AnalyticsChart
+              data={[
+                { name: 'Jan', value: 186, change: 12.5 },
+                { name: 'Feb', value: 205, change: 10.2 },
+                { name: 'Mar', value: 237, change: 15.6 },
+                { name: 'Apr', value: 248, change: 4.6 },
+                { name: 'May', value: 262, change: 5.6 },
+                { name: 'Jun', value: 287, change: 9.5 },
+                { name: 'Jul', value: 312, change: 8.7 }
+              ]}
+              type="area"
+              title="Document Creation Trends"
+              description="Document generation and processing over time"
+              height={320}
+              metricType="documents"
+              helpText="This chart shows the monthly trend of document creation across all departments. Includes contracts, reports, templates, and collaborative documents."
+              formatValue={(value) => `${value} docs`}
+            />
           </div>
+          
+          {/* Project Status Distribution */}
+          <div>
+            <AnalyticsChart
+              data={[
+                { name: 'Completed', value: 45 },
+                { name: 'In Progress', value: 30 },
+                { name: 'Review', value: 15 },
+                { name: 'Blocked', value: 10 }
+              ]}
+              type="pie"
+              title="Project Status Distribution"
+              description="Current project status breakdown"
+              height={320}
+              metricType="projects"
+              helpText="Real-time view of project status across all active engagements. Projects are automatically categorized based on milestone completion and deadline proximity."
+              colors={['#10B981', '#3B82F6', '#F59E0B', '#EF4444']}
+            />
+          </div>
+        </div>
 
-          {/* Quick Actions & Insights Panel */}
-          <div className="space-y-6">
-            {/* Quick Actions */}
-            <div className="card shadow-elevation-2 bg-white/80 backdrop-blur-sm">
-              <div className="card-header bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
-                <h2 className="card-title font-bold text-gray-900">Quick Actions</h2>
-                <p className="card-description">Streamline your workflow</p>
-              </div>
-              <div className="card-content p-6">
-                <div className="space-y-3">
-                  <button className="group w-full flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-blue-100/50 hover:from-blue-100 hover:to-blue-200/50 rounded-xl transition-all duration-200 border border-blue-200/50 hover:border-blue-300 hover:shadow-md">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center group-hover:bg-blue-500/20 transition-colors">
-                        <span className="text-lg">📝</span>
-                      </div>
-                      <div className="text-left">
-                        <span className="font-semibold text-gray-900 block">Create Document</span>
-                        <span className="text-xs text-blue-600">Start new project</span>
-                      </div>
-                    </div>
-                    <span className="text-blue-600 group-hover:translate-x-1 transition-transform">→</span>
-                  </button>
-                  
-                  <button className="group w-full flex items-center justify-between p-4 bg-gradient-to-r from-emerald-50 to-emerald-100/50 hover:from-emerald-100 hover:to-emerald-200/50 rounded-xl transition-all duration-200 border border-emerald-200/50 hover:border-emerald-300 hover:shadow-md">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center group-hover:bg-emerald-500/20 transition-colors">
-                        <span className="text-lg">🤖</span>
-                      </div>
-                      <div className="text-left">
-                        <span className="font-semibold text-gray-900 block">AI Assistant</span>
-                        <span className="text-xs text-emerald-600">Smart automation</span>
-                      </div>
-                    </div>
-                    <span className="text-emerald-600 group-hover:translate-x-1 transition-transform">→</span>
-                  </button>
-                  
-                  <button className="group w-full flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-purple-100/50 hover:from-purple-100 hover:to-purple-200/50 rounded-xl transition-all duration-200 border border-purple-200/50 hover:border-purple-300 hover:shadow-md">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center group-hover:bg-purple-500/20 transition-colors">
-                        <span className="text-lg">📁</span>
-                      </div>
-                      <div className="text-left">
-                        <span className="font-semibold text-gray-900 block">Templates</span>
-                        <span className="text-xs text-purple-600">Browse library</span>
-                      </div>
-                    </div>
-                    <span className="text-purple-600 group-hover:translate-x-1 transition-transform">→</span>
-                  </button>
-                  
-                  <button className="group w-full flex items-center justify-between p-4 bg-gradient-to-r from-amber-50 to-amber-100/50 hover:from-amber-100 hover:to-amber-200/50 rounded-xl transition-all duration-200 border border-amber-200/50 hover:border-amber-300 hover:shadow-md">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-amber-500/10 rounded-lg flex items-center justify-center group-hover:bg-amber-500/20 transition-colors">
-                        <span className="text-lg">📊</span>
-                      </div>
-                      <div className="text-left">
-                        <span className="font-semibold text-gray-900 block">Analytics</span>
-                        <span className="text-xs text-amber-600">View insights</span>
-                      </div>
-                    </div>
-                    <span className="text-amber-600 group-hover:translate-x-1 transition-transform">→</span>
-                  </button>
+        {/* Team Performance & Activity Feed */}
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+          {/* Team Performance Chart */}
+          <div className="xl:col-span-2">
+            <AnalyticsChart
+              data={[
+                { name: 'Mon', value: 24, additional: { projects: 3, collaboration: 8 } },
+                { name: 'Tue', value: 31, additional: { projects: 5, collaboration: 12 } },
+                { name: 'Wed', value: 28, additional: { projects: 4, collaboration: 9 } },
+                { name: 'Thu', value: 35, additional: { projects: 6, collaboration: 15 } },
+                { name: 'Fri', value: 29, additional: { projects: 4, collaboration: 11 } },
+                { name: 'Sat', value: 12, additional: { projects: 1, collaboration: 3 } },
+                { name: 'Sun', value: 8, additional: { projects: 1, collaboration: 2 } }
+              ]}
+              type="bar"
+              title="Team Performance Analytics"
+              description="Daily productivity metrics and collaboration patterns"
+              height={384}
+              metricType="documents"
+              helpText="Tracks daily team productivity including document creation, project milestones, and collaboration activities. Data is aggregated across all departments."
+              formatValue={(value) => `${value} docs`}
+            />
+          </div>
+          
+          {/* Live Activity Feed */}
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200">
+            <div className="p-6 border-b border-slate-100">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-xl font-bold text-slate-900">Live Activity</h3>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                  <span className="text-sm font-medium text-emerald-600">Real-time</span>
                 </div>
               </div>
+              <p className="text-slate-600 text-sm">Latest team activities and document updates</p>
             </div>
-
-            {/* System Status */}
-            <div className="card shadow-elevation-2 bg-white/80 backdrop-blur-sm">
-              <div className="card-header bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
-                <h3 className="card-title text-lg font-bold text-gray-900">System Status</h3>
-              </div>
-              <div className="card-content p-6">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-3 bg-success-50 rounded-lg border border-success-200">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-3 h-3 bg-success-500 rounded-full animate-pulse"></div>
-                      <span className="font-medium text-success-800">Database</span>
+            
+            <div className="p-6 space-y-4 max-h-96 overflow-y-auto">
+              {activities.map((activity, index) => (
+                <div key={activity.id} className={`group p-4 rounded-xl transition-all hover:bg-slate-50 border border-transparent hover:border-slate-200 ${index === 0 ? 'bg-blue-50/50 border-blue-100' : ''}`}>
+                  <div className="flex items-start space-x-3">
+                    <div className="flex-shrink-0">
+                      <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center text-slate-600 group-hover:bg-slate-200 transition-colors">
+                        {getActivityIcon(activity.type)}
+                      </div>
                     </div>
-                    <span className="text-success-600 text-sm font-medium">Connected</span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-success-50 rounded-lg border border-success-200">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-3 h-3 bg-success-500 rounded-full animate-pulse"></div>
-                      <span className="font-medium text-success-800">API Services</span>
+                    
+                    <div className="flex-1 min-w-0 space-y-2">
+                      <div className="flex items-start justify-between">
+                        <h4 className="font-semibold text-slate-900 text-sm leading-tight">{activity.title}</h4>
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(activity.priority)}`}>
+                          {activity.priority}
+                        </span>
+                      </div>
+                      
+                      <p className="text-slate-600 text-sm">{activity.description}</p>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <div className="w-6 h-6 bg-gradient-to-r from-slate-400 to-slate-500 rounded-full flex items-center justify-center text-white text-xs font-semibold">
+                            {activity.user.avatar}
+                          </div>
+                          <div className="text-xs">
+                            <span className="font-medium text-slate-700">{activity.user.name}</span>
+                            <span className="text-slate-500 ml-1">{activity.user.role}</span>
+                          </div>
+                        </div>
+                        <span className="text-xs text-slate-500">{activity.timestamp}</span>
+                      </div>
                     </div>
-                    <span className="text-success-600 text-sm font-medium">Operational</span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-info-50 rounded-lg border border-info-200">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-3 h-3 bg-info-500 rounded-full"></div>
-                      <span className="font-medium text-info-800">Storage</span>
-                    </div>
-                    <span className="text-info-600 text-sm font-medium">82% Used</span>
                   </div>
                 </div>
-              </div>
+              ))}
+            </div>
+            
+            <div className="p-6 border-t border-slate-100 text-center">
+              <button className="text-slate-600 hover:text-slate-900 text-sm font-medium hover:underline transition-colors">
+                View All Activities →
+              </button>
             </div>
           </div>
         </div>
 
-        {/* Enterprise Status Banner */}
-        <div className="mt-8">
-          <div className="bg-gradient-to-r from-success-50 via-emerald-50 to-success-50 border border-success-200 rounded-2xl p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-success-500/10 rounded-xl flex items-center justify-center">
-                  <span className="text-2xl">✅</span>
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-success-800">
-                    Enterprise Platform Ready
-                  </h3>
-                  <p className="text-success-600 text-sm">
-                    PostgreSQL database connected • Multi-tenant architecture active • All systems operational
-                  </p>
-                </div>
+        {/* System Status Banner */}
+        <div className="bg-gradient-to-r from-emerald-50 via-white to-emerald-50 rounded-2xl p-6 shadow-sm border border-emerald-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center text-white shadow-lg">
+                <TrendingUp className="w-6 h-6" />
               </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-success-500 rounded-full animate-pulse"></div>
-                <span className="text-success-600 text-sm font-medium">Live</span>
+              <div>
+                <h3 className="text-xl font-bold text-emerald-900">Enterprise Platform Operational</h3>
+                <p className="text-emerald-700">
+                  System health: {stats.systemHealth}% • Response time: {stats.avgProcessingTime} • {stats.completedToday} documents processed today
+                </p>
               </div>
+            </div>
+            <div className="flex items-center space-x-3">
+              <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+              <span className="text-emerald-600 text-sm font-medium">All Systems Go</span>
             </div>
           </div>
         </div>
