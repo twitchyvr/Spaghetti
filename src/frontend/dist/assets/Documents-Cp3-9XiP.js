@@ -1,0 +1,1 @@
+import{j as e}from"./ui-C3a64IZu.js";import"./vendor-DiiPbxpF.js";function o(){return e.jsxs("div",{className:"p-6",children:[e.jsx("h1",{className:"text-2xl font-bold mb-6",children:"Documents"}),e.jsx("div",{className:"bg-card p-6 rounded-lg border",children:e.jsx("p",{className:"text-muted-foreground",children:"Document management coming soon..."})})]})}export{o as default};

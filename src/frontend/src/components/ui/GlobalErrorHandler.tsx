@@ -2,13 +2,13 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { AlertCircle, X } from 'lucide-react';
 
-interface ErrorEvent {
+interface CustomErrorEvent {
   id: string;
   message: string;
-  stack?: string;
+  stack?: string | undefined;
   timestamp: Date;
   type: 'error' | 'unhandledrejection' | 'network' | 'api';
-  context?: Record<string, any>;
+  context?: Record<string, any> | undefined;
 }
 
 interface GlobalErrorHandlerProps {
@@ -22,10 +22,10 @@ export function GlobalErrorHandler({
   showErrorDialog = false,
   maxErrors = 5 
 }: GlobalErrorHandlerProps) {
-  const [errors, setErrors] = useState<ErrorEvent[]>([]);
+  const [errors, setErrors] = useState<CustomErrorEvent[]>([]);
   const [showDialog, setShowDialog] = useState(false);
 
-  const addError = useCallback((error: ErrorEvent) => {
+  const addError = useCallback((error: CustomErrorEvent) => {
     setErrors(prev => {
       const newErrors = [error, ...prev].slice(0, maxErrors);
       return newErrors;
@@ -62,17 +62,18 @@ export function GlobalErrorHandler({
 
   // Global error handler for JavaScript errors
   useEffect(() => {
-    const handleError = (event: ErrorEvent) => {
-      const error: ErrorEvent = {
+    const handleError = (event: Event) => {
+      const errorEvent = event as ErrorEvent;
+      const error: CustomErrorEvent = {
         id: Math.random().toString(36).substring(2, 15),
-        message: event.message || 'Unknown error occurred',
-        stack: event.error?.stack,
+        message: errorEvent.message || 'Unknown error occurred',
+        stack: (errorEvent as any).error?.stack,
         timestamp: new Date(),
         type: 'error',
         context: {
-          filename: event.filename,
-          lineno: event.lineno,
-          colno: event.colno,
+          filename: errorEvent.filename,
+          lineno: errorEvent.lineno,
+          colno: errorEvent.colno,
         },
       };
 
@@ -86,7 +87,7 @@ export function GlobalErrorHandler({
   // Global handler for unhandled promise rejections
   useEffect(() => {
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      const error: ErrorEvent = {
+      const error: CustomErrorEvent = {
         id: Math.random().toString(36).substring(2, 15),
         message: event.reason?.message || 'Unhandled promise rejection',
         stack: event.reason?.stack,
@@ -110,7 +111,7 @@ export function GlobalErrorHandler({
   // Expose error reporting function globally
   useEffect(() => {
     (window as any).reportError = (error: Error, context?: Record<string, any>) => {
-      const errorEvent: ErrorEvent = {
+      const errorEvent: CustomErrorEvent = {
         id: Math.random().toString(36).substring(2, 15),
         message: error.message,
         stack: error.stack,
@@ -123,7 +124,7 @@ export function GlobalErrorHandler({
     };
 
     (window as any).reportApiError = (message: string, context?: Record<string, any>) => {
-      const errorEvent: ErrorEvent = {
+      const errorEvent: CustomErrorEvent = {
         id: Math.random().toString(36).substring(2, 15),
         message,
         timestamp: new Date(),
@@ -135,7 +136,7 @@ export function GlobalErrorHandler({
     };
 
     (window as any).reportNetworkError = (message: string, context?: Record<string, any>) => {
-      const errorEvent: ErrorEvent = {
+      const errorEvent: CustomErrorEvent = {
         id: Math.random().toString(36).substring(2, 15),
         message,
         timestamp: new Date(),

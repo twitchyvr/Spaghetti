@@ -51,12 +51,10 @@
     },
     
     // Emit
-    "declaration": true,
-    "declarationMap": true,
+    "declaration": false,
+    "declarationMap": false,
     "sourceMap": true,
-    "outDir": "./dist",
     "removeComments": true,
-    "importHelpers": true,
     
     // Interop constraints
     "allowSyntheticDefaultImports": true,
@@ -79,13 +77,7 @@
     ]
   },
   "include": [
-    "src/**/*",
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
-    "tests/**/*",
-    "vite.config.ts",
-    "vitest.config.ts"
+    "src"
   ],
   "exclude": [
     "node_modules",

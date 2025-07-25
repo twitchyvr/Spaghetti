@@ -207,10 +207,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       dispatch({
         type: 'SET_TOKEN',
-        payload: {
-          token: response.token,
-          refreshToken: response.refreshToken,
-        },
+        payload: response.refreshToken 
+          ? { token: response.token, refreshToken: response.refreshToken }
+          : { token: response.token },
       });
     } catch (error) {
       logout();
