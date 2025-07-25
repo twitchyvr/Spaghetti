@@ -6,6 +6,7 @@ import { LoadingSpinner } from './components/ui/LoadingSpinner';
 // Lazy load pages for better performance
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
 const Documents = React.lazy(() => import('./pages/Documents'));
+const DatabaseAdmin = React.lazy(() => import('./pages/DatabaseAdmin'));
 const Login = React.lazy(() => import('./pages/Login'));
 const Settings = React.lazy(() => import('./pages/Settings'));
 const NotFound = React.lazy(() => import('./pages/NotFound'));
@@ -69,6 +70,7 @@ function App() {
                     <Route path="/" element={<Navigate to="/dashboard" replace />} />
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/documents/*" element={<Documents />} />
+                    <Route path="/database/*" element={<DatabaseAdmin />} />
                     <Route path="/settings/*" element={<Settings />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
