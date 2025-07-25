@@ -182,3 +182,17 @@ dotnet ef migrations script --project src/core/infrastructure
 - Keep the codebase modular and decoupled to facilitate testing and maintenance 
 - Use environment variables for configuration to avoid hardcoding sensitive data
 - Regularly back up critical data and configurations
+
+## Version History Tracking
+- Maintain a `CHANGELOG.md` file to track all changes, features, and bug fixes
+- Use the following format for entries:
+```markdown
+## [Unreleased] 
+### Added
+- New feature description
+### Changed
+- Description of changes made
+### Fixed
+- Description of bug fixes
+```
+- Ensure each entry is linked to a specific commit or pull request for traceability
