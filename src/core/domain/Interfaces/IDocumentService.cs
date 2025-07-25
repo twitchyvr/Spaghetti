@@ -195,15 +195,6 @@ public class DocumentTemplate
     public DateTime UpdatedAt { get; set; }
 }
 
-public class TemplateVariable
-{
-    public required string Name { get; set; }
-    public required string Type { get; set; }
-    public bool Required { get; set; }
-    public string? Description { get; set; }
-    public string? DefaultValue { get; set; }
-    public List<string> Options { get; set; } = new();
-}
 
 public class CreateFromTemplateRequest
 {

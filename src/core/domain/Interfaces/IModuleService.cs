@@ -258,6 +258,14 @@ public class DependencyIssue
     public string? Suggestion { get; set; }
 }
 
+public enum IssueSeverity
+{
+    Low,
+    Medium,
+    High,
+    Critical
+}
+
 public class InstallModuleRequest
 {
     public required string ModuleName { get; set; }
@@ -447,6 +455,14 @@ public class SecurityRecommendation
     public string? Description { get; set; }
     public RecommendationPriority Priority { get; set; }
     public string? Action { get; set; }
+}
+
+public enum RecommendationPriority
+{
+    Low,
+    Medium,
+    High,
+    Critical
 }
 
 public class ModuleUsageStats

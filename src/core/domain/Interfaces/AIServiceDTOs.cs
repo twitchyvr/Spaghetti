@@ -1,3 +1,5 @@
+using EnterpriseDocsCore.Domain.Entities;
+
 namespace EnterpriseDocsCore.Domain.Interfaces;
 
 // Analysis Options and Results
