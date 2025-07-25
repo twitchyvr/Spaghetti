@@ -28,18 +28,28 @@ RUN rm -rf /usr/share/nginx/html/*
 COPY --from=frontend-builder /app/dist /usr/share/nginx/html
 
 # Copy nginx configuration for serving React + API proxy
-COPY nginx/nginx.prod.conf /etc/nginx/nginx.conf
+COPY src/frontend/nginx.conf /etc/nginx/nginx.conf
 
 # Create nginx directories and set permissions
 RUN mkdir -p /var/log/nginx /var/cache/nginx /var/run/nginx && \
     chown -R nginx:nginx /usr/share/nginx/html /var/log/nginx /var/cache/nginx /var/run/nginx
 
-# Health check
+# Health check on correct port
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost/health || exit 1
+    CMD curl -f http://localhost:8080/health || exit 1
 
-# Expose port 80 for web traffic
-EXPOSE 80
+# Create a simple test to verify our build worked
+RUN echo "React build verification:" && ls -la /usr/share/nginx/html/ && \
+    test -f /usr/share/nginx/html/index.html && echo "✓ index.html found" || echo "✗ index.html missing"
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Expose port 8080 for DigitalOcean App Platform
+EXPOSE 8080
+
+# Add some debugging and start nginx
+CMD echo "=== DOCKERFILE DEPLOYMENT VERIFICATION ===" && \
+    echo "Starting nginx with React frontend..." && \
+    echo "Files in html directory:" && ls -la /usr/share/nginx/html/ && \
+    echo "React app verification:" && \
+    test -f /usr/share/nginx/html/index.html && echo "✓ React index.html found" || echo "✗ React index.html missing" && \
+    nginx -t && \
+    exec nginx -g "daemon off;"

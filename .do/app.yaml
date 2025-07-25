@@ -1,7 +1,8 @@
 name: spaghetti-platform
 services:
-- name: frontend
+- name: react-frontend
   dockerfile_path: Dockerfile
+  source_dir: /
   github:
     branch: master
     deploy_on_push: true
@@ -13,6 +14,7 @@ services:
   - path: /
   health_check:
     http_path: /health
+    initial_delay_seconds: 60
   envs:
   - key: NODE_ENV
     value: production
