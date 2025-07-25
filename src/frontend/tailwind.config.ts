@@ -198,6 +198,11 @@ const config: Config = {
         '144': '36rem',
       },
       
+      maxWidth: {
+        '8xl': '88rem',
+        '9xl': '96rem',
+      },
+      
       keyframes: {
         'accordion-down': {
           from: { height: '0' },

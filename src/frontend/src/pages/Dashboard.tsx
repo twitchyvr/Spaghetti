@@ -258,7 +258,7 @@ export default function Dashboard() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
-        <div className="max-w-8xl mx-auto px-8 py-8">
+        <div className="max-w-8xl mx-auto px-6 lg:px-8 py-8">
           <div className="animate-pulse space-y-8">
             {/* Header Skeleton */}
             <div className="flex justify-between items-start">
@@ -307,7 +307,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
-      <div className="w-full px-6 py-8 space-y-8">
+      <div className="max-w-8xl mx-auto px-6 lg:px-8 py-8 space-y-8">
         {/* Modern Header */}
         <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-6">
           <div className="space-y-2">
