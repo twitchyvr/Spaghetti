@@ -73,66 +73,79 @@ public class ApplicationDbContext : DbContext
             v => JsonSerializer.Deserialize<List<string>>(v, jsonOptions) ?? new List<string>()
         );
 
-        // Apply converters to specific properties
+        // Configure User owned types
         modelBuilder.Entity<User>()
-            .Property(e => e.Profile.CustomFields)
-            .HasConversion(dictionaryConverter);
-
-        modelBuilder.Entity<User>()
-            .Property(e => e.Settings.ModuleSettings)
-            .HasConversion(new ValueConverter<Dictionary<string, ModuleSettings>, string>(
-                v => JsonSerializer.Serialize(v, jsonOptions),
-                v => JsonSerializer.Deserialize<Dictionary<string, ModuleSettings>>(v, jsonOptions) ?? new Dictionary<string, ModuleSettings>()
-            ));
+            .OwnsOne(e => e.Profile, profile =>
+            {
+                profile.Property(p => p.CustomFields)
+                    .HasConversion(dictionaryConverter);
+            });
 
         modelBuilder.Entity<User>()
-            .Property(e => e.Settings.CustomSettings)
-            .HasConversion(dictionaryConverter);
+            .OwnsOne(e => e.Settings, settings =>
+            {
+                settings.Property(s => s.ModuleSettings)
+                    .HasConversion(new ValueConverter<Dictionary<string, ModuleSettings>, string>(
+                        v => JsonSerializer.Serialize(v, jsonOptions),
+                        v => JsonSerializer.Deserialize<Dictionary<string, ModuleSettings>>(v, jsonOptions) ?? new Dictionary<string, ModuleSettings>()
+                    ));
+                settings.Property(s => s.CustomSettings)
+                    .HasConversion(dictionaryConverter);
+                settings.Property(s => s.FavoriteAgents)
+                    .HasConversion(stringListConverter);
+            });
 
-        modelBuilder.Entity<User>()
-            .Property(e => e.Settings.FavoriteAgents)
-            .HasConversion(stringListConverter);
+        // Configure Tenant owned types
+        modelBuilder.Entity<Tenant>()
+            .OwnsOne(e => e.Billing, billing =>
+            {
+                billing.Property(b => b.BillingMetadata)
+                    .HasConversion(dictionaryConverter);
+            });
 
         modelBuilder.Entity<Tenant>()
-            .Property(e => e.Billing.BillingMetadata)
-            .HasConversion(dictionaryConverter);
+            .OwnsOne(e => e.Configuration, config =>
+            {
+                config.Property(c => c.EnabledIntegrations)
+                    .HasConversion(new ValueConverter<Dictionary<string, bool>, string>(
+                        v => JsonSerializer.Serialize(v, jsonOptions),
+                        v => JsonSerializer.Deserialize<Dictionary<string, bool>>(v, jsonOptions) ?? new Dictionary<string, bool>()
+                    ));
+                config.Property(c => c.ComplianceFrameworks)
+                    .HasConversion(stringListConverter);
+                config.Property(c => c.CustomSettings)
+                    .HasConversion(dictionaryConverter);
+            });
 
         modelBuilder.Entity<Tenant>()
-            .Property(e => e.Configuration.EnabledIntegrations)
-            .HasConversion(new ValueConverter<Dictionary<string, bool>, string>(
-                v => JsonSerializer.Serialize(v, jsonOptions),
-                v => JsonSerializer.Deserialize<Dictionary<string, bool>>(v, jsonOptions) ?? new Dictionary<string, bool>()
-            ));
+            .OwnsOne(e => e.Quotas, quotas =>
+            {
+                quotas.Property(q => q.ModuleQuotas)
+                    .HasConversion(new ValueConverter<Dictionary<string, int>, string>(
+                        v => JsonSerializer.Serialize(v, jsonOptions),
+                        v => JsonSerializer.Deserialize<Dictionary<string, int>>(v, jsonOptions) ?? new Dictionary<string, int>()
+                    ));
+            });
 
         modelBuilder.Entity<Tenant>()
-            .Property(e => e.Configuration.ComplianceFrameworks)
-            .HasConversion(stringListConverter);
+            .OwnsOne(e => e.Branding, branding =>
+            {
+                branding.Property(b => b.CustomLabels)
+                    .HasConversion(new ValueConverter<Dictionary<string, string>, string>(
+                        v => JsonSerializer.Serialize(v, jsonOptions),
+                        v => JsonSerializer.Deserialize<Dictionary<string, string>>(v, jsonOptions) ?? new Dictionary<string, string>()
+                    ));
+            });
 
-        modelBuilder.Entity<Tenant>()
-            .Property(e => e.Configuration.CustomSettings)
-            .HasConversion(dictionaryConverter);
-
-        modelBuilder.Entity<Tenant>()
-            .Property(e => e.Quotas.ModuleQuotas)
-            .HasConversion(new ValueConverter<Dictionary<string, int>, string>(
-                v => JsonSerializer.Serialize(v, jsonOptions),
-                v => JsonSerializer.Deserialize<Dictionary<string, int>>(v, jsonOptions) ?? new Dictionary<string, int>()
-            ));
-
-        modelBuilder.Entity<Tenant>()
-            .Property(e => e.Branding.CustomLabels)
-            .HasConversion(new ValueConverter<Dictionary<string, string>, string>(
-                v => JsonSerializer.Serialize(v, jsonOptions),
-                v => JsonSerializer.Deserialize<Dictionary<string, string>>(v, jsonOptions) ?? new Dictionary<string, string>()
-            ));
-
+        // Configure Document owned types
         modelBuilder.Entity<Document>()
-            .Property(e => e.Metadata.Properties)
-            .HasConversion(dictionaryConverter);
-
-        modelBuilder.Entity<Document>()
-            .Property(e => e.Metadata.Keywords)
-            .HasConversion(stringListConverter);
+            .OwnsOne(e => e.Metadata, metadata =>
+            {
+                metadata.Property(m => m.Properties)
+                    .HasConversion(dictionaryConverter);
+                metadata.Property(m => m.Keywords)
+                    .HasConversion(stringListConverter);
+            });
 
         modelBuilder.Entity<Document>()
             .OwnsOne(e => e.AIMetadata, ai =>

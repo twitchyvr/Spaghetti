@@ -20,8 +20,9 @@ docs/
 .idea/
 
 # Backend files (not needed for frontend build)
-src/core/
-src/tests/
+# NOTE: These are commented out as they're needed for API build
+# src/core/
+# src/tests/
 
 # Docker files
 docker-compose*.yml

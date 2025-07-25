@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import api from '../services/api';
 
 interface DatabaseStats {
   tenants: number;
@@ -46,17 +47,19 @@ export default function DatabaseAdmin() {
         setIsLoading(true);
         
         // Fetch database statistics
-        const statsResponse = await fetch('/api/admin/database-stats');
-        if (statsResponse.ok) {
-          const stats = await statsResponse.json();
+        try {
+          const stats = await api.admin.getDatabaseStats();
           setDbStats(stats);
+        } catch (error) {
+          console.error('Failed to fetch database stats:', error);
         }
 
         // Fetch sample data status
-        const sampleResponse = await fetch('/api/admin/sample-data-status');
-        if (sampleResponse.ok) {
-          const sample = await sampleResponse.json();
+        try {
+          const sample = await api.admin.getSampleDataStatus();
           setSampleStatus(sample);
+        } catch (error) {
+          console.error('Failed to fetch sample data status:', error);
         }
 
         // Mock table information (this would come from a real API endpoint)
@@ -138,23 +141,12 @@ export default function DatabaseAdmin() {
 
   const handleSeedSampleData = async () => {
     try {
-      const response = await fetch('/api/admin/seed-sample-data', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        alert('Sample data seeded successfully!');
-        // Refresh the page to show updated data
-        window.location.reload();
-      } else {
-        const error = await response.json();
-        alert(`Failed to seed data: ${error.error || 'Unknown error'}`);
-      }
-    } catch (error) {
-      alert(`Network error: ${error}`);
+      await api.admin.seedSampleData();
+      alert('Sample data seeded successfully!');
+      // Refresh the page to show updated data
+      window.location.reload();
+    } catch (error: any) {
+      alert(`Failed to seed data: ${error.message || 'Unknown error'}`);
     }
   };
 
@@ -176,19 +168,11 @@ export default function DatabaseAdmin() {
 
       if (doubleConfirm === 'CONFIRM_DELETE_ALL_DATA') {
         try {
-          const response = await fetch('/api/admin/clear-all-data?confirmationToken=CONFIRM_DELETE_ALL_DATA', {
-            method: 'DELETE',
-          });
-
-          if (response.ok) {
-            alert('All data cleared successfully!');
-            window.location.reload();
-          } else {
-            const error = await response.json();
-            alert(`Failed to clear data: ${error.error || 'Unknown error'}`);
-          }
-        } catch (error) {
-          alert(`Network error: ${error}`);
+          await api.admin.clearAllData('CONFIRM_DELETE_ALL_DATA');
+          alert('All data cleared successfully!');
+          window.location.reload();
+        } catch (error: any) {
+          alert(`Failed to clear data: ${error.message || 'Unknown error'}`);
         }
       } else {
         alert('Confirmation text does not match. Operation cancelled.');

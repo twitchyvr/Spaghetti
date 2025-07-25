@@ -12,7 +12,7 @@ services:
       POSTGRES_PASSWORD: dev_password_change_in_production
       POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/db-init:/docker-entrypoint-initdb.d
@@ -89,7 +89,7 @@ services:
       - Modules__Directory=/app/modules
       - Serilog__MinimumLevel=Debug
     ports:
-      - "5000:5000"
+      - "5001:5000"
     volumes:
       - ./src:/app/src
       - ./uploads:/app/uploads
@@ -116,7 +116,7 @@ services:
       target: development
     container_name: enterprise-docs-frontend
     environment:
-      - VITE_API_BASE_URL=http://localhost:5000/api
+      - VITE_API_BASE_URL=http://localhost:5001/api
       - VITE_ENVIRONMENT=development
       - VITE_DEPLOYMENT_TYPE=digitalocean
     ports:

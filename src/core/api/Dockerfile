@@ -15,17 +15,17 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy csproj files and restore dependencies (leverage Docker layer caching)
-COPY ["src/core/api/*.csproj", "core/api/"]
-COPY ["src/core/domain/*.csproj", "core/domain/"]
-COPY ["src/core/infrastructure/*.csproj", "core/infrastructure/"]
-RUN dotnet restore "core/api/*.csproj"
+COPY src/core/api/*.csproj core/api/
+COPY src/core/domain/*.csproj core/domain/
+COPY src/core/infrastructure/*.csproj core/infrastructure/
+RUN dotnet restore "core/api/EnterpriseDocsCore.API.csproj"
 
 # Copy all source code
 COPY src/ .
 
 # Build the application
 WORKDIR "/src/core/api"
-RUN dotnet build "*.csproj" -c Release -o /app/build
+RUN dotnet build "EnterpriseDocsCore.API.csproj" -c Release -o /app/build
 
 # Development stage (for docker-compose development)
 FROM build AS development
@@ -46,7 +46,7 @@ ENTRYPOINT ["dotnet", "watch", "run", "--urls", "http://0.0.0.0:5000"]
 # Publish stage
 FROM build AS publish
 WORKDIR "/src/core/api"
-RUN dotnet publish "*.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "EnterpriseDocsCore.API.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Production stage
 FROM base AS production

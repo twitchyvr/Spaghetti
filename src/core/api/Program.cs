@@ -67,21 +67,22 @@ switch (dbProvider.ToLower())
 // Configure authentication - abstracted for multiple providers
 builder.Services.ConfigureAuthentication(builder.Configuration);
 
-// Configure storage services - abstracted for multiple providers
-builder.Services.ConfigureStorage(builder.Configuration);
-
-// Configure AI services
-builder.Services.ConfigureAIServices(builder.Configuration);
-
-// Configure module system
-builder.Services.ConfigureModuleSystem(builder.Configuration);
+// Temporarily disable complex services until DI issues are resolved
+// TODO: Re-enable after fixing interface implementations
+// builder.Services.ConfigureStorage(builder.Configuration);
+// builder.Services.ConfigureAIServices(builder.Configuration);
+// builder.Services.ConfigureModuleSystem(builder.Configuration);
 
 // Add core services
 builder.Services.AddUnitOfWork();
-builder.Services.AddScoped<IDocumentService, DocumentService>();
+// Temporarily disable DocumentService until we fix dependency issues
+// builder.Services.AddScoped<IDocumentService, DocumentService>();
 builder.Services.AddScoped<DatabaseSeedingService>();
 
-// Add Redis caching if configured
+// Add memory cache (always needed for local caching)
+builder.Services.AddMemoryCache();
+
+// Add Redis caching if configured (for distributed caching)
 var redisConnection = builder.Configuration.GetConnectionString("Redis");
 if (!string.IsNullOrEmpty(redisConnection))
 {
@@ -90,18 +91,14 @@ if (!string.IsNullOrEmpty(redisConnection))
         options.Configuration = redisConnection;
     });
 }
-else
-{
-    builder.Services.AddMemoryCache();
-}
 
 // Configure CORS for frontend
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        var frontendUrl = builder.Configuration.GetValue<string>("Frontend:Url", "http://localhost:3000");
-        policy.WithOrigins(frontendUrl)
+        // Allow multiple frontend origins for development
+        policy.WithOrigins("http://localhost:3000", "http://localhost:3001", "https://localhost:3001")
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();
@@ -134,14 +131,16 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.MapControllers();
 
-// Initialize modules on startup
-await app.Services.InitializeModulesAsync();
+// Temporarily disable module initialization
+// TODO: Re-enable after fixing module system
+// await app.Services.InitializeModulesAsync();
 
-// Ensure database is created and migrations are applied
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await context.Database.MigrateAsync();
-}
+// Temporarily disable automatic migrations to test API startup
+// TODO: Re-enable after fixing EF configuration issues
+// using (var scope = app.Services.CreateScope())
+// {
+//     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+//     await context.Database.MigrateAsync();
+// }
 
 app.Run();

@@ -1,4 +1,26 @@
 # Multi-stage build for React frontend deployment
+
+# Development stage for local development
+FROM node:18-alpine AS development
+
+WORKDIR /app
+
+# Copy package files
+COPY src/frontend/package*.json ./
+
+# Install all dependencies (including dev dependencies)
+RUN npm ci
+
+# Copy source code
+COPY src/frontend/ ./
+
+# Expose development server port
+EXPOSE 3000
+
+# Run development server
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+
+# Builder stage for production
 FROM node:18-alpine AS builder
 
 WORKDIR /app
