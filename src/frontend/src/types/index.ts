@@ -436,6 +436,30 @@ export interface DocumentFilter {
 }
 
 // Module system types
+export interface Module {
+  id: string;
+  name: string;
+  version: string;
+  displayName: string;
+  description: string;
+  icon: string;
+  category: string;
+  dependencies: string[];
+  isEnabled: boolean;
+  configuration: Record<string, unknown>;
+  component?: React.ComponentType<ModuleComponentProps>;
+}
+
+export interface ModuleConfig {
+  id: string;
+  moduleId: string;
+  tenantId?: string;
+  configuration: Record<string, unknown>;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface PlatformModule {
   name: string;
   version: string;
