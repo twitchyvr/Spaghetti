@@ -4,50 +4,90 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is an ambient AI work assistant that automatically generates documentation for enterprise professionals, with a focus on legal use cases to start with before expanding to other domains. The project is a **Real Professional Production-Ready** product. We will start by targeting paralegals, associates, and partners in high-stakes legal environments and want to expand to other professional fields such as insurance.
+Enterprise Documentation Platform - A comprehensive AI-powered document generation system targeting legal professionals, with expansion planned for insurance, consulting, and other professional domains. This is a **production-ready enterprise platform** designed for multi-tenant deployment across various hosting environments.
 
-## Critical Development Constraints
+## Technology Stack
 
-### No External Dependencies
-- Use only vanilla JavaScript and modern CSS until the project is fully functional
-- No frameworks, libraries, or CDN resources (jQuery, React, Bootstrap, Font Awesome, etc.)
-- All functionality must be achieved with native web APIs
+### Backend (.NET Core 8)
+- **API**: ASP.NET Core Web API with Swagger/OpenAPI documentation
+- **Database**: PostgreSQL with Entity Framework Core
+- **Caching**: Redis for session management and performance
+- **Search**: Elasticsearch for document indexing and full-text search
+- **Authentication**: JWT with Azure AD/Auth0 SSO integration
+- **Architecture**: Repository Pattern with Unit of Work, Clean Architecture principles
 
-### Production-Ready Implementation
-- This is a **production-level implementation**, not a functional system
-- Use AI content and real data for all generated documents
-- Use actual AI APIs, backend services, and real data processing
+### Frontend (React 18 + TypeScript)
+- **Framework**: React 18 with TypeScript for type safety
+- **Build**: Vite for fast development and optimized production builds
+- **Styling**: CSS Modules with enterprise-grade design system
+- **State Management**: Context API with custom hooks
+- **Authentication**: JWT token management with automatic refresh
 
-## Target User Persona
+### Infrastructure
+- **Containerization**: Docker with multi-stage builds
+- **Orchestration**: Docker Compose for development, Kubernetes for production
+- **Reverse Proxy**: Nginx with SSL termination and load balancing
+- **Monitoring**: Grafana + Prometheus for metrics and alerting
+- **Database Admin**: pgAdmin for PostgreSQL management
 
-**Legal Professional** working with:
-- Client calls and meetings
-- Contract review sessions  
-- Case strategy discussions
-- Deposition preparation
-- Legal research findings
+### Testing & Quality
+- **Unit Testing**: xUnit with FluentAssertions and Moq
+- **Integration Testing**: In-memory database testing with realistic data
+- **Test Data**: AutoFixture and Bogus for comprehensive test scenarios
+- **Coverage**: Coverlet for code coverage analysis
 
-All examples, templates, and generated content must be relevant to the target user persona. We will start with legal use cases and expand to other professional domains later.
+## Multi-Tenant Architecture
 
-## UI/UX Requirements
+### Tenant Isolation
+- **Database**: Row-level security with tenant-specific data isolation
+- **Authentication**: Tenant-aware JWT tokens with role-based permissions
+- **File Storage**: Tenant-specific blob storage containers
+- **Caching**: Tenant-prefixed cache keys for data isolation
 
-- **Professional appearance**: Conservative navy blue and gray color scheme suitable for top-tier law firms
-- **Enterprise-grade trust**: UI must inspire confidence and security
-- **Clean and modern**: SVG icons, consistent spacing, professional typography
-- **Three-panel main layout**: Live context feed, AI assistant controls, generated document output
+### Deployment Scenarios
+1. **SaaS Multi-Tenant**: Single deployment serving multiple organizations
+2. **Enterprise Single-Tenant**: Dedicated instance for large organizations
+3. **On-Premises**: Air-gapped deployment for high-security environments
+4. **Hybrid Cloud**: Mix of cloud and on-premises components
 
-## Architecture
+### Security & Compliance
+- **Data Encryption**: AES-256 encryption at rest and in transit
+- **Compliance**: SOC 2, GDPR, HIPAA, ISO 27001 ready
+- **Audit Trails**: Comprehensive logging of all user actions
+- **Access Controls**: Role-based permissions with fine-grained controls
 
-The application follows a three-panel layout for the main interface:
-1. **Live Context Feed** - Shows real-time activity simulation
-2. **AI Assistant Panel** - Controls for starting/stopping, document type selection
-3. **Generated Document Panel** - Final output with edit/save/share functionality
+## Development Environment Setup
 
-Key features include:
-- Interactive search bar simulating firm-wide knowledge base
-- Document type templates (Client Call Summary, Contract Review Notes, etc.)
-- In-place editing with `contenteditable` functionality
-- Modal dialogs for sharing and settings
+### Prerequisites
+- Docker Desktop 4.15+ with Compose V2
+- .NET 8 SDK
+- Node.js 18+ with npm
+- Git with conventional commit practices
+
+### Quick Start
+```bash
+# Clone and start development environment
+git clone <repository-url>
+cd EnterpriseDocsCore
+docker-compose up -d
+
+# Run database migrations
+dotnet ef database update --project src/core/infrastructure
+
+# Start frontend development server
+cd src/frontend
+npm install
+npm run dev
+```
+
+### Development Services
+- **API**: http://localhost:5000 (Swagger UI at /swagger)
+- **Frontend**: http://localhost:3000
+- **Database**: PostgreSQL on localhost:5432
+- **Redis**: localhost:6379
+- **Elasticsearch**: http://localhost:9200
+- **pgAdmin**: http://localhost:8080
+- **Grafana**: http://localhost:3001
 
 ## Version Control Practices
 
@@ -64,19 +104,65 @@ Key features include:
 
 ## Development Workflow
 
-Since this is a single-file project:
-1. Make changes directly to the main HTML file
-2. Test functionality in browser
-3. Update version history in README.md if adding features
-4. Commit changes with descriptive messages
+### Code Quality Standards
+1. **Before Coding**: Update todo list and mark tasks as in_progress
+2. **During Development**: Follow repository patterns and clean architecture
+3. **Testing**: Write unit tests for all business logic and repository methods
+4. **Code Review**: Ensure proper error handling and logging
+5. **Documentation**: Update CLAUDE.md and README.md for significant changes
+6. **Commit**: Use conventional commit messages with frequent commits
 
-No build process, testing framework, or package management is needed due to the single-file constraint.
+### Testing Strategy
+```bash
+# Run all tests
+dotnet test
 
-## Testing and Quality Assurance
-- Manual testing in modern browsers (Chrome, Firefox, Edge)
-- Ensure all features work as expected
-- Validate UI/UX against design requirements
-- Check for cross-browser compatibility 
-- Ensure no console errors or warnings
-- Test responsiveness on different screen sizes
-- Validate accessibility features (ARIA roles, keyboard navigation) 
+# Run with coverage
+dotnet test --collect:"XPlat Code Coverage"
+
+# Frontend tests
+npm run test
+
+# Integration tests with Docker
+docker-compose -f docker-compose.test.yml up --build
+```
+
+### Database Migrations
+```bash
+# Add new migration
+dotnet ef migrations add MigrationName --project src/core/infrastructure
+
+# Update database
+dotnet ef database update --project src/core/infrastructure
+
+# Generate SQL script
+dotnet ef migrations script --project src/core/infrastructure
+```
+
+### Performance & Security
+- All database queries use parameterized statements
+- Implement caching strategies for frequently accessed data
+- Use async/await patterns for all I/O operations
+- Validate all inputs and sanitize outputs
+- Implement rate limiting on API endpoints
+- Use HTTPS in all environments
+
+## Repository Pattern Implementation
+
+### Core Interfaces
+- `IRepository<TEntity, TKey>`: Generic CRUD operations with pagination
+- `IUnitOfWork`: Transaction management and repository coordination
+- Domain-specific repositories: `IDocumentRepository`, `IUserRepository`, etc.
+
+### Testing Approach
+- In-memory database for unit tests
+- Realistic test data using AutoFixture and Bogus
+- Comprehensive coverage of repository methods
+- Transaction rollback testing
+- Concurrent access scenarios
+
+### Error Handling
+- Structured logging with Serilog
+- Custom exceptions for business logic violations
+- Automatic retry policies for transient failures
+- Circuit breaker patterns for external service calls 
