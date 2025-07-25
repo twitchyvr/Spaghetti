@@ -21,7 +21,7 @@ const getEnvNumber = (key: string, defaultValue: number): number => {
 // Main configuration object
 export const config: AppConfig = {
   // Basic app configuration
-  apiBaseUrl: getEnvVar('VITE_API_BASE_URL', 'http://localhost:5000/api'),
+  apiBaseUrl: getEnvVar('VITE_API_BASE_URL', '/api'),
   environment: getEnvVar('VITE_ENVIRONMENT', 'development') as 'development' | 'staging' | 'production',
   
   // Feature flags
@@ -63,7 +63,7 @@ export const config: AppConfig = {
 export const deploymentConfigs = {
   // DigitalOcean deployment
   digitalocean: {
-    apiBaseUrl: 'https://api.enterprisedocs.app/api',
+    apiBaseUrl: '/api',
     features: {
       enableVoiceCapture: true,
       enableScreenCapture: true,

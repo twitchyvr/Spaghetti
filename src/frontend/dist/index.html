@@ -12,14 +12,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     
-    <!-- Security headers -->
+    <!-- Security headers (X-Frame-Options moved to nginx for proper HTTP header) -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-    <meta http-equiv="X-Frame-Options" content="DENY" />
     <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
     
     <!-- Progressive Web App -->
     <link rel="manifest" href="/manifest.json" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Enterprise Docs" />
@@ -87,7 +87,7 @@
         display: none;
       }
     </style>
-    <script type="module" crossorigin src="/assets/index-BVnF_T67.js"></script>
+    <script type="module" crossorigin src="/assets/index-wqpc6hAU.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/vendor-DiiPbxpF.js">
     <link rel="modulepreload" crossorigin href="/assets/ui-C3a64IZu.js">
     <link rel="modulepreload" crossorigin href="/assets/router-DcoQMFfR.js">

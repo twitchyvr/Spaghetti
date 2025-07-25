@@ -45,6 +45,12 @@ http { \
             try_files $uri $uri/ /index.html; \
         } \
         \
+        # Security headers \
+        add_header X-Frame-Options "DENY" always; \
+        add_header X-Content-Type-Options "nosniff" always; \
+        add_header X-XSS-Protection "1; mode=block" always; \
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always; \
+        \
         # API placeholder responses \
         location /api/ { \
             add_header Content-Type application/json; \
