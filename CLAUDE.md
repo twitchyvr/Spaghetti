@@ -215,6 +215,15 @@ When seeded, creates:
 6. **Documentation**: Update CLAUDE.md and README.md for significant changes
 7. **Commit**: Use conventional commit messages with frequent commits
 
+### CSS and Styling Guidelines
+**CRITICAL**: Use consistent styling approaches - DO NOT mix inline styles with CSS classes
+1. **Primary Approach**: Use Tailwind CSS utility classes for all styling
+2. **Custom Styles**: Only use custom CSS classes when Tailwind utilities are insufficient
+3. **NO INLINE STYLES**: Never mix inline style objects with className-based styling
+4. **Consistency**: All components should follow the same styling methodology
+5. **Variables**: Use CSS custom properties (variables) only in dedicated CSS files, not inline
+6. **Theme System**: Respect the existing theme.css variable system when using custom CSS
+
 ### Testing Strategy
 ```bash
 # Run all tests
