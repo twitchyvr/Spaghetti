@@ -673,8 +673,8 @@ export default function DatabaseAdmin() {
       </div>
 
       {/* Enhanced Tab Navigation */}
-      <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-6 overflow-x-auto">
+      <div className="bg-white rounded-lg shadow mb-8">
+        <nav className="flex gap-6 overflow-x-auto border-b border-gray-200">
           {[
             { id: 'overview', label: 'System Overview', icon: <BarChart3 size={16} /> },
             { id: 'audit', label: 'Audit Trail', icon: <Shield size={16} />, badge: auditEntries.length },
@@ -687,7 +687,7 @@ export default function DatabaseAdmin() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`py-3 px-4 border-b-2 font-medium text-sm flex items-center space-x-2 whitespace-nowrap ${
+              className={`flex items-center space-x-2 py-4 px-6 text-sm font-medium whitespace-nowrap border-b-2 transition-all duration-200 ${
                 activeTab === tab.id
                   ? 'border-blue-500 text-blue-600 bg-blue-50'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 hover:bg-gray-50'
@@ -1423,17 +1423,586 @@ export default function DatabaseAdmin() {
         </div>
       )}
 
+      {/* Custom Query Builder Tab */}
       {activeTab === 'queries' && (
-        <div className="text-center py-8 text-gray-500">
-          <Search size={48} className="mx-auto mb-4 opacity-50" />
-          <p>Custom Query Builder interface coming soon...</p>
+        <div className="space-y-6">
+          {/* Query Selection and Builder */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-lg shadow">
+                <div className="p-6 border-b border-gray-200">
+                  <h3 className="text-lg font-medium text-gray-900 flex items-center">
+                    <Search className="mr-2" size={20} />
+                    Query Builder
+                  </h3>
+                </div>
+                <div className="p-6">
+                  {/* Query Type Selection */}
+                  <div className="mb-6">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Query Type
+                    </label>
+                    <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <option value="select">SELECT - Retrieve Data</option>
+                      <option value="update">UPDATE - Modify Records</option>
+                      <option value="delete">DELETE - Remove Records</option>
+                      <option value="count">COUNT - Count Records</option>
+                      <option value="custom">Custom SQL Query</option>
+                    </select>
+                  </div>
+
+                  {/* Table Selection */}
+                  <div className="mb-6">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Target Table
+                    </label>
+                    <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <option value="">Select a table...</option>
+                      <option value="users">Users</option>
+                      <option value="tenants">Tenants</option>
+                      <option value="documents">Documents</option>
+                      <option value="audit_logs">Audit Logs</option>
+                      <option value="permissions">Permissions</option>
+                      <option value="document_tags">Document Tags</option>
+                    </select>
+                  </div>
+
+                  {/* Query Editor */}
+                  <div className="mb-6">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      SQL Query
+                    </label>
+                    <textarea
+                      className="w-full h-40 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
+                      placeholder="SELECT * FROM users WHERE..."
+                      defaultValue="SELECT u.id, u.first_name, u.last_name, u.email, t.name as tenant_name 
+FROM users u 
+INNER JOIN tenants t ON u.tenant_id = t.id 
+WHERE u.is_active = true 
+LIMIT 100;"
+                    />
+                  </div>
+
+                  {/* Query Parameters */}
+                  <div className="mb-6">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Parameters (Optional)
+                    </label>
+                    <div className="space-y-2">
+                      <div className="flex gap-4">
+                        <input
+                          type="text"
+                          placeholder="Parameter name"
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Parameter value"
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                          Add
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-4">
+                    <button className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center justify-center">
+                      <Search size={16} className="mr-2" />
+                      Execute Query
+                    </button>
+                    <button className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700">
+                      Validate
+                    </button>
+                    <button className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                      Save Query
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Saved Queries */}
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-lg shadow">
+                <div className="p-6 border-b border-gray-200">
+                  <h3 className="text-lg font-medium text-gray-900">Saved Queries</h3>
+                </div>
+                <div className="p-6">
+                  <div className="space-y-3">
+                    {[
+                      { name: 'Active Users by Tenant', description: 'List all active users grouped by tenant', category: 'Users' },
+                      { name: 'Document Statistics', description: 'Document counts and sizes by tenant', category: 'Analytics' },
+                      { name: 'Failed Login Attempts', description: 'Recent failed authentication logs', category: 'Security' },
+                      { name: 'Storage Usage Report', description: 'Storage consumption by tenant', category: 'Analytics' },
+                      { name: 'Permission Audit', description: 'User permissions across all tenants', category: 'Security' }
+                    ].map((query, index) => (
+                      <div key={index} className="p-3 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer">
+                        <div className="font-medium text-sm text-gray-900">{query.name}</div>
+                        <div className="text-xs text-gray-500 mt-1">{query.description}</div>
+                        <div className="flex justify-between items-center mt-2">
+                          <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">
+                            {query.category}
+                          </span>
+                          <div className="flex gap-1">
+                            <button className="text-blue-600 hover:text-blue-800 text-xs">Load</button>
+                            <button className="text-red-600 hover:text-red-800 text-xs">Delete</button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Query Results */}
+          <div className="bg-white rounded-lg shadow">
+            <div className="p-6 border-b border-gray-200">
+              <h3 className="text-lg font-medium text-gray-900 flex items-center">
+                <BarChart3 className="mr-2" size={20} />
+                Query Results
+              </h3>
+            </div>
+            <div className="p-6">
+              {/* Sample Results Table */}
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        ID
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        First Name
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Last Name
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Email
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Tenant
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {[
+                      { id: '1', firstName: 'Sarah', lastName: 'Johnson', email: 'sarah.johnson@acmelegal.com', tenant: 'Acme Legal' },
+                      { id: '2', firstName: 'Mike', lastName: 'Chen', email: 'mike.chen@techstart.io', tenant: 'TechStart' },
+                      { id: '3', firstName: 'Emily', lastName: 'Rodriguez', email: 'emily.rodriguez@globalconsulting.com', tenant: 'Global Consulting' },
+                      { id: '4', firstName: 'David', lastName: 'Smith', email: 'david.smith@acmelegal.com', tenant: 'Acme Legal' },
+                      { id: '5', firstName: 'Lisa', lastName: 'Wang', email: 'lisa.wang@techstart.io', tenant: 'TechStart' }
+                    ].map((row, index) => (
+                      <tr key={index}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.id}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.firstName}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.lastName}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{row.email}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{row.tenant}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              
+              {/* Query Execution Info */}
+              <div className="mt-4 p-4 bg-gray-50 rounded-md">
+                <div className="flex justify-between items-center text-sm text-gray-600">
+                  <div>
+                    <span className="font-medium">Query executed successfully:</span> 5 rows returned in 23ms
+                  </div>
+                  <div className="flex gap-4">
+                    <button className="text-blue-600 hover:text-blue-800">Export CSV</button>
+                    <button className="text-blue-600 hover:text-blue-800">Export JSON</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Query History */}
+          <div className="bg-white rounded-lg shadow">
+            <div className="p-6 border-b border-gray-200">
+              <h3 className="text-lg font-medium text-gray-900">Query History</h3>
+            </div>
+            <div className="divide-y divide-gray-200">
+              {[
+                { query: 'SELECT * FROM users WHERE is_active = true', timestamp: '2 minutes ago', status: 'Success', rows: 45 },
+                { query: 'SELECT COUNT(*) FROM documents GROUP BY tenant_id', timestamp: '15 minutes ago', status: 'Success', rows: 3 },
+                { query: 'UPDATE users SET last_login_at = NOW() WHERE id = 123', timestamp: '1 hour ago', status: 'Success', rows: 1 },
+                { query: 'SELECT * FROM audit_logs WHERE severity = \'high\'', timestamp: '2 hours ago', status: 'Success', rows: 12 }
+              ].map((item, index) => (
+                <div key={index} className="p-6 flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="font-mono text-sm text-gray-900 mb-1">{item.query}</div>
+                    <div className="text-xs text-gray-500">{item.timestamp}</div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className={`px-2 py-1 text-xs rounded-full ${
+                      item.status === 'Success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                    }`}>
+                      {item.status}
+                    </span>
+                    <span className="text-sm text-gray-500">{item.rows} rows</span>
+                    <button className="text-blue-600 hover:text-blue-800 text-sm">Rerun</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 
+      {/* Advanced Database Operations Tab */}
       {activeTab === 'operations' && (
-        <div className="text-center py-8 text-gray-500">
-          <Settings size={48} className="mx-auto mb-4 opacity-50" />
-          <p>Advanced Operations interface coming soon...</p>
+        <div className="space-y-6">
+          {/* Operation Categories */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-blue-100 rounded-full">
+                  <Database size={24} className="text-blue-600" />
+                </div>
+                <span className="text-sm text-gray-500">5 operations</span>
+              </div>
+              <h3 className="text-lg font-medium text-gray-900">Database</h3>
+              <p className="text-sm text-gray-500 mt-1">Backup, restore, migration operations</p>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-green-100 rounded-full">
+                  <HardDrive size={24} className="text-green-600" />
+                </div>
+                <span className="text-sm text-gray-500">3 operations</span>
+              </div>
+              <h3 className="text-lg font-medium text-gray-900">Maintenance</h3>
+              <p className="text-sm text-gray-500 mt-1">Cleanup, optimization, indexing</p>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-yellow-100 rounded-full">
+                  <Shield size={24} className="text-yellow-600" />
+                </div>
+                <span className="text-sm text-gray-500">4 operations</span>
+              </div>
+              <h3 className="text-lg font-medium text-gray-900">Security</h3>
+              <p className="text-sm text-gray-500 mt-1">Audit, permissions, encryption</p>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-red-100 rounded-full">
+                  <AlertTriangle size={24} className="text-red-600" />
+                </div>
+                <span className="text-sm text-gray-500">2 operations</span>
+              </div>
+              <h3 className="text-lg font-medium text-gray-900">Emergency</h3>
+              <p className="text-sm text-gray-500 mt-1">Recovery, emergency procedures</p>
+            </div>
+          </div>
+
+          {/* Available Operations */}
+          <div className="bg-white rounded-lg shadow">
+            <div className="p-6 border-b border-gray-200">
+              <h3 className="text-lg font-medium text-gray-900 flex items-center">
+                <Settings className="mr-2" size={20} />
+                Available Operations
+              </h3>
+            </div>
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[
+                  {
+                    name: 'Full Database Backup',
+                    description: 'Create a complete backup of all database tables and data',
+                    category: 'Database',
+                    severity: 'low',
+                    estimated: '15-30 minutes',
+                    icon: Download
+                  },
+                  {
+                    name: 'Restore from Backup',
+                    description: 'Restore database from a previous backup file',
+                    category: 'Database',
+                    severity: 'high',
+                    estimated: '20-45 minutes',
+                    icon: Upload
+                  },
+                  {
+                    name: 'Migrate Schema',
+                    description: 'Apply pending database schema migrations',
+                    category: 'Database',
+                    severity: 'medium',
+                    estimated: '5-15 minutes',
+                    icon: RefreshCw
+                  },
+                  {
+                    name: 'Optimize Database',
+                    description: 'Rebuild indexes and optimize table performance',
+                    category: 'Maintenance',
+                    severity: 'low',
+                    estimated: '10-20 minutes',
+                    icon: Cpu
+                  },
+                  {
+                    name: 'Clear Cache',
+                    description: 'Clear all Redis cache entries and restart cache services',
+                    category: 'Maintenance',
+                    severity: 'low',
+                    estimated: '1-2 minutes',
+                    icon: X
+                  },
+                  {
+                    name: 'Reindex Search',
+                    description: 'Rebuild Elasticsearch indexes for all documents',
+                    category: 'Maintenance',
+                    severity: 'medium',
+                    estimated: '30-60 minutes',
+                    icon: Search
+                  },
+                  {
+                    name: 'Security Audit',
+                    description: 'Run comprehensive security scan on all system components',
+                    category: 'Security',
+                    severity: 'low',
+                    estimated: '5-10 minutes',
+                    icon: Shield
+                  },
+                  {
+                    name: 'Emergency Shutdown',
+                    description: 'Safely shutdown all services and database connections',
+                    category: 'Emergency',
+                    severity: 'critical',
+                    estimated: '2-5 minutes',
+                    icon: AlertTriangle
+                  }
+                ].map((operation, index) => {
+                  const Icon = operation.icon;
+                  return (
+                    <div key={index} className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center">
+                          <div className={`p-2 rounded-lg mr-3 ${
+                            operation.severity === 'critical' ? 'bg-red-100' :
+                            operation.severity === 'high' ? 'bg-orange-100' :
+                            operation.severity === 'medium' ? 'bg-yellow-100' :
+                            'bg-blue-100'
+                          }`}>
+                            <Icon size={16} className={
+                              operation.severity === 'critical' ? 'text-red-600' :
+                              operation.severity === 'high' ? 'text-orange-600' :
+                              operation.severity === 'medium' ? 'text-yellow-600' :
+                              'text-blue-600'
+                            } />
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-gray-900">{operation.name}</h4>
+                            <p className="text-sm text-gray-500 mt-1">{operation.description}</p>
+                          </div>
+                        </div>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          operation.severity === 'critical' ? 'bg-red-100 text-red-800' :
+                          operation.severity === 'high' ? 'bg-orange-100 text-orange-800' :
+                          operation.severity === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-blue-100 text-blue-800'
+                        }`}>
+                          {operation.severity}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center text-sm text-gray-500">
+                          <span className="mr-4">Category: {operation.category}</span>
+                          <span>Est. Time: {operation.estimated}</span>
+                        </div>
+                        <button 
+                          className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                            operation.severity === 'critical' 
+                              ? 'bg-red-600 text-white hover:bg-red-700' 
+                              : 'bg-blue-600 text-white hover:bg-blue-700'
+                          }`}
+                          onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
+                        >
+                          Execute
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Running Operations */}
+          <div className="bg-white rounded-lg shadow">
+            <div className="p-6 border-b border-gray-200">
+              <h3 className="text-lg font-medium text-gray-900 flex items-center">
+                <Activity className="mr-2" size={20} />
+                Running Operations
+              </h3>
+            </div>
+            <div className="p-6">
+              {[
+                {
+                  name: 'Database Optimization',
+                  status: 'running',
+                  progress: 65,
+                  startTime: '10:30 AM',
+                  estimatedCompletion: '10:45 AM',
+                  details: 'Rebuilding indexes on users table...'
+                },
+                {
+                  name: 'Search Reindexing',
+                  status: 'queued',
+                  progress: 0,
+                  startTime: '-',
+                  estimatedCompletion: '11:15 AM',
+                  details: 'Waiting for database optimization to complete'
+                }
+              ].map((operation, index) => (
+                <div key={index} className="border border-gray-200 rounded-lg p-4 mb-4 last:mb-0">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center">
+                      <div className={`w-3 h-3 rounded-full mr-3 ${
+                        operation.status === 'running' ? 'bg-blue-500 animate-pulse' : 'bg-gray-400'
+                      }`}></div>
+                      <div>
+                        <h4 className="font-medium text-gray-900">{operation.name}</h4>
+                        <p className="text-sm text-gray-500">{operation.details}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        operation.status === 'running' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {operation.status}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="mb-3">
+                    <div className="flex justify-between text-sm text-gray-600 mb-1">
+                      <span>Progress</span>
+                      <span>{operation.progress}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                        style={{width: `${operation.progress}%`}}
+                      ></div>
+                    </div>
+                  </div>
+                  <div className="flex justify-between text-sm text-gray-500">
+                    <span>Started: {operation.startTime}</span>
+                    <span>ETA: {operation.estimatedCompletion}</span>
+                    <button className="text-red-600 hover:text-red-800">Cancel</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Operation History */}
+          <div className="bg-white rounded-lg shadow">
+            <div className="p-6 border-b border-gray-200">
+              <h3 className="text-lg font-medium text-gray-900">Operation History</h3>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Operation
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Started
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Duration
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Executed By
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {[
+                    { 
+                      operation: 'Full Database Backup', 
+                      status: 'Completed', 
+                      started: '2 hours ago', 
+                      duration: '18 minutes', 
+                      user: 'admin@platform.com',
+                      result: 'Success'
+                    },
+                    { 
+                      operation: 'Clear Cache', 
+                      status: 'Completed', 
+                      started: '4 hours ago', 
+                      duration: '45 seconds', 
+                      user: 'admin@platform.com',
+                      result: 'Success'
+                    },
+                    { 
+                      operation: 'Security Audit', 
+                      status: 'Failed', 
+                      started: '1 day ago', 
+                      duration: '3 minutes', 
+                      user: 'admin@platform.com',
+                      result: 'Error'
+                    },
+                    { 
+                      operation: 'Optimize Database', 
+                      status: 'Completed', 
+                      started: '2 days ago', 
+                      duration: '12 minutes', 
+                      user: 'admin@platform.com',
+                      result: 'Success'
+                    }
+                  ].map((item, index) => (
+                    <tr key={index}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {item.operation}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          item.result === 'Success' ? 'bg-green-100 text-green-800' : 
+                          item.result === 'Error' ? 'bg-red-100 text-red-800' : 
+                          'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {item.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {item.started}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {item.duration}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {item.user}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button className="text-blue-600 hover:text-blue-800 mr-3">View Logs</button>
+                        <button className="text-gray-600 hover:text-gray-800">Repeat</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       )}
 
