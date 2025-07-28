@@ -110,11 +110,14 @@ This release establishes the start of the **foundational integration layer** for
 
 ## Pre-Alpha Development History
 
-### Version 0.0.3-pre-alpha
+### Version 0.0.1-pre-alpha
 
 ### Added
-- Text visibility CSS bug fix for dark theme
-- Theme selector correction from `[data-theme="dark"]` to `.dark` class
+- Initial project setup with React 18 + TypeScript frontend
+- .NET Core 8 API with Entity Framework Core
+- PostgreSQL database with multi-tenant architecture
+- Docker containerization with docker-compose
+- Basic authentication and authorization framework
 
 ### Version 0.0.2-pre-alpha
 
