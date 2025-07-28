@@ -28,6 +28,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<TenantAuditEntry> TenantAuditEntries => Set<TenantAuditEntry>();
     public DbSet<ImpersonationSession> ImpersonationSessions => Set<ImpersonationSession>();
     public DbSet<PlatformAdminAuditLog> PlatformAdminAuditLogs => Set<PlatformAdminAuditLog>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -335,6 +336,23 @@ public class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<PlatformAdminAuditLog>()
             .HasIndex(e => new { e.TargetEntityType, e.TargetEntityId });
+
+        // Refresh token indexes
+        modelBuilder.Entity<RefreshToken>()
+            .HasIndex(e => e.Token)
+            .IsUnique();
+
+        modelBuilder.Entity<RefreshToken>()
+            .HasIndex(e => new { e.UserId, e.CreatedAt });
+
+        modelBuilder.Entity<RefreshToken>()
+            .HasIndex(e => e.ExpiresAt);
+
+        modelBuilder.Entity<RefreshToken>()
+            .HasIndex(e => new { e.RevokedAt, e.RevokedByIp });
+
+        modelBuilder.Entity<RefreshToken>()
+            .HasIndex(e => e.CreatedByIp);
     }
 
     private static void SeedDefaultData(ModelBuilder modelBuilder)
