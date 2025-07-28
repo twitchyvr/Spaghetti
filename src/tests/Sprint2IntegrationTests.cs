@@ -1,11 +1,17 @@
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.SignalR.Client;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Collections.Concurrent;
+using System.Diagnostics;
 using Xunit;
 using FluentAssertions;
+using Testcontainers.PostgreSql;
+using Testcontainers.Elasticsearch;
+using Testcontainers.Redis;
 using EnterpriseDocsCore.Infrastructure.Data;
 using EnterpriseDocsCore.Domain.Interfaces;
 
