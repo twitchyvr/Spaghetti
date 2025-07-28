@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using EnterpriseDocsCore.Domain.Entities;
 using EnterpriseDocsCore.Infrastructure.Data;
@@ -29,6 +30,7 @@ namespace EnterpriseDocsCore.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/impersonation")]
+[Authorize(Policy = "Platform.Impersonate")]
 public class ImpersonationController : ControllerBase
 {
     private readonly ApplicationDbContext _context;

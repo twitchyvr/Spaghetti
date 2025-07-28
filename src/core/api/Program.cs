@@ -6,6 +6,7 @@ using EnterpriseDocsCore.Infrastructure.Services;
 using EnterpriseDocsCore.Domain.Interfaces;
 using EnterpriseDocsCore.API.Extensions;
 using EnterpriseDocsCore.API.Middleware;
+using EnterpriseDocsCore.API.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,18 +29,52 @@ builder.Services.AddSwaggerGen(c =>
     { 
         Title = "Enterprise Documentation Platform API", 
         Version = "v1",
-        Description = "Modular enterprise documentation platform with AI-powered content generation"
+        Description = "Comprehensive AI-powered enterprise documentation platform with JWT authentication",
+        Contact = new OpenApiContact
+        {
+            Name = "Enterprise Docs Support",
+            Email = "support@enterprisedocs.com"
+        }
     });
     
     // Add JWT authentication to Swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = "JWT Authorization header using the Bearer scheme",
+        Description = @"JWT Authorization header using the Bearer scheme. 
+                      Enter 'Bearer' [space] and then your token in the text input below.
+                      Example: 'Bearer 12345abcdef'",
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
+        Scheme = "Bearer",
+        BearerFormat = "JWT"
     });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                },
+                Scheme = "oauth2",
+                Name = "Bearer",
+                In = ParameterLocation.Header
+            },
+            new List<string>()
+        }
+    });
+
+    // Include XML comments if available
+    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath))
+    {
+        c.IncludeXmlComments(xmlPath);
+    }
 });
 
 // Database configuration - abstracted for multiple providers
@@ -66,6 +101,12 @@ switch (dbProvider.ToLower())
 
 // Configure authentication - abstracted for multiple providers
 builder.Services.ConfigureAuthentication(builder.Configuration);
+
+// Add tenant resolution
+builder.Services.AddTenantResolution(builder.Configuration);
+
+// Add custom authorization handlers
+builder.Services.AddCustomAuthorization();
 
 // Temporarily disable complex services until DI issues are resolved
 // TODO: Re-enable after fixing interface implementations
@@ -123,6 +164,10 @@ app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
+
+// Add tenant resolution middleware after authentication
+app.UseTenantResolution();
+
 app.UseAuthorization();
 
 // Custom middleware

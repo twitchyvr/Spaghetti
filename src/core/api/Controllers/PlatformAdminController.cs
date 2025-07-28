@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using EnterpriseDocsCore.Domain.Entities;
 using EnterpriseDocsCore.Infrastructure.Data;
@@ -23,6 +24,7 @@ namespace EnterpriseDocsCore.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/platform-admin")]
+[Authorize(Policy = "PlatformAdmin")]
 public class PlatformAdminController : ControllerBase
 {
     private readonly ApplicationDbContext _context;

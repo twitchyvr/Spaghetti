@@ -8,7 +8,7 @@ namespace EnterpriseDocsCore.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-// [Authorize(Roles = "System Administrator")] // Temporarily disabled for testing
+[Authorize(Policy = "PlatformAdmin")] // Require Platform Admin role for all admin operations
 public class AdminController : ControllerBase
 {
     private readonly DatabaseSeedingService _seedingService;
@@ -29,7 +29,7 @@ public class AdminController : ControllerBase
     /// Seeds the database with comprehensive sample data for demo purposes
     /// </summary>
     [HttpPost("seed-sample-data")]
-    [AllowAnonymous] // Temporarily added for testing
+    [AllowAnonymous] // Allow anonymous access for initial setup
     public async Task<IActionResult> SeedSampleData()
     {
         try

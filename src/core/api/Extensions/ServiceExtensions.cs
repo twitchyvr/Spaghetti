@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using EnterpriseDocsCore.Domain.Interfaces;
+using EnterpriseDocsCore.Infrastructure.Services;
+using EnterpriseDocsCore.API.Authorization;
 
 namespace EnterpriseDocsCore.API.Extensions;
 
@@ -26,43 +28,91 @@ public static class ServiceExtensions
                 break;
         }
 
+        // Register authentication services
+        services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<IPasswordService, PasswordService>();
+
         // Add authorization policies
         services.AddAuthorization(options =>
         {
-            // Require authenticated user by default
+            // Default authentication requirement for all endpoints (can be overridden with [AllowAnonymous])
             options.FallbackPolicy = new AuthorizationPolicyBuilder()
                 .RequireAuthenticatedUser()
                 .Build();
 
-            // Document permissions
+            // Role-based policies using SystemRoles constants
+            options.AddPolicy("PlatformAdmin", policy => 
+                policy.RequireRole("Platform.Admin"));
+            options.AddPolicy("PlatformSupport", policy => 
+                policy.RequireRole("Platform.Support", "Platform.Admin"));
+            options.AddPolicy("ClientAdmin", policy => 
+                policy.RequireRole("Client.Admin", "Platform.Admin"));
+            options.AddPolicy("ClientManager", policy => 
+                policy.RequireRole("Client.Manager", "Client.Admin", "Platform.Admin"));
+
+            // Document permissions based on SystemPermissions constants
+            options.AddPolicy("Document.Create", policy => 
+                policy.RequireClaim("permission", "document.create"));
             options.AddPolicy("Document.Read", policy => 
-                policy.RequireClaim("permission", "Document.Read"));
-            options.AddPolicy("Document.Write", policy => 
-                policy.RequireClaim("permission", "Document.Write"));
+                policy.RequireClaim("permission", "document.read"));
+            options.AddPolicy("Document.Update", policy => 
+                policy.RequireClaim("permission", "document.update"));
             options.AddPolicy("Document.Delete", policy => 
-                policy.RequireClaim("permission", "Document.Delete"));
-            options.AddPolicy("Document.Admin", policy => 
-                policy.RequireClaim("permission", "Document.Admin"));
+                policy.RequireClaim("permission", "document.delete"));
+            options.AddPolicy("Document.Publish", policy => 
+                policy.RequireClaim("permission", "document.publish"));
+            options.AddPolicy("Document.Share", policy => 
+                policy.RequireClaim("permission", "document.share"));
 
             // User management permissions
+            options.AddPolicy("User.Manage", policy => 
+                policy.RequireClaim("permission", "client.manage_users"));
             options.AddPolicy("User.Read", policy => 
-                policy.RequireClaim("permission", "User.Read"));
-            options.AddPolicy("User.Admin", policy => 
-                policy.RequireClaim("permission", "User.Admin"));
+                policy.RequireClaim("permission", "client.manage_users", "platform.manage_users"));
 
-            // Tenant administration
-            options.AddPolicy("Tenant.Admin", policy => 
-                policy.RequireClaim("permission", "Tenant.Admin"));
+            // Platform management permissions
+            options.AddPolicy("Platform.ManageTenants", policy => 
+                policy.RequireClaim("permission", "platform.manage_tenants"));
+            options.AddPolicy("Platform.ManageUsers", policy => 
+                policy.RequireClaim("permission", "platform.manage_users"));
+            options.AddPolicy("Platform.ViewAnalytics", policy => 
+                policy.RequireClaim("permission", "platform.view_analytics"));
+            options.AddPolicy("Platform.Impersonate", policy => 
+                policy.RequireClaim("permission", "platform.impersonate"));
 
-            // System administration
-            options.AddPolicy("System.Admin", policy => 
-                policy.RequireClaim("permission", "System.Admin"));
+            // Client management permissions
+            options.AddPolicy("Client.ManageSettings", policy => 
+                policy.RequireClaim("permission", "client.manage_settings"));
+            options.AddPolicy("Client.ViewAnalytics", policy => 
+                policy.RequireClaim("permission", "client.view_analytics"));
+            options.AddPolicy("Client.ManageBilling", policy => 
+                policy.RequireClaim("permission", "client.manage_billing"));
 
-            // Module management
-            options.AddPolicy("Module.Configure", policy => 
-                policy.RequireClaim("permission", "Module.Configure"));
-            options.AddPolicy("Module.Admin", policy => 
-                policy.RequireClaim("permission", "Module.Admin"));
+            // Public access policies
+            options.AddPolicy("Public.ViewDocuments", policy => 
+                policy.RequireClaim("permission", "document.view_public"));
+            options.AddPolicy("Public.AccessPortal", policy => 
+                policy.RequireClaim("permission", "portal.access_public"));
+
+            // Combined role and permission policies for common scenarios
+            options.AddPolicy("AdminOrManager", policy =>
+                policy.RequireAssertion(context =>
+                    context.User.IsInRole("Platform.Admin") ||
+                    context.User.IsInRole("Client.Admin") ||
+                    context.User.IsInRole("Client.Manager")));
+
+            options.AddPolicy("DocumentOwnerOrAdmin", policy =>
+                policy.RequireAssertion(context =>
+                    context.User.IsInRole("Platform.Admin") ||
+                    context.User.IsInRole("Client.Admin") ||
+                    context.User.HasClaim("permission", "document.delete")));
+
+            // Multi-tenant aware policies
+            options.AddPolicy("SameTenant", policy =>
+                policy.AddRequirements(new TenantRequirement()));
+
+            options.AddPolicy("DocumentOwner", policy =>
+                policy.AddRequirements(new DocumentOwnershipRequirement()));
         });
 
         return services;
@@ -152,17 +202,17 @@ public static class ServiceExtensions
         switch (storageProvider.ToLower())
         {
             case "azure":
-                services.AddScoped<IStorageService, AzureBlobStorageService>();
+                services.AddScoped<Domain.Interfaces.IStorageService, AzureBlobStorageService>();
                 break;
             case "aws":
-                services.AddScoped<IStorageService, AwsS3StorageService>();
+                services.AddScoped<Domain.Interfaces.IStorageService, AwsS3StorageService>();
                 break;
             case "digitalocean":
-                services.AddScoped<IStorageService, DigitalOceanSpacesStorageService>();
+                services.AddScoped<Domain.Interfaces.IStorageService, DigitalOceanSpacesStorageService>();
                 break;
             case "local":
             default:
-                services.AddScoped<IStorageService, LocalFileStorageService>();
+                services.AddScoped<Domain.Interfaces.IStorageService, LocalFileStorageService>();
                 break;
         }
 
@@ -233,7 +283,7 @@ public class ModuleOptions
 }
 
 // Storage service implementations (simplified interfaces)
-public class AzureBlobStorageService : IStorageService
+public class AzureBlobStorageService : Domain.Interfaces.IStorageService
 {
     public Task<string> SaveFileAsync(Stream fileStream, string fileName, CancellationToken cancellationToken = default)
     {
@@ -281,7 +331,7 @@ public class AzureBlobStorageService : IStorageService
     }
 }
 
-public class AwsS3StorageService : IStorageService
+public class AwsS3StorageService : Domain.Interfaces.IStorageService
 {
     public Task<string> SaveFileAsync(Stream fileStream, string fileName, CancellationToken cancellationToken = default)
     {
@@ -329,7 +379,7 @@ public class AwsS3StorageService : IStorageService
     }
 }
 
-public class DigitalOceanSpacesStorageService : IStorageService
+public class DigitalOceanSpacesStorageService : Domain.Interfaces.IStorageService
 {
     public Task<string> SaveFileAsync(Stream fileStream, string fileName, CancellationToken cancellationToken = default)
     {
