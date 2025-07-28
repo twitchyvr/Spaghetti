@@ -9,6 +9,7 @@ const PlatformAdminDashboard = React.lazy(() => import('./pages/PlatformAdminDas
 const ClientManagement = React.lazy(() => import('./pages/ClientManagement'));
 const Documents = React.lazy(() => import('./pages/Documents'));
 const DatabaseAdmin = React.lazy(() => import('./pages/DatabaseAdmin'));
+const ImpersonationManagement = React.lazy(() => import('./pages/ImpersonationManagement'));
 const Login = React.lazy(() => import('./pages/Login'));
 const Settings = React.lazy(() => import('./pages/Settings'));
 const NotFound = React.lazy(() => import('./pages/NotFound'));
@@ -84,6 +85,7 @@ function App() {
                     <Route path="/clients/*" element={<ClientManagement />} />
                     <Route path="/documents/*" element={<Documents />} />
                     <Route path="/database/*" element={<DatabaseAdmin />} />
+                    <Route path="/impersonation/*" element={<ImpersonationManagement />} />
                     <Route path="/settings/*" element={<Settings />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>

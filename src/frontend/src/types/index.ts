@@ -631,6 +631,76 @@ export interface ThemeConfig {
   shadows: Record<string, string>;
 }
 
+// Impersonation types
+export interface ImpersonationTarget {
+  userId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+  lastLoginAt?: string;
+  documentCount: number;
+  tenantId: string;
+  tenantName: string;
+  tenantSubdomain: string;
+  isImpersonationActive: boolean;
+}
+
+export interface ImpersonationSession {
+  id: string;
+  adminUserId: string;
+  adminUserEmail: string;
+  targetUserId: string;
+  targetUserEmail: string;
+  targetTenantId: string;
+  reason: string;
+  startedAt: string;
+  endedAt?: string;
+  expiresAt: string;
+  endReason?: string;
+  isActive: boolean;
+  adminIPAddress?: string;
+  adminUserAgent?: string;
+}
+
+export interface ImpersonationSessionHistory {
+  id: string;
+  adminUserEmail: string;
+  targetUserEmail: string;
+  tenantId: string;
+  reason: string;
+  startedAt: string;
+  endedAt?: string;
+  expiresAt: string;
+  endReason?: string;
+  durationMinutes: number;
+  isActive: boolean;
+  adminIPAddress?: string;
+}
+
+export interface StartImpersonationRequest {
+  targetUserId: string;
+  reason: string;
+  durationHours?: number;
+}
+
+export interface EndImpersonationRequest {
+  reason?: string;
+}
+
+export interface EmergencyEndRequest {
+  confirmationToken: string;
+  reason: string;
+}
+
+export interface PaginatedResult<T> {
+  items: T[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
 // Configuration types
 export interface AppConfig {
   apiBaseUrl: string;
