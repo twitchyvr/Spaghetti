@@ -213,3 +213,17 @@ public interface ITenantAuditEntryRepository : IRepository<TenantAuditEntry, Gui
     Task<IEnumerable<TenantAuditEntry>> GetRecentActivityAsync(Guid? tenantId = null, int count = 50, CancellationToken cancellationToken = default);
     Task<int> DeleteOldEntriesAsync(DateTime beforeDate, CancellationToken cancellationToken = default);
 }
+
+public interface IRefreshTokenRepository : IRepository<RefreshToken, Guid>
+{
+    // RefreshToken-specific queries
+    Task<RefreshToken?> GetByTokenAsync(string token, CancellationToken cancellationToken = default);
+    Task<IEnumerable<RefreshToken>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<RefreshToken>> GetActiveByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<RefreshToken>> GetExpiredTokensAsync(CancellationToken cancellationToken = default);
+    
+    Task<bool> IsTokenValidAsync(string token, CancellationToken cancellationToken = default);
+    Task<bool> RevokeTokenAsync(string token, string? revokedByIp = null, string? reason = null, CancellationToken cancellationToken = default);
+    Task<int> RevokeAllUserTokensAsync(Guid userId, string? revokedByIp = null, string? reason = null, CancellationToken cancellationToken = default);
+    Task<int> DeleteExpiredTokensAsync(CancellationToken cancellationToken = default);
+}
