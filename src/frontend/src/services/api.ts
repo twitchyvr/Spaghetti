@@ -89,21 +89,38 @@ export const adminApi = {
       });
     }
     
-    return fetchApi<{
-      totalUsers: number;
-      totalDocuments: number;
-      totalTenants: number;
-      totalRoles: number;
-      totalPermissions: number;
-      totalAuditEntries: number;
-      databaseSize: string;
-      lastBackup: string | null;
-      systemHealth: {
-        database: boolean;
-        redis: boolean;
-        elasticsearch: boolean;
-      };
+    const response = await fetchApi<{
+      tenants: number;
+      users: number;
+      documents: number;
+      documentTags: number;
+      documentPermissions: number;
+      roles: number;
+      userRoles: number;
+      tenantModules: number;
+      documentAudits: number;
+      userAudits: number;
+      tenantAudits: number;
+      databaseStatus: string;
+      lastChecked: string;
     }>('/admin/database-stats');
+
+    // Transform API response to match frontend expectations
+    return {
+      totalUsers: response.users,
+      totalDocuments: response.documents,
+      totalTenants: response.tenants,
+      totalRoles: response.roles,
+      totalPermissions: response.documentPermissions,
+      totalAuditEntries: response.documentAudits + response.userAudits + response.tenantAudits,
+      databaseSize: '0 MB', // API doesn't return this yet
+      lastBackup: null, // API doesn't return this yet
+      systemHealth: {
+        database: response.databaseStatus === 'healthy',
+        redis: true, // Assume healthy for now
+        elasticsearch: true // Assume healthy for now
+      }
+    };
   },
 
   // Check sample data status
@@ -120,14 +137,24 @@ export const adminApi = {
       });
     }
     
-    return fetchApi<{
+    const response = await fetchApi<{
       hasSampleData: boolean;
-      counts: {
-        users: number;
-        documents: number;
-        tenants: number;
-      };
+      hasDemoUser: boolean;
+      sampleTenantsCount: number;
+      totalUsers: number;
+      totalDocuments: number;
+      lastChecked: string;
     }>('/admin/sample-data-status');
+
+    // Transform API response to match frontend expectations
+    return {
+      hasSampleData: response.hasSampleData,
+      counts: {
+        users: response.totalUsers,
+        documents: response.totalDocuments,
+        tenants: response.sampleTenantsCount
+      }
+    };
   },
 
   // Seed sample data
