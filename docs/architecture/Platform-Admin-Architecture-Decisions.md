@@ -211,8 +211,8 @@ CREATE TABLE PlatformMetricsDaily (
 
 | Date | Change | Author | Reason |
 |------|--------|--------|---------|
-| 2025-07-25 | Initial ADR Creation | Platform Team | Establish architectural foundation |
-| 2025-07-25 | Add implementation details | Platform Team | Define technical approach |
+| Initial Version | Initial ADR Creation | Platform Team | Establish architectural foundation |
+| Implementation Details | Add implementation details | Platform Team | Define technical approach |
 
 ---
 
