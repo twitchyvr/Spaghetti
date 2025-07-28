@@ -5,7 +5,6 @@ import {
   Users, 
   Building2,
   DollarSign,
-  TrendingUp,
   Activity,
   AlertCircle,
   Plus,
@@ -13,8 +12,18 @@ import {
   Eye,
   Settings,
   BarChart3,
-  Shield
+  Shield,
+  PieChart,
+  Target,
+  Zap
 } from 'lucide-react';
+import { RevenueAnalytics } from '../components/charts/RevenueAnalytics';
+import { CustomerAnalytics } from '../components/charts/CustomerAnalytics';
+import { 
+  UsageAnalyticsChart, 
+  HealthMetricsChart, 
+  KPICard 
+} from '../components/charts/AnalyticsCharts';
 
 /**
  * Platform Admin Dashboard
@@ -86,6 +95,7 @@ export default function PlatformAdminDashboard() {
   const [selectedTimeRange] = useState('30d');
   const [clientSearchTerm, setClientSearchTerm] = useState('');
   const [clientFilter, setClientFilter] = useState('all');
+  const [activeTab, setActiveTab] = useState<'overview' | 'revenue' | 'customers' | 'usage' | 'health'>('overview');
 
   // Load platform admin data on component mount
   useEffect(() => {
@@ -272,118 +282,51 @@ export default function PlatformAdminDashboard() {
   });
 
   /**
-   * Format change percentage with appropriate styling
+   * Render content based on active tab
    */
-  const formatChange = (change: number, type: 'positive' | 'negative' | 'neutral') => {
-    const Icon = change > 0 ? TrendingUp : TrendingUp;
-    const colorClass = type === 'positive' ? 'text-green-600' : 
-                      type === 'negative' ? 'text-red-600' : 'text-gray-600';
-    
-    return (
-      <div className={`flex items-center space-x-1 ${colorClass}`}>
-        <Icon size={14} />
-        <span className="text-sm font-medium">{Math.abs(change)}%</span>
-      </div>
-    );
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'overview':
+        return renderOverviewTab();
+      case 'revenue':
+        return <RevenueAnalytics className="mt-6" />;
+      case 'customers':
+        return <CustomerAnalytics className="mt-6" />;
+      case 'usage':
+        return renderUsageAnalytics();
+      case 'health':
+        return renderHealthAnalytics();
+      default:
+        return renderOverviewTab();
+    }
   };
 
-  // Loading state
-  if (isLoading) {
-    return (
-      <div className="dashboard">
-        <div className="loading-container">
-          <div className="loading-spinner">
-            <Activity className="animate-spin" size={48} />
-          </div>
-          <p className="loading-text">Loading platform administration data...</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="platform-admin-dashboard">
-      {/* Error Alert */}
-      {error && (
-        <div className="alert alert-error mb-6">
-          <AlertCircle size={20} />
-          <span>{error}</span>
-          <button onClick={fetchPlatformData} className="btn btn-sm">
-            Retry
-          </button>
-        </div>
-      )}
-
-      {/* Platform Admin Header */}
-      <section className="dashboard-header mb-8">
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              Platform Administration
-            </h1>
-            <p className="text-gray-600 mt-2">
-              Comprehensive oversight of the Spaghetti documentation platform
-            </p>
-            <p className="text-sm text-gray-500 mt-1">
-              Welcome back, {user?.firstName || 'Platform Admin'} • Last updated: {new Date().toLocaleString()}
-            </p>
-          </div>
-          
-          {/* Quick Actions */}
-          <div className="flex space-x-3">
-            <button 
-              onClick={handleAddClient}
-              className="btn btn-primary flex items-center space-x-2"
-            >
-              <Plus size={16} />
-              <span>Add Client</span>
-            </button>
-            <button className="btn btn-secondary flex items-center space-x-2">
-              <Shield size={16} />
-              <span>Impersonate</span>
-            </button>
-            <button className="btn btn-secondary flex items-center space-x-2">
-              <BarChart3 size={16} />
-              <span>Analytics</span>
-            </button>
-          </div>
-        </div>
-      </section>
-
+  /**
+   * Render the overview tab with platform metrics and client management
+   */
+  const renderOverviewTab = () => (
+    <>
       {/* Platform Metrics Overview */}
       <section className="metrics-overview mb-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {generateMetricCards().map((metric) => (
-            <div key={metric.id} className="bg-white rounded-lg shadow-sm border p-6">
-              <div className="flex items-center justify-between">
-                <div className={`p-3 rounded-lg bg-${metric.color}-100`}>
-                  <div className={`text-${metric.color}-600`}>
-                    {metric.icon}
-                  </div>
-                </div>
-                {metric.change && formatChange(metric.change, metric.changeType!)}
-              </div>
-              
-              <div className="mt-4">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  {metric.value}
-                </h3>
-                <p className="text-sm text-gray-600">{metric.title}</p>
-                {metric.description && (
-                  <p className="text-xs text-gray-500 mt-1">{metric.description}</p>
-                )}
-              </div>
-              
-              {metric.actionCallback && (
-                <button 
-                  onClick={metric.actionCallback}
-                  className="mt-4 text-sm text-blue-600 hover:text-blue-800 font-medium"
-                >
-                  {metric.actionLabel} →
-                </button>
-              )}
-            </div>
-          ))}
+          {generateMetricCards().map((metric) => {
+            const kpiProps: any = {
+              key: metric.id,
+              title: metric.title,
+              value: metric.value,
+              icon: metric.icon
+            };
+            
+            if (metric.change !== undefined) {
+              kpiProps.change = metric.change;
+            }
+            
+            if (metric.changeType !== undefined) {
+              kpiProps.changeType = metric.changeType;
+            }
+            
+            return <KPICard {...kpiProps} />;
+          })}
         </div>
       </section>
 
@@ -495,6 +438,312 @@ export default function PlatformAdminDashboard() {
           </div>
         </div>
       </section>
+    </>
+  );
+
+  /**
+   * Render usage analytics tab
+   */
+  const renderUsageAnalytics = () => {
+    const mockUsageData = [
+      { name: 'Documents Created', value: 2847 },
+      { name: 'API Calls', value: 125000 },
+      { name: 'Active Users', value: 892 },
+      { name: 'Storage Used (GB)', value: 1247 }
+    ];
+
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <KPICard
+            title="Daily Active Users"
+            value="892"
+            change={5.2}
+            changeType="positive"
+            icon={<Users size={24} />}
+          />
+          <KPICard
+            title="API Calls Today"
+            value="12.5K"
+            change={-2.1}
+            changeType="negative"
+            icon={<Zap size={24} />}
+          />
+          <KPICard
+            title="Documents Created"
+            value="2,847"
+            change={15.7}
+            changeType="positive"
+            icon={<Target size={24} />}
+          />
+          <KPICard
+            title="Storage Usage"
+            value="1.2 TB"
+            change={8.3}
+            changeType="positive"
+            icon={<BarChart3 size={24} />}
+          />
+        </div>
+        
+        <UsageAnalyticsChart
+          data={mockUsageData}
+          title="Platform Usage Overview"
+          height={400}
+        />
+      </div>
+    );
+  };
+
+  /**
+   * Render platform health analytics tab
+   */
+  const renderHealthAnalytics = () => {
+    const mockHealthData = [
+      { date: '2024-07-20', uptime: 99.95, responseTime: 145 },
+      { date: '2024-07-21', uptime: 99.98, responseTime: 142 },
+      { date: '2024-07-22', uptime: 99.92, responseTime: 158 },
+      { date: '2024-07-23', uptime: 99.97, responseTime: 139 },
+      { date: '2024-07-24', uptime: 99.99, responseTime: 135 },
+      { date: '2024-07-25', uptime: 99.96, responseTime: 148 }
+    ];
+
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <KPICard
+            title="System Uptime"
+            value="99.97%"
+            change={0.02}
+            changeType="positive"
+            icon={<Activity size={24} />}
+          />
+          <KPICard
+            title="Avg Response Time"
+            value="145ms"
+            change={-5.2}
+            changeType="positive"
+            icon={<Zap size={24} />}
+          />
+          <KPICard
+            title="Active Incidents"
+            value="0"
+            change={-100}
+            changeType="positive"
+            icon={<AlertCircle size={24} />}
+          />
+          <KPICard
+            title="Error Rate"
+            value="0.03%"
+            change={-25.5}
+            changeType="positive"
+            icon={<Target size={24} />}
+          />
+        </div>
+        
+        <HealthMetricsChart
+          data={mockHealthData}
+          title="Platform Health Metrics"
+          height={400}
+        />
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="bg-white rounded-lg shadow-sm border p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">System Status</h3>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">API Gateway</span>
+                <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                  Operational
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Database</span>
+                <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                  Operational
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Redis Cache</span>
+                <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                  Operational
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Elasticsearch</span>
+                <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                  Operational
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm border p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+            <div className="space-y-3">
+              <div className="text-sm">
+                <p className="text-gray-900 font-medium">All systems operational</p>
+                <p className="text-gray-500">No incidents in the last 24 hours</p>
+                <p className="text-xs text-gray-400">2 minutes ago</p>
+              </div>
+              <div className="text-sm">
+                <p className="text-gray-900 font-medium">Maintenance completed</p>
+                <p className="text-gray-500">Database optimization completed successfully</p>
+                <p className="text-xs text-gray-400">2 hours ago</p>
+              </div>
+              <div className="text-sm">
+                <p className="text-gray-900 font-medium">Security update deployed</p>
+                <p className="text-gray-500">Authentication service updated to v2.1.3</p>
+                <p className="text-xs text-gray-400">1 day ago</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="dashboard">
+        <div className="loading-container">
+          <div className="loading-spinner">
+            <Activity className="animate-spin" size={48} />
+          </div>
+          <p className="loading-text">Loading platform administration data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="platform-admin-dashboard">
+      {/* Error Alert */}
+      {error && (
+        <div className="alert alert-error mb-6">
+          <AlertCircle size={20} />
+          <span>{error}</span>
+          <button onClick={fetchPlatformData} className="btn btn-sm">
+            Retry
+          </button>
+        </div>
+      )}
+
+      {/* Platform Admin Header */}
+      <section className="dashboard-header mb-8">
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Platform Administration
+            </h1>
+            <p className="text-gray-600 mt-2">
+              Comprehensive oversight of the Spaghetti documentation platform
+            </p>
+            <p className="text-sm text-gray-500 mt-1">
+              Welcome back, {user?.firstName || 'Platform Admin'} • Last updated: {new Date().toLocaleString()}
+            </p>
+          </div>
+          
+          {/* Quick Actions */}
+          <div className="flex space-x-3">
+            <button 
+              onClick={handleAddClient}
+              className="btn btn-primary flex items-center space-x-2"
+            >
+              <Plus size={16} />
+              <span>Add Client</span>
+            </button>
+            <button className="btn btn-secondary flex items-center space-x-2">
+              <Shield size={16} />
+              <span>Impersonate</span>
+            </button>
+            <button className="btn btn-secondary flex items-center space-x-2">
+              <BarChart3 size={16} />
+              <span>Analytics</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Analytics Navigation Tabs */}
+      <section className="analytics-navigation mb-8">
+        <div className="border-b border-gray-200">
+          <nav className="-mb-px flex space-x-8">
+            <button
+              onClick={() => setActiveTab('overview')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'overview'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center space-x-2">
+                <BarChart3 size={16} />
+                <span>Overview</span>
+              </div>
+            </button>
+            
+            <button
+              onClick={() => setActiveTab('revenue')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'revenue'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center space-x-2">
+                <DollarSign size={16} />
+                <span>Revenue Analytics</span>
+              </div>
+            </button>
+            
+            <button
+              onClick={() => setActiveTab('customers')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'customers'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center space-x-2">
+                <Users size={16} />
+                <span>Customer Analytics</span>
+              </div>
+            </button>
+            
+            <button
+              onClick={() => setActiveTab('usage')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'usage'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center space-x-2">
+                <PieChart size={16} />
+                <span>Usage Analytics</span>
+              </div>
+            </button>
+            
+            <button
+              onClick={() => setActiveTab('health')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'health'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center space-x-2">
+                <Activity size={16} />
+                <span>Platform Health</span>
+              </div>
+            </button>
+          </nav>
+        </div>
+      </section>
+
+      {/* Dynamic Content Based on Active Tab */}
+      {renderTabContent()}
     </div>
   );
 }

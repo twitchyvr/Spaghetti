@@ -28,6 +28,17 @@ public class ApplicationDbContext : DbContext
     public DbSet<TenantAuditEntry> TenantAuditEntries => Set<TenantAuditEntry>();
     public DbSet<ImpersonationSession> ImpersonationSessions => Set<ImpersonationSession>();
     public DbSet<PlatformAdminAuditLog> PlatformAdminAuditLogs => Set<PlatformAdminAuditLog>();
+    
+    // Analytics Entity Sets
+    public DbSet<PlatformMetricsDaily> PlatformMetricsDaily => Set<PlatformMetricsDaily>();
+    public DbSet<RevenueMetricsMonthly> RevenueMetricsMonthly => Set<RevenueMetricsMonthly>();
+    public DbSet<CustomerCohort> CustomerCohorts => Set<CustomerCohort>();
+    public DbSet<TenantUsageMetrics> TenantUsageMetrics => Set<TenantUsageMetrics>();
+    public DbSet<RevenueForecast> RevenueForecasts => Set<RevenueForecast>();
+    public DbSet<PlatformHealthMetrics> PlatformHealthMetrics => Set<PlatformHealthMetrics>();
+    public DbSet<FeatureAdoptionMetrics> FeatureAdoptionMetrics => Set<FeatureAdoptionMetrics>();
+    public DbSet<GeographicMetrics> GeographicMetrics => Set<GeographicMetrics>();
+    public DbSet<CompetitiveMetrics> CompetitiveMetrics => Set<CompetitiveMetrics>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

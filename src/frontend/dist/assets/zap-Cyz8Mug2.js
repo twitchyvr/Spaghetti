@@ -1,6 +1,6 @@
-import{c as t}from"./index-BioO-Xid.js";/**
+import{c as o}from"./index-iO-Q8PHD.js";/**
  * @license lucide-react v0.294.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
- */const i=t("Activity",[["path",{d:"M22 12h-4l-3 9L9 3l-3 9H2",key:"d5dnw9"}]]);export{i as A};
+ */const a=o("Zap",[["polygon",{points:"13 2 3 14 12 14 11 22 21 10 12 10 13 2",key:"45s27k"}]]);export{a as Z};
