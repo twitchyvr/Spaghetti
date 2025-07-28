@@ -1733,7 +1733,7 @@ LIMIT 100;"
                     category: 'Database',
                     severity: 'high',
                     estimated: '20-45 minutes',
-                    icon: Upload
+                    icon: FileUp
                   },
                   {
                     name: 'Migrate Schema',
