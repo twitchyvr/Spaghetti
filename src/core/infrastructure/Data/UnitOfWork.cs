@@ -34,6 +34,11 @@ public class UnitOfWork : IUnitOfWork
     private ITenantModuleRepository? _tenantModules;
     private ITenantAuditEntryRepository? _tenantAuditEntries;
 
+    // New authentication-related repositories
+    private IAuthenticationSessionRepository? _authenticationSessions;
+    private IUserPermissionRepository? _userPermissions;
+    private IUserAuthenticationMethodRepository? _userAuthenticationMethods;
+
     public UnitOfWork(ApplicationDbContext context, ILoggerFactory loggerFactory)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
@@ -83,6 +88,16 @@ public class UnitOfWork : IUnitOfWork
 
     public ITenantAuditEntryRepository TenantAuditEntries =>
         _tenantAuditEntries ??= new TenantAuditEntryRepository(_context, _loggerFactory.CreateLogger<TenantAuditEntryRepository>());
+
+    // New authentication-related repository properties
+    public IAuthenticationSessionRepository AuthenticationSessions =>
+        _authenticationSessions ??= new AuthenticationSessionRepository(_context, _loggerFactory.CreateLogger<AuthenticationSessionRepository>());
+
+    public IUserPermissionRepository UserPermissions =>
+        _userPermissions ??= new UserPermissionRepository(_context, _loggerFactory.CreateLogger<UserPermissionRepository>());
+
+    public IUserAuthenticationMethodRepository UserAuthenticationMethods =>
+        _userAuthenticationMethods ??= new UserAuthenticationMethodRepository(_context, _loggerFactory.CreateLogger<UserAuthenticationMethodRepository>());
 
     #endregion
 

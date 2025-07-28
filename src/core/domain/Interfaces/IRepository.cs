@@ -71,6 +71,11 @@ public interface IUnitOfWork : IDisposable
     ITenantModuleRepository TenantModules { get; }
     ITenantAuditEntryRepository TenantAuditEntries { get; }
     
+    // Enhanced authentication repositories
+    IAuthenticationSessionRepository AuthenticationSessions { get; }
+    IUserPermissionRepository UserPermissions { get; }
+    IUserAuthenticationMethodRepository UserAuthenticationMethods { get; }
+    
     // Transaction management
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     Task<int> SaveChangesAsync(Guid userId, CancellationToken cancellationToken = default);
