@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using EnterpriseDocsCore.Domain.Entities;
+using EnterpriseDocsCore.API.Middleware;
 
 namespace EnterpriseDocsCore.API.Authorization;
 

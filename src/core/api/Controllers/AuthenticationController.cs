@@ -446,20 +446,20 @@ public class AuthenticationController : ControllerBase
             Subdomain = tenant.Subdomain,
             Status = tenant.Status,
             Tier = tenant.Tier,
-            Industry = tenant.Industry,
-            IsActive = tenant.IsActive,
+            Industry = "General", // No industry field in current Tenant structure
+            IsActive = tenant.Status == TenantStatus.Active,
             CreatedAt = tenant.CreatedAt,
-            TrialExpiresAt = tenant.TrialExpiresAt,
+            TrialExpiresAt = tenant.Billing.TrialEndDate,
             Settings = new TenantSettingsDto
             {
-                AllowGuestAccess = tenant.Settings.AllowGuestAccess,
-                EnableAuditLogging = tenant.Settings.EnableAuditLogging,
-                EnableAPIAccess = tenant.Settings.EnableAPIAccess,
-                TimeZone = tenant.Settings.TimeZone,
-                Language = tenant.Settings.Language,
-                MaxUsers = tenant.Settings.MaxUsers,
-                MaxDocuments = tenant.Settings.MaxDocuments,
-                MaxStorageBytes = tenant.Settings.MaxStorageBytes
+                AllowGuestAccess = false, // No guest access field in current structure
+                EnableAuditLogging = tenant.Configuration.EnableAuditLogging,
+                EnableAPIAccess = true, // Default value as no field in current structure
+                TimeZone = tenant.Configuration.DefaultTimeZone,
+                Language = tenant.Configuration.DefaultLanguage,
+                MaxUsers = tenant.Quotas.MaxUsers,
+                MaxDocuments = tenant.Quotas.MaxDocumentsPerMonth,
+                MaxStorageBytes = tenant.Quotas.MaxStorageBytes
             }
         };
     }

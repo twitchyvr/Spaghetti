@@ -60,7 +60,7 @@ public class TenantResolutionMiddleware
                 if (tenantIdClaim != null && Guid.TryParse(tenantIdClaim.Value, out var tenantId))
                 {
                     var tenant = await unitOfWork.Tenants.GetByIdAsync(tenantId);
-                    if (tenant != null && tenant.IsActive)
+                    if (tenant != null && tenant.Status == TenantStatus.Active)
                     {
                         return tenant;
                     }
@@ -76,7 +76,7 @@ public class TenantResolutionMiddleware
                 if (!string.IsNullOrEmpty(subdomain) && !IsSystemSubdomain(subdomain))
                 {
                     var tenant = await unitOfWork.Tenants.GetBySubdomainAsync(subdomain);
-                    if (tenant != null && tenant.IsActive)
+                    if (tenant != null && tenant.Status == TenantStatus.Active)
                     {
                         return tenant;
                     }
@@ -91,7 +91,7 @@ public class TenantResolutionMiddleware
                     if (Guid.TryParse(tenantIdHeader.FirstOrDefault(), out var tenantId))
                     {
                         var tenant = await unitOfWork.Tenants.GetByIdAsync(tenantId);
-                        if (tenant != null && tenant.IsActive)
+                        if (tenant != null && tenant.Status == TenantStatus.Active)
                         {
                             return tenant;
                         }
@@ -104,7 +104,7 @@ public class TenantResolutionMiddleware
                     if (!string.IsNullOrEmpty(subdomain))
                     {
                         var tenant = await unitOfWork.Tenants.GetBySubdomainAsync(subdomain);
-                        if (tenant != null && tenant.IsActive)
+                        if (tenant != null && tenant.Status == TenantStatus.Active)
                         {
                             return tenant;
                         }
@@ -124,7 +124,7 @@ public class TenantResolutionMiddleware
                         if (Guid.TryParse(tenantIdentifier, out var tenantId))
                         {
                             var tenant = await unitOfWork.Tenants.GetByIdAsync(tenantId);
-                            if (tenant != null && tenant.IsActive)
+                            if (tenant != null && tenant.Status == TenantStatus.Active)
                             {
                                 return tenant;
                             }
@@ -132,7 +132,7 @@ public class TenantResolutionMiddleware
                         
                         // Try as subdomain
                         var tenantBySubdomain = await unitOfWork.Tenants.GetBySubdomainAsync(tenantIdentifier);
-                        if (tenantBySubdomain != null && tenantBySubdomain.IsActive)
+                        if (tenantBySubdomain != null && tenantBySubdomain.Status == TenantStatus.Active)
                         {
                             return tenantBySubdomain;
                         }
