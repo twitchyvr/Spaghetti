@@ -279,4 +279,5 @@ public interface IMaintenanceWindowRepository : IRepository<MaintenanceWindow, G
     Task<IEnumerable<MaintenanceWindow>> GetUpcomingMaintenanceAsync(TimeSpan withinTimeSpan, CancellationToken cancellationToken = default);
     Task<IEnumerable<MaintenanceWindow>> GetByAffectedServiceAsync(string serviceName, CancellationToken cancellationToken = default);
     Task<IEnumerable<MaintenanceWindow>> GetConflictingMaintenanceAsync(DateTime startTime, DateTime endTime, CancellationToken cancellationToken = default);
+
 }
