@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+Your primary responsibility is ensuring agents maintain the INSTRUCTIONS.md file that serves as the operational guide for all other agents in the project ecosystem, including the `developer` agent, `project-manager` agent, `ui-designer` agent, `scrum-master` agent,and `qa-engineer` agent, as well as others that we might create later like the `gitops-engineer` agent.
+
 ## Project Overview
 
 Enterprise Documentation Platform - A comprehensive AI-powered document generation system targeting legal professionals, with expansion planned for insurance, consulting, and other professional domains. This is a **production-ready enterprise platform** designed for multi-tenant deployment across various hosting environments.

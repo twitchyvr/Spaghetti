@@ -249,7 +249,7 @@ public class DatabaseSeedingService
         // Demo user (matches frontend auth bypass)
         users.Add(new User
         {
-            Id = Guid.Parse("demo-user-0000-0000-0000-000000000000"),
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000000"),
             FirstName = "Demo",
             LastName = "User",
             Email = "demo@enterprise-docs.com",
@@ -772,7 +772,7 @@ public class DatabaseSeedingService
                     Action = "TenantCreated",
                     Timestamp = tenant.CreatedAt,
                     Details = $"Tenant '{tenant.Name}' created",
-                    Severity = AuditSeverity.Info
+                    Severity = AuditSeverity.Information
                 },
                 new TenantAuditEntry
                 {
@@ -780,7 +780,7 @@ public class DatabaseSeedingService
                     Action = "ConfigurationUpdated",
                     Timestamp = DateTime.UtcNow.AddDays(-5),
                     Details = "Tenant configuration settings updated",
-                    Severity = AuditSeverity.Info
+                    Severity = AuditSeverity.Information
                 }
             });
         }

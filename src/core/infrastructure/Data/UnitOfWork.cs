@@ -343,7 +343,7 @@ public class UnitOfWork : IUnitOfWork
             UserId = userId,
             Details = $"Tenant {action.ToLower()} via Unit of Work",
             Timestamp = DateTime.UtcNow,
-            Severity = AuditSeverity.Info
+            Severity = AuditSeverity.Information
         };
 
         _context.TenantAuditEntries.Add(auditEntry);

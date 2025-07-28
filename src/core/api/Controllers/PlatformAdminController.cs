@@ -46,7 +46,7 @@ public class PlatformAdminController : ControllerBase
             // Platform-wide statistics
             var totalClients = await _context.Tenants.CountAsync();
             var activeClients = await _context.Tenants
-                .CountAsync(t => t.IsActive && t.LastActivityAt > DateTime.UtcNow.AddDays(-30));
+                .CountAsync(t => t.Status == TenantStatus.Active && t.UpdatedAt > DateTime.UtcNow.AddDays(-30));
 
             var totalUsers = await _context.Users.CountAsync();
             var activeUsers = await _context.Users
@@ -109,17 +109,17 @@ public class PlatformAdminController : ControllerBase
                     Id = t.Id.ToString(),
                     Name = t.Name,
                     Subdomain = t.Subdomain,
-                    Domain = t.CustomDomain,
-                    Tier = MapTierToString(t.SubscriptionTier),
-                    Status = t.IsActive ? "Active" : "Inactive",
+                    Domain = t.Branding.CustomDomainName,
+                    Tier = MapTierToString(t.Tier),
+                    Status = t.Status.ToString(),
                     UserCount = t.Users.Count,
                     DocumentCount = t.Documents.Count,
                     StorageUsedMB = CalculateStorageUsage(t.Documents),
-                    StorageQuotaMB = GetStorageQuota(t.SubscriptionTier),
-                    MonthlyRevenue = CalculateMonthlyRevenue(t.SubscriptionTier),
-                    AnnualContract = CalculateAnnualContract(t.SubscriptionTier),
+                    StorageQuotaMB = GetStorageQuota(t.Tier),
+                    MonthlyRevenue = CalculateMonthlyRevenue(t.Tier),
+                    AnnualContract = CalculateAnnualContract(t.Tier),
                     CreatedAt = t.CreatedAt,
-                    LastActive = t.LastActivityAt ?? t.CreatedAt,
+                    LastActive = t.UpdatedAt,
                     HealthScore = CalculateHealthScore(t),
                     SupportTickets = 0, // TODO: Integrate with support system
                     BillingContact = new ContactInfo
@@ -132,10 +132,10 @@ public class PlatformAdminController : ControllerBase
                         Name = "Technical Lead", // TODO: Get from tenant settings
                         Email = $"tech@{t.Subdomain}.com"
                     },
-                    Features = GetTierFeatures(t.SubscriptionTier),
-                    CustomBranding = t.SubscriptionTier >= SubscriptionTier.Professional,
-                    SsoEnabled = t.SubscriptionTier >= SubscriptionTier.Enterprise,
-                    ApiAccess = t.SubscriptionTier >= SubscriptionTier.Professional
+                    Features = GetTierFeatures(t.Tier),
+                    CustomBranding = t.Tier >= TenantTier.Professional,
+                    SsoEnabled = t.Tier >= TenantTier.Enterprise,
+                    ApiAccess = t.Tier >= TenantTier.Professional
                 })
                 .OrderBy(c => c.Name)
                 .ToListAsync();
@@ -174,39 +174,39 @@ public class PlatformAdminController : ControllerBase
                 Id = tenant.Id.ToString(),
                 Name = tenant.Name,
                 Subdomain = tenant.Subdomain,
-                Domain = tenant.CustomDomain,
-                Tier = MapTierToString(tenant.SubscriptionTier),
-                Status = tenant.IsActive ? "Active" : "Inactive",
+                Domain = tenant.Branding.CustomDomainName,
+                Tier = MapTierToString(tenant.Tier),
+                Status = tenant.Status.ToString(),
                 CreatedAt = tenant.CreatedAt,
-                LastActive = tenant.LastActivityAt ?? tenant.CreatedAt,
+                LastActive = tenant.UpdatedAt,
                 
                 // User analytics
-                TotalUsers = tenant.Users.Count,
+                UserCount = tenant.Users.Count,
                 ActiveUsers = tenant.Users.Count(u => u.LastLoginAt > DateTime.UtcNow.AddDays(-30)),
-                AdminUsers = tenant.Users.Count(u => u.Role == UserRole.Admin),
+                AdminUsers = tenant.Users.Count(u => u.UserRoles.Any(ur => ur.Role != null && ur.Role.Name == SystemRoles.CLIENT_ADMIN)),
                 
                 // Document analytics
-                TotalDocuments = tenant.Documents.Count,
+                DocumentCount = tenant.Documents.Count,
                 DocumentsThisMonth = tenant.Documents.Count(d => d.CreatedAt > DateTime.UtcNow.AddDays(-30)),
                 PublicDocuments = tenant.Documents.Count(d => d.PublicAccessLevel != PublicAccessLevel.Private),
                 
                 // Storage and usage
                 StorageUsedMB = CalculateStorageUsage(tenant.Documents),
-                StorageQuotaMB = GetStorageQuota(tenant.SubscriptionTier),
+                StorageQuotaMB = GetStorageQuota(tenant.Tier),
                 
                 // Financial
-                MonthlyRevenue = CalculateMonthlyRevenue(tenant.SubscriptionTier),
-                AnnualContract = CalculateAnnualContract(tenant.SubscriptionTier),
+                MonthlyRevenue = CalculateMonthlyRevenue(tenant.Tier),
+                AnnualContract = CalculateAnnualContract(tenant.Tier),
                 
                 // Health and support
                 HealthScore = CalculateHealthScore(tenant),
                 SupportTickets = 0, // TODO: Integrate with support system
                 
                 // Configuration
-                Features = GetTierFeatures(tenant.SubscriptionTier),
-                CustomBranding = tenant.SubscriptionTier >= SubscriptionTier.Professional,
-                SsoEnabled = tenant.SubscriptionTier >= SubscriptionTier.Enterprise,
-                ApiAccess = tenant.SubscriptionTier >= SubscriptionTier.Professional
+                Features = GetTierFeatures(tenant.Tier),
+                CustomBranding = tenant.Tier >= TenantTier.Professional,
+                SsoEnabled = tenant.Tier >= TenantTier.Enterprise,
+                ApiAccess = tenant.Tier >= TenantTier.Professional
             };
 
             _logger.LogInformation("Retrieved detailed information for client {ClientId} ({ClientName})", 
@@ -242,11 +242,14 @@ public class PlatformAdminController : ControllerBase
             {
                 Name = request.Name,
                 Subdomain = request.Subdomain,
-                CustomDomain = request.Domain,
-                SubscriptionTier = ParseSubscriptionTier(request.Tier),
-                IsActive = true,
+                Tier = ParseTenantTier(request.Tier),
+                Status = TenantStatus.Active,
                 CreatedAt = DateTime.UtcNow,
-                LastActivityAt = DateTime.UtcNow
+                UpdatedAt = DateTime.UtcNow,
+                Branding = new TenantBranding
+                {
+                    CustomDomainName = request.Domain
+                }
             };
 
             _context.Tenants.Add(tenant);
@@ -257,17 +260,17 @@ public class PlatformAdminController : ControllerBase
                 Id = tenant.Id.ToString(),
                 Name = tenant.Name,
                 Subdomain = tenant.Subdomain,
-                Domain = tenant.CustomDomain,
-                Tier = MapTierToString(tenant.SubscriptionTier),
+                Domain = tenant.Branding.CustomDomainName,
+                Tier = MapTierToString(tenant.Tier),
                 Status = "Active",
                 UserCount = 0,
                 DocumentCount = 0,
                 StorageUsedMB = 0,
-                StorageQuotaMB = GetStorageQuota(tenant.SubscriptionTier),
-                MonthlyRevenue = CalculateMonthlyRevenue(tenant.SubscriptionTier),
-                AnnualContract = CalculateAnnualContract(tenant.SubscriptionTier),
+                StorageQuotaMB = GetStorageQuota(tenant.Tier),
+                MonthlyRevenue = CalculateMonthlyRevenue(tenant.Tier),
+                AnnualContract = CalculateAnnualContract(tenant.Tier),
                 CreatedAt = tenant.CreatedAt,
-                LastActive = tenant.LastActivityAt.Value,
+                LastActive = tenant.UpdatedAt,
                 HealthScore = 100,
                 SupportTickets = 0,
                 BillingContact = new ContactInfo
@@ -280,10 +283,10 @@ public class PlatformAdminController : ControllerBase
                     Name = request.TechnicalContactName ?? "Technical Contact",
                     Email = request.TechnicalContactEmail ?? $"tech@{tenant.Subdomain}.com"
                 },
-                Features = GetTierFeatures(tenant.SubscriptionTier),
-                CustomBranding = tenant.SubscriptionTier >= SubscriptionTier.Professional,
-                SsoEnabled = tenant.SubscriptionTier >= SubscriptionTier.Enterprise,
-                ApiAccess = tenant.SubscriptionTier >= SubscriptionTier.Professional
+                Features = GetTierFeatures(tenant.Tier),
+                CustomBranding = tenant.Tier >= TenantTier.Professional,
+                SsoEnabled = tenant.Tier >= TenantTier.Enterprise,
+                ApiAccess = tenant.Tier >= TenantTier.Professional
             };
 
             _logger.LogInformation("Created new client organization: {ClientName} ({ClientId})", 
@@ -317,13 +320,13 @@ public class PlatformAdminController : ControllerBase
                 tenant.Name = request.Name;
             
             if (!string.IsNullOrEmpty(request.Domain))
-                tenant.CustomDomain = request.Domain;
+                tenant.Branding.CustomDomainName = request.Domain;
             
             if (!string.IsNullOrEmpty(request.Tier))
-                tenant.SubscriptionTier = ParseSubscriptionTier(request.Tier);
+                tenant.Tier = ParseTenantTier(request.Tier);
 
             if (request.IsActive.HasValue)
-                tenant.IsActive = request.IsActive.Value;
+                tenant.Status = request.IsActive.Value ? TenantStatus.Active : TenantStatus.Inactive;
 
             tenant.UpdatedAt = DateTime.UtcNow;
 
@@ -332,8 +335,40 @@ public class PlatformAdminController : ControllerBase
             _logger.LogInformation("Updated client organization: {ClientName} ({ClientId})", 
                 tenant.Name, tenant.Id);
 
-            // Return updated client summary
-            return await GetClientDetail(clientId) as ActionResult<ClientSummary>;
+            // Return updated client detail
+            var detailResult = await GetClientDetail(clientId);
+            if (detailResult.Result is OkObjectResult okResult && okResult.Value is ClientDetail detail)
+            {
+                // Convert ClientDetail to ClientSummary for return type compatibility
+                var summary = new ClientSummary
+                {
+                    Id = detail.Id,
+                    Name = detail.Name,
+                    Subdomain = detail.Subdomain,
+                    Domain = detail.Domain,
+                    Tier = detail.Tier,
+                    Status = detail.Status,
+                    UserCount = detail.UserCount,
+                    DocumentCount = detail.DocumentCount,
+                    StorageUsedMB = detail.StorageUsedMB,
+                    StorageQuotaMB = detail.StorageQuotaMB,
+                    MonthlyRevenue = detail.MonthlyRevenue,
+                    AnnualContract = detail.AnnualContract,
+                    CreatedAt = detail.CreatedAt,
+                    LastActive = detail.LastActive,
+                    HealthScore = detail.HealthScore,
+                    SupportTickets = detail.SupportTickets,
+                    BillingContact = detail.BillingContact,
+                    TechnicalContact = detail.TechnicalContact,
+                    Features = detail.Features,
+                    CustomBranding = detail.CustomBranding,
+                    SsoEnabled = detail.SsoEnabled,
+                    ApiAccess = detail.ApiAccess
+                };
+                return Ok(summary);
+            }
+            // If we can't convert the detail to summary, return a generic error
+            return StatusCode(500, new { message = "Failed to retrieve updated client information" });
         }
         catch (Exception ex)
         {
@@ -344,27 +379,27 @@ public class PlatformAdminController : ControllerBase
 
     #region Helper Methods
 
-    private static string MapTierToString(SubscriptionTier tier)
+    private static string MapTierToString(TenantTier tier)
     {
         return tier switch
         {
-            SubscriptionTier.Trial => "Trial",
-            SubscriptionTier.Professional => "Professional",
-            SubscriptionTier.Enterprise => "Enterprise",
-            SubscriptionTier.Custom => "Custom",
+            TenantTier.Trial => "Trial",
+            TenantTier.Professional => "Professional",
+            TenantTier.Enterprise => "Enterprise",
+            TenantTier.Custom => "Custom",
             _ => "Unknown"
         };
     }
 
-    private static SubscriptionTier ParseSubscriptionTier(string tier)
+    private static TenantTier ParseTenantTier(string tier)
     {
         return tier.ToLower() switch
         {
-            "trial" => SubscriptionTier.Trial,
-            "professional" => SubscriptionTier.Professional,
-            "enterprise" => SubscriptionTier.Enterprise,
-            "custom" => SubscriptionTier.Custom,
-            _ => SubscriptionTier.Trial
+            "trial" => TenantTier.Trial,
+            "professional" => TenantTier.Professional,
+            "enterprise" => TenantTier.Enterprise,
+            "custom" => TenantTier.Custom,
+            _ => TenantTier.Trial
         };
     }
 
@@ -374,31 +409,31 @@ public class PlatformAdminController : ControllerBase
         return documents.Sum(d => d.Content?.Length ?? 0) / (1024 * 1024); // Convert to MB
     }
 
-    private static int GetStorageQuota(SubscriptionTier tier)
+    private static int GetStorageQuota(TenantTier tier)
     {
         return tier switch
         {
-            SubscriptionTier.Trial => 100,
-            SubscriptionTier.Professional => 1024,
-            SubscriptionTier.Enterprise => 5120,
-            SubscriptionTier.Custom => 10240,
+            TenantTier.Trial => 100,
+            TenantTier.Professional => 1024,
+            TenantTier.Enterprise => 5120,
+            TenantTier.Custom => 10240,
             _ => 100
         };
     }
 
-    private static decimal CalculateMonthlyRevenue(SubscriptionTier tier)
+    private static decimal CalculateMonthlyRevenue(TenantTier tier)
     {
         return tier switch
         {
-            SubscriptionTier.Trial => 0,
-            SubscriptionTier.Professional => 799,
-            SubscriptionTier.Enterprise => 2499,
-            SubscriptionTier.Custom => 5000, // Base custom pricing
+            TenantTier.Trial => 0,
+            TenantTier.Professional => 799,
+            TenantTier.Enterprise => 2499,
+            TenantTier.Custom => 5000, // Base custom pricing
             _ => 0
         };
     }
 
-    private static decimal? CalculateAnnualContract(SubscriptionTier tier)
+    private static decimal? CalculateAnnualContract(TenantTier tier)
     {
         var monthly = CalculateMonthlyRevenue(tier);
         return monthly > 0 ? monthly * 12 * 0.9m : null; // 10% annual discount
@@ -409,32 +444,32 @@ public class PlatformAdminController : ControllerBase
         var score = 100;
         
         // Deduct points for inactivity
-        if (tenant.LastActivityAt < DateTime.UtcNow.AddDays(-7))
+        if (tenant.UpdatedAt < DateTime.UtcNow.AddDays(-7))
             score -= 10;
         
-        if (tenant.LastActivityAt < DateTime.UtcNow.AddDays(-30))
+        if (tenant.UpdatedAt < DateTime.UtcNow.AddDays(-30))
             score -= 20;
         
         // Add other health factors as needed
         return Math.Max(0, score);
     }
 
-    private static List<string> GetTierFeatures(SubscriptionTier tier)
+    private static List<string> GetTierFeatures(TenantTier tier)
     {
         var features = new List<string>();
         
         switch (tier)
         {
-            case SubscriptionTier.Trial:
+            case TenantTier.Trial:
                 features.AddRange(new[] { "Trial Access", "Basic Support", "Limited Storage" });
                 break;
-            case SubscriptionTier.Professional:
+            case TenantTier.Professional:
                 features.AddRange(new[] { "Standard Support", "Team Collaboration", "Document Templates", "API Access" });
                 break;
-            case SubscriptionTier.Enterprise:
+            case TenantTier.Enterprise:
                 features.AddRange(new[] { "SSO", "API Access", "Custom Branding", "Advanced Analytics", "Priority Support" });
                 break;
-            case SubscriptionTier.Custom:
+            case TenantTier.Custom:
                 features.AddRange(new[] { "All Enterprise Features", "Custom Development", "Dedicated Support", "SLA Guarantees" });
                 break;
         }

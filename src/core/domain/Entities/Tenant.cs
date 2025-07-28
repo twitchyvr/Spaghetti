@@ -20,6 +20,11 @@ public class Tenant
     public TenantStatus Status { get; set; } = TenantStatus.Active;
     public TenantTier Tier { get; set; } = TenantTier.Standard;
     
+    // Suspension tracking for administrative actions
+    [MaxLength(500)]
+    public string? SuspensionReason { get; set; }
+    public DateTime? SuspendedAt { get; set; }
+    
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     
@@ -248,13 +253,5 @@ public class TenantAuditEntry
     [MaxLength(500)]
     public string? UserAgent { get; set; }
     
-    public AuditSeverity Severity { get; set; } = AuditSeverity.Info;
-}
-
-public enum AuditSeverity
-{
-    Info,
-    Warning,
-    Error,
-    Critical
+    public AuditSeverity Severity { get; set; } = AuditSeverity.Information;
 }

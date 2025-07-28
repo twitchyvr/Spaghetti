@@ -48,24 +48,29 @@ public class ClientManagementController : ControllerBase
                 return NotFound(new { message = "Client not found" });
             }
 
-            var users = await _context.Users
+            var userList = await _context.Users
                 .Where(u => u.TenantId == clientId)
-                .Select(u => new ClientUserSummary
-                {
-                    Id = u.Id.ToString(),
-                    FirstName = u.FirstName,
-                    LastName = u.LastName,
-                    Email = u.Email,
-                    Role = u.Role.ToString(),
-                    IsActive = u.IsActive,
-                    CreatedAt = u.CreatedAt,
-                    LastLoginAt = u.LastLoginAt,
-                    DocumentCount = u.Documents.Count(),
-                    StorageUsedMB = u.Documents.Sum(d => d.Content != null ? d.Content.Length : 0) / (1024 * 1024)
-                })
-                .OrderBy(u => u.LastName)
-                .ThenBy(u => u.FirstName)
+                .Include(u => u.UserRoles)
+                    .ThenInclude(ur => ur.Role)
+                .Include(u => u.CreatedDocuments)
                 .ToListAsync();
+
+            var users = userList.Select(u => new ClientUserSummary
+            {
+                Id = u.Id.ToString(),
+                FirstName = u.FirstName,
+                LastName = u.LastName,
+                Email = u.Email ?? "",
+                Role = u.UserRoles.FirstOrDefault()?.Role?.Name ?? "User",
+                IsActive = u.IsActive,
+                CreatedAt = u.CreatedAt,
+                LastLoginAt = u.LastLoginAt,
+                DocumentCount = u.CreatedDocuments.Count(),
+                StorageUsedMB = u.CreatedDocuments.Sum(d => d.Content?.Length ?? 0) / (1024 * 1024)
+            })
+            .OrderBy(u => u.LastName)
+            .ThenBy(u => u.FirstName)
+            .ToList();
 
             _logger.LogInformation("Retrieved {UserCount} users for client {ClientId}", users.Count, clientId);
 
@@ -94,12 +99,12 @@ public class ClientManagementController : ControllerBase
 
             var documents = await _context.Documents
                 .Where(d => d.TenantId == clientId)
-                .Include(d => d.Author)
+                .Include(d => d.CreatedByUser)
                 .Select(d => new ClientDocumentSummary
                 {
                     Id = d.Id.ToString(),
                     Title = d.Title,
-                    AuthorName = $"{d.Author!.FirstName} {d.Author.LastName}",
+                    AuthorName = d.CreatedByUser != null ? $"{d.CreatedByUser.FirstName} {d.CreatedByUser.LastName}" : "Unknown",
                     CreatedAt = d.CreatedAt,
                     UpdatedAt = d.UpdatedAt,
                     PublicAccessLevel = d.PublicAccessLevel.ToString(),
@@ -148,7 +153,7 @@ public class ClientManagementController : ControllerBase
                 return NotFound(new { message = "Client not found" });
             }
 
-            tenant.IsActive = false;
+            tenant.Status = TenantStatus.Inactive;
             tenant.SuspensionReason = request.Reason;
             tenant.SuspendedAt = DateTime.UtcNow;
             tenant.UpdatedAt = DateTime.UtcNow;
@@ -189,7 +194,7 @@ public class ClientManagementController : ControllerBase
                 return NotFound(new { message = "Client not found" });
             }
 
-            tenant.IsActive = true;
+            tenant.Status = TenantStatus.Active;
             tenant.SuspensionReason = null;
             tenant.SuspendedAt = null;
             tenant.UpdatedAt = DateTime.UtcNow;
@@ -306,7 +311,6 @@ public class ClientManagementController : ControllerBase
                 FirstName = request.FirstName,
                 LastName = request.LastName,
                 Email = request.Email,
-                Role = UserRole.Admin,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
@@ -315,13 +319,43 @@ public class ClientManagementController : ControllerBase
             _context.Users.Add(adminUser);
             await _context.SaveChangesAsync();
 
+            // Create admin role for this user
+            // First find or create the Client Admin role for this tenant
+            var adminRole = await _context.Roles
+                .FirstOrDefaultAsync(r => r.Name == SystemRoles.CLIENT_ADMIN && r.TenantId == clientId);
+            
+            if (adminRole == null)
+            {
+                adminRole = new Role
+                {
+                    Name = SystemRoles.CLIENT_ADMIN,
+                    Description = "Client organization administrator",
+                    TenantId = clientId,
+                    IsSystemRole = true,
+                    IsActive = true
+                };
+                _context.Roles.Add(adminRole);
+                await _context.SaveChangesAsync();
+            }
+
+            // Assign the admin role to the user
+            var userRole = new UserRole
+            {
+                UserId = adminUser.Id,
+                RoleId = adminRole.Id,
+                AssignedBy = adminUser.Id, // Self-assigned during creation
+                IsActive = true
+            };
+            _context.UserRoles.Add(userRole);
+            await _context.SaveChangesAsync();
+
             var userSummary = new ClientUserSummary
             {
                 Id = adminUser.Id.ToString(),
                 FirstName = adminUser.FirstName,
                 LastName = adminUser.LastName,
                 Email = adminUser.Email,
-                Role = adminUser.Role.ToString(),
+                Role = SystemRoles.CLIENT_ADMIN,
                 IsActive = adminUser.IsActive,
                 CreatedAt = adminUser.CreatedAt,
                 LastLoginAt = null,
@@ -355,10 +389,10 @@ public class ClientManagementController : ControllerBase
                 return NotFound(new { message = "Client not found" });
             }
 
-            var oldTier = tenant.SubscriptionTier;
-            var newTier = ParseSubscriptionTier(request.Tier);
+            var oldTier = tenant.Tier;
+            var newTier = ParseTenantTier(request.Tier);
 
-            tenant.SubscriptionTier = newTier;
+            tenant.Tier = newTier;
             tenant.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
@@ -382,15 +416,15 @@ public class ClientManagementController : ControllerBase
 
     #region Helper Methods
 
-    private static SubscriptionTier ParseSubscriptionTier(string tier)
+    private static TenantTier ParseTenantTier(string tier)
     {
         return tier.ToLower() switch
         {
-            "trial" => SubscriptionTier.Trial,
-            "professional" => SubscriptionTier.Professional,
-            "enterprise" => SubscriptionTier.Enterprise,
-            "custom" => SubscriptionTier.Custom,
-            _ => SubscriptionTier.Trial
+            "trial" => TenantTier.Trial,
+            "professional" => TenantTier.Professional,
+            "enterprise" => TenantTier.Enterprise,
+            "custom" => TenantTier.Custom,
+            _ => TenantTier.Trial
         };
     }
 

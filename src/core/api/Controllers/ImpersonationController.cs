@@ -56,28 +56,34 @@ public class ImpersonationController : ControllerBase
 
             var users = await _context.Users
                 .Where(u => u.TenantId == clientId && u.IsActive)
-                .Select(u => new ImpersonationTarget
-                {
-                    UserId = u.Id.ToString(),
-                    FirstName = u.FirstName,
-                    LastName = u.LastName,
-                    Email = u.Email,
-                    Role = u.Role.ToString(),
-                    LastLoginAt = u.LastLoginAt,
-                    DocumentCount = u.Documents.Count(),
-                    TenantId = u.TenantId.ToString(),
-                    TenantName = u.Tenant.Name,
-                    TenantSubdomain = u.Tenant.Subdomain,
-                    IsImpersonationActive = false // TODO: Check for active impersonation sessions
-                })
-                .OrderBy(u => u.LastName)
-                .ThenBy(u => u.FirstName)
+                .Include(u => u.UserRoles)
+                    .ThenInclude(ur => ur.Role)
+                .Include(u => u.Tenant)
+                .Include(u => u.CreatedDocuments)
                 .ToListAsync();
 
-            _logger.LogInformation("Retrieved {UserCount} impersonation targets for client {ClientId} ({TenantName})", 
-                users.Count, clientId, tenant.Name);
+            var targets = users.Select(u => new ImpersonationTarget
+            {
+                UserId = u.Id.ToString(),
+                FirstName = u.FirstName,
+                LastName = u.LastName,
+                Email = u.Email ?? "",
+                Role = u.UserRoles.FirstOrDefault()?.Role?.Name ?? "User",
+                LastLoginAt = u.LastLoginAt,
+                DocumentCount = u.CreatedDocuments.Count(),
+                TenantId = u.TenantId?.ToString() ?? "",
+                TenantName = u.Tenant?.Name ?? "",
+                TenantSubdomain = u.Tenant?.Subdomain ?? "",
+                IsImpersonationActive = false // TODO: Check for active impersonation sessions
+            })
+            .OrderBy(u => u.LastName)
+            .ThenBy(u => u.FirstName)
+            .ToList();
 
-            return Ok(users);
+            _logger.LogInformation("Retrieved {UserCount} impersonation targets for client {ClientId} ({TenantName})", 
+                targets.Count, clientId, tenant.Name);
+
+            return Ok(targets);
         }
         catch (Exception ex)
         {
@@ -90,7 +96,7 @@ public class ImpersonationController : ControllerBase
     /// Start user impersonation session
     /// </summary>
     [HttpPost("start")]
-    public async Task<ActionResult<ImpersonationSession>> StartImpersonation([FromBody] StartImpersonationRequest request)
+    public async Task<ActionResult<ImpersonationSessionDto>> StartImpersonation([FromBody] StartImpersonationRequest request)
     {
         try
         {
@@ -137,13 +143,13 @@ public class ImpersonationController : ControllerBase
             }
 
             // Create new impersonation session
-            var session = new ImpersonationSession
+            var session = new Domain.Entities.ImpersonationSession
             {
                 AdminUserId = adminUserId.Value,
                 AdminUserEmail = adminUser.Email,
                 TargetUserId = targetUser.Id,
                 TargetUserEmail = targetUser.Email,
-                TargetTenantId = targetUser.TenantId,
+                TargetTenantId = targetUser.TenantId ?? Guid.Empty,
                 Reason = request.Reason,
                 StartedAt = DateTime.UtcNow,
                 ExpiresAt = DateTime.UtcNow.AddHours(request.DurationHours ?? 4), // Default 4 hours
@@ -171,7 +177,7 @@ public class ImpersonationController : ControllerBase
             _context.PlatformAdminAuditLogs.Add(auditEntry);
             await _context.SaveChangesAsync();
 
-            var sessionResponse = new ImpersonationSession
+            var sessionResponse = new ImpersonationSessionDto
             {
                 Id = session.Id,
                 AdminUserId = session.AdminUserId,
@@ -201,7 +207,7 @@ public class ImpersonationController : ControllerBase
     /// Get current impersonation session status
     /// </summary>
     [HttpGet("session")]
-    public async Task<ActionResult<ImpersonationSession>> GetCurrentSession()
+    public async Task<ActionResult<ImpersonationSessionDto>> GetCurrentSession()
     {
         try
         {
@@ -489,9 +495,9 @@ public class ImpersonationTarget
 }
 
 /// <summary>
-/// Active impersonation session information
+/// Active impersonation session information DTO
 /// </summary>
-public class ImpersonationSession
+public class ImpersonationSessionDto
 {
     public Guid Id { get; set; }
     public Guid AdminUserId { get; set; }
