@@ -128,17 +128,22 @@ builder.Services.AddScoped<DatabaseSeedingService>();
 // Add memory cache (always needed for local caching)
 builder.Services.AddMemoryCache();
 
+// Add Redis caching if configured (for distributed caching)
+var redisConnection = builder.Configuration.GetConnectionString("Redis");
+
 // Sprint 2: Add SignalR for real-time collaboration
 builder.Services.AddSignalR(options =>
 {
     options.EnableDetailedErrors = builder.Environment.IsDevelopment();
     options.KeepAliveInterval = TimeSpan.FromSeconds(15);
     options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
-})
-.AddStackExchangeRedis(redisConnection ?? "localhost:6379"); // Redis backplane for scaling
+});
 
-// Add Redis caching if configured (for distributed caching)
-var redisConnection = builder.Configuration.GetConnectionString("Redis");
+// Add Redis backplane for SignalR if configured
+if (!string.IsNullOrEmpty(redisConnection))
+{
+    builder.Services.AddSignalR().AddStackExchangeRedis(redisConnection);
+}
 if (!string.IsNullOrEmpty(redisConnection))
 {
     builder.Services.AddStackExchangeRedisCache(options =>
@@ -189,6 +194,10 @@ app.UseMiddleware<RequestLoggingMiddleware>();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.MapControllers();
+
+// Add health endpoint for Docker healthcheck
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }))
+   .AllowAnonymous();
 
 // Sprint 2: Map SignalR hubs for real-time collaboration
 app.MapHub<EnterpriseDocsCore.API.Hubs.DocumentCollaborationHub>("/hubs/collaboration");

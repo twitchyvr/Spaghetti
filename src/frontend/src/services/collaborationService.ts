@@ -124,12 +124,10 @@ class CollaborationServiceImpl {
    */
   async getContentChangesSince(documentId: string, since: string): Promise<ContentChange[]> {
     try {
-      const response = await api.get<ApiResponse<ContentChange[]>>(
-        `${this.baseUrl}/document/${documentId}/changes`,
-        {
-          params: { since }
-        }
-      );
+      const url = new URL(`${this.baseUrl}/document/${documentId}/changes`, window.location.origin);
+      url.searchParams.append('since', since);
+      
+      const response = await api.get<ApiResponse<ContentChange[]>>(url.pathname + url.search);
       
       if (!response.data.success) {
         throw new Error(response.data.error || 'Failed to get content changes');

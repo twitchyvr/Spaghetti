@@ -452,7 +452,7 @@ export const httpClient = {
     const response = await fetchApi<T>(endpoint, {
       ...options,
       method: 'POST',
-      body: data ? JSON.stringify(data) : undefined,
+      body: data ? JSON.stringify(data) : null,
     });
     return { data: response };
   },
@@ -461,7 +461,7 @@ export const httpClient = {
     const response = await fetchApi<T>(endpoint, {
       ...options,
       method: 'PUT',
-      body: data ? JSON.stringify(data) : undefined,
+      body: data ? JSON.stringify(data) : null,
     });
     return { data: response };
   },

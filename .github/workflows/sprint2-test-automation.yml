@@ -92,7 +92,7 @@ jobs:
         fi
 
     - name: Upload Coverage Reports
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: unit-test-coverage
@@ -206,7 +206,7 @@ jobs:
           --verbosity normal
 
     - name: Upload Integration Test Results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: integration-test-results
@@ -352,7 +352,7 @@ jobs:
         node validate-performance.js
 
     - name: Upload Performance Results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: performance-test-results
@@ -425,7 +425,7 @@ jobs:
       run: npm run test:e2e
 
     - name: Upload Frontend Test Results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: frontend-test-results
@@ -486,7 +486,7 @@ jobs:
         fi
 
     - name: Upload Security Test Results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: security-test-results
@@ -537,7 +537,7 @@ jobs:
           --verbosity normal
 
     - name: Upload Isolation Test Results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: isolation-test-results
@@ -558,7 +558,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Download All Test Artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
 
     - name: Generate Comprehensive Test Report
       run: |
@@ -638,7 +638,7 @@ jobs:
           });
 
     - name: Upload Test Summary
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: test-execution-summary
         path: test-summary.md

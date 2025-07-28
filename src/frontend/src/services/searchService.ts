@@ -37,12 +37,11 @@ class SearchServiceImpl {
         return [];
       }
 
-      const response = await api.get<ApiResponse<string[]>>(
-        `${this.baseUrl}/suggestions`,
-        {
-          params: { query, limit }
-        }
-      );
+      const url = new URL(`${this.baseUrl}/suggestions`, window.location.origin);
+      url.searchParams.append('query', query);
+      url.searchParams.append('limit', limit.toString());
+      
+      const response = await api.get<ApiResponse<string[]>>(url.pathname + url.search);
       
       if (!response.data.success) {
         throw new Error(response.data.error || 'Failed to get suggestions');
@@ -65,12 +64,12 @@ class SearchServiceImpl {
     pageSize: number = 20
   ): Promise<SearchResponse> {
     try {
-      const response = await api.get<ApiResponse<SearchResponse>>(
-        `${this.baseUrl}/fulltext`,
-        {
-          params: { query, page, pageSize }
-        }
-      );
+      const url = new URL(`${this.baseUrl}/fulltext`, window.location.origin);
+      url.searchParams.append('query', query);
+      url.searchParams.append('page', page.toString());
+      url.searchParams.append('pageSize', pageSize.toString());
+      
+      const response = await api.get<ApiResponse<SearchResponse>>(url.pathname + url.search);
       
       if (!response.data.success) {
         throw new Error(response.data.error || 'Search failed');
