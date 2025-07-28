@@ -427,7 +427,7 @@ public class DigitalOceanSpacesStorageService : Domain.Interfaces.IStorageServic
     }
 }
 
-public class LocalFileStorageService : IStorageService
+public class LocalFileStorageService : Domain.Interfaces.IStorageService
 {
     private readonly string _basePath;
 
