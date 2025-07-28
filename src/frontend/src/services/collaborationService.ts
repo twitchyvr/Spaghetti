@@ -6,7 +6,7 @@ import {
   ContentChange, 
   DocumentComment 
 } from '../types/collaboration';
-import { api } from './api';
+import api from './api';
 
 class CollaborationServiceImpl {
   private readonly baseUrl = '/collaboration';

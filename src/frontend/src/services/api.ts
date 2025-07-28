@@ -441,10 +441,46 @@ export const healthApi = {
   },
 };
 
+// Generic HTTP client for services
+export const httpClient = {
+  async get<T>(endpoint: string, options?: RequestInit): Promise<{ data: T }> {
+    const response = await fetchApi<T>(endpoint, { ...options, method: 'GET' });
+    return { data: response };
+  },
+
+  async post<T>(endpoint: string, data?: any, options?: RequestInit): Promise<{ data: T }> {
+    const response = await fetchApi<T>(endpoint, {
+      ...options,
+      method: 'POST',
+      body: data ? JSON.stringify(data) : undefined,
+    });
+    return { data: response };
+  },
+
+  async put<T>(endpoint: string, data?: any, options?: RequestInit): Promise<{ data: T }> {
+    const response = await fetchApi<T>(endpoint, {
+      ...options,
+      method: 'PUT',
+      body: data ? JSON.stringify(data) : undefined,
+    });
+    return { data: response };
+  },
+
+  async delete<T>(endpoint: string, options?: RequestInit): Promise<{ data: T }> {
+    const response = await fetchApi<T>(endpoint, { ...options, method: 'DELETE' });
+    return { data: response };
+  },
+};
+
 export default {
   admin: adminApi,
   documents: documentApi,
   users: userApi,
   auth: authApi,
   health: healthApi,
+  // Add HTTP client methods for compatibility
+  get: httpClient.get,
+  post: httpClient.post,
+  put: httpClient.put,
+  delete: httpClient.delete,
 };

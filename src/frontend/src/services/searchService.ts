@@ -1,6 +1,6 @@
 // Sprint 2 Frontend Search Service Implementation
 import { ApiResponse, AdvancedSearchRequest, SearchResponse } from '../types/collaboration';
-import { api } from './api';
+import api from './api';
 
 class SearchServiceImpl {
   private readonly baseUrl = '/search';
