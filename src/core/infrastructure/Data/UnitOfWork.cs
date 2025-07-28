@@ -33,6 +33,7 @@ public class UnitOfWork : IUnitOfWork
     private IUserAuditEntryRepository? _userAuditEntries;
     private ITenantModuleRepository? _tenantModules;
     private ITenantAuditEntryRepository? _tenantAuditEntries;
+    private IRefreshTokenRepository? _refreshTokens;
 
     public UnitOfWork(ApplicationDbContext context, ILoggerFactory loggerFactory)
     {
@@ -83,6 +84,9 @@ public class UnitOfWork : IUnitOfWork
 
     public ITenantAuditEntryRepository TenantAuditEntries =>
         _tenantAuditEntries ??= new TenantAuditEntryRepository(_context, _loggerFactory.CreateLogger<TenantAuditEntryRepository>());
+
+    public IRefreshTokenRepository RefreshTokens =>
+        _refreshTokens ??= new RefreshTokenRepository(_context, _loggerFactory.CreateLogger<RefreshTokenRepository>());
 
     #endregion
 
