@@ -105,6 +105,9 @@ $tf/
 # Guidance Automation Toolkit
 *.gpState
 
+# Digital Ocean data
+raw_output/
+
 # ReSharper is a .NET coding add-in
 _ReSharper*/
 *.[Rr]e[Ss]harper
