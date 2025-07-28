@@ -1,4 +1,4 @@
-import { User } from '../types';
+import { User, PrivacyLevel } from '../types';
 import { config } from '../config';
 
 // API Response wrapper interface
@@ -83,6 +83,68 @@ interface RegisterData {
 class AuthService {
   private baseUrl = config.apiBaseUrl;
 
+  private isDemoMode(): boolean {
+    // Check if we're on the production DigitalOcean deployment without backend
+    const hostname = window.location.hostname;
+    return hostname.includes('ondigitalocean.app') || hostname.includes('spaghetti-platform');
+  }
+
+  private createDemoLoginResponse(email: string, _tenantSubdomain?: string): { user: User; token: string; refreshToken: string } {
+    const demoUser: User = {
+      id: 'demo-user-12345',
+      firstName: 'Demo',
+      lastName: 'User',
+      email: email,
+      fullName: 'Demo User',
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      lastLoginAt: new Date().toISOString(),
+      tenantId: 'demo-tenant-67890',
+      profile: {
+        jobTitle: 'Platform Administrator',
+        department: 'IT',
+        industry: 'Legal',
+        timeZone: 'UTC',
+        language: 'en',
+        customFields: {}
+      },
+      settings: {
+        enableAIAssistance: true,
+        enableAutoDocumentation: true,
+        enableVoiceCapture: true,
+        enableScreenCapture: true,
+        enableFileMonitoring: true,
+        privacyLevel: PrivacyLevel.Standard,
+        allowDataRetention: true,
+        dataRetentionDays: 365,
+        enableEmailNotifications: true,
+        enablePushNotifications: false,
+        enableSlackNotifications: false,
+        enableTeamsNotifications: false,
+        theme: 'light',
+        defaultDocumentType: 'Meeting Notes',
+        favoriteAgents: ['AI Assistant', 'Document Generator'],
+        moduleSettings: {},
+        customSettings: {}
+      },
+      userRoles: [{
+        id: 'demo-role-1',
+        userId: 'demo-user-12345',
+        roleId: 'admin',
+        assignedAt: new Date().toISOString(),
+        assignedBy: 'system',
+        isActive: true
+      }]
+    };
+
+    return {
+      user: demoUser,
+      token: 'demo-jwt-token-' + Date.now(),
+      refreshToken: 'demo-refresh-token-' + Date.now()
+    };
+  }
+
   private mapBackendUserToFrontend(backendUser: BackendUserDto): User {
     const user: User = {
       id: backendUser.id,
@@ -108,7 +170,7 @@ class AuthService {
         enableVoiceCapture: true, // Default value
         enableScreenCapture: true, // Default value
         enableFileMonitoring: true, // Default value
-        privacyLevel: 'Standard' as any, // Default value
+        privacyLevel: PrivacyLevel.Standard, // Default value
         allowDataRetention: true, // Default value
         dataRetentionDays: 365, // Default value
         enableEmailNotifications: backendUser.settings.enableEmailNotifications,
@@ -140,6 +202,13 @@ class AuthService {
   }
 
   async login(email: string, password: string, tenantSubdomain?: string, rememberMe?: boolean): Promise<{ user: User; token: string; refreshToken: string }> {
+    // Check if we're in demo mode (production frontend without backend)
+    if (this.isDemoMode()) {
+      // Store demo user email for getCurrentUser
+      localStorage.setItem('demo_user_email', email);
+      return this.createDemoLoginResponse(email, tenantSubdomain);
+    }
+
     const requestBody = {
       email,
       password,
@@ -210,6 +279,12 @@ class AuthService {
     const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
     if (!token) {
       throw new Error('No authentication token found');
+    }
+
+    // Handle demo mode
+    if (this.isDemoMode() && token.startsWith('demo-jwt-token-')) {
+      const email = localStorage.getItem('demo_user_email') || 'demo@enterprise-docs.com';
+      return this.createDemoLoginResponse(email).user;
     }
 
     const response = await fetch(`${this.baseUrl}/authentication/me`, {
