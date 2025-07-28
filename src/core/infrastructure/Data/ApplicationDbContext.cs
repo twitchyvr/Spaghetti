@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using EnterpriseDocsCore.Domain.Entities;
+using EnterpriseDocsCore.Domain.Interfaces;
 using System.Text.Json;
 
 namespace EnterpriseDocsCore.Infrastructure.Data;
@@ -28,6 +29,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<TenantAuditEntry> TenantAuditEntries => Set<TenantAuditEntry>();
     public DbSet<ImpersonationSession> ImpersonationSessions => Set<ImpersonationSession>();
     public DbSet<PlatformAdminAuditLog> PlatformAdminAuditLogs => Set<PlatformAdminAuditLog>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
