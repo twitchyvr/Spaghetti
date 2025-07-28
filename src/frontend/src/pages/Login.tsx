@@ -246,7 +246,13 @@ export default function Login() {
                 </svg>
                 <div className="text-sm text-blue-800">
                   <p className="font-medium mb-1">Demo Environment</p>
-                  <p>Use any valid email format with any password to explore the platform features.</p>
+                  <p className="mb-2">Use these demo credentials to explore the platform:</p>
+                  <div className="bg-blue-100 rounded p-2 font-mono text-xs">
+                    <p><strong>Email:</strong> demo@enterprise-docs.com</p>
+                    <p><strong>Password:</strong> any password</p>
+                    <p><strong>Tenant:</strong> demo-legal (optional)</p>
+                  </div>
+                  <p className="mt-2 text-xs">Or use any valid email format with any password to explore features.</p>
                 </div>
               </div>
             </div>
