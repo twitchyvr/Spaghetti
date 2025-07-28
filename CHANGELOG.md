@@ -2,16 +2,16 @@
 
 All notable changes to the Enterprise Documentation Platform will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-## [1.0.0] - 2025-07-25
+## [0.0.0-pre-alpha] - 2025-07-25
 
-### 🚀 Major Milestone: Complete Frontend-Backend API Integration
+### 🚀 Major Milestone: Begin Frontend-Backend API Integration
 
-This release establishes the **foundational integration layer** for our enterprise platform, comparable to early architecture decisions at Salesforce, Workday, and ServiceNow.
+This release establishes the start of the **foundational integration layer** for our enterprise platform, comparable to early architecture decisions at Salesforce, Workday, and ServiceNow.
 
 #### Added
 
@@ -108,20 +108,20 @@ This release establishes the **foundational integration layer** for our enterpri
 
 ---
 
-## [0.3.0] - 2025-07-25
+## [0.0.1-alpha] - 2025-07-25
 
 ### Added
 - Text visibility CSS bug fix for dark theme
 - Theme selector correction from `[data-theme="dark"]` to `.dark` class
 
-## [0.2.0] - 2025-07-25
+## [0.0.2-alpha] - 2025-07-25
 
 ### Added
 - CSS architecture overhaul with centralized theme system
 - Professional dashboard with collapsible sidebar and modern cards
 - Responsive design with proper container constraints
 
-## [0.1.0] - 2025-07-24
+## [0.0.3-alpha] - 2025-07-24
 
 ### Added
 - Initial project setup with React 18 + TypeScript frontend
@@ -129,13 +129,3 @@ This release establishes the **foundational integration layer** for our enterpri
 - PostgreSQL database with multi-tenant architecture
 - Docker containerization with docker-compose
 - Basic authentication and authorization framework
-
----
-
-**Note**: Version 1.0.0 represents the completion of our **foundational integration layer** - the critical milestone that establishes our enterprise platform architecture foundation.
-
-[Unreleased]: https://github.com/twitchyvr/Spaghetti/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/twitchyvr/Spaghetti/compare/v0.3.0...v1.0.0
-[0.3.0]: https://github.com/twitchyvr/Spaghetti/compare/v0.2.0...v0.3.0
-[0.2.0]: https://github.com/twitchyvr/Spaghetti/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/twitchyvr/Spaghetti/releases/tag/v0.1.0
