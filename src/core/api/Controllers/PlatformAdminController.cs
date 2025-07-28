@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using EnterpriseDocsCore.Domain.Entities;
 using EnterpriseDocsCore.Infrastructure.Data;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace EnterpriseDocsCore.Api.Controllers;
 
@@ -240,6 +241,8 @@ public class PlatformAdminController : ControllerBase
                 return BadRequest(new { message = "Subdomain already exists" });
             }
 
+            var currentAdminId = GetCurrentPlatformAdminId();
+            
             var tenant = new Tenant
             {
                 Name = request.Name,
@@ -248,6 +251,9 @@ public class PlatformAdminController : ControllerBase
                 Status = TenantStatus.Active,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
+                CreatedByPlatformAdmin = currentAdminId,
+                LastModifiedByPlatformAdmin = currentAdminId,
+                PlatformNotes = request.Notes,
                 Branding = new TenantBranding
                 {
                     CustomDomainName = request.Domain
@@ -330,7 +336,12 @@ public class PlatformAdminController : ControllerBase
             if (request.IsActive.HasValue)
                 tenant.Status = request.IsActive.Value ? TenantStatus.Active : TenantStatus.Inactive;
 
+            // Track platform admin changes
             tenant.UpdatedAt = DateTime.UtcNow;
+            tenant.LastModifiedByPlatformAdmin = GetCurrentPlatformAdminId();
+            
+            if (!string.IsNullOrEmpty(request.Notes))
+                tenant.PlatformNotes = request.Notes;
 
             await _context.SaveChangesAsync();
 
@@ -479,6 +490,17 @@ public class PlatformAdminController : ControllerBase
         return features;
     }
 
+    private Guid? GetCurrentPlatformAdminId()
+    {
+        // Try to get the current user ID from claims
+        var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+        if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId))
+        {
+            return userId;
+        }
+        return null;
+    }
+
     #endregion
 }
 
@@ -590,6 +612,9 @@ public class CreateClientRequest
     
     [EmailAddress]
     public string? TechnicalContactEmail { get; set; }
+    
+    [StringLength(1000)]
+    public string? Notes { get; set; }
 }
 
 /// <summary>
@@ -606,6 +631,9 @@ public class UpdateClientRequest
     public string? Tier { get; set; }
     
     public bool? IsActive { get; set; }
+    
+    [StringLength(1000)]
+    public string? Notes { get; set; }
 }
 
 #endregion

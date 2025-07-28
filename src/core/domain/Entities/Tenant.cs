@@ -28,6 +28,13 @@ public class Tenant
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     
+    // Platform admin tracking
+    public Guid? CreatedByPlatformAdmin { get; set; }
+    public Guid? LastModifiedByPlatformAdmin { get; set; }
+    
+    [MaxLength(1000)]
+    public string? PlatformNotes { get; set; }
+    
     // Billing and subscription
     public TenantBilling Billing { get; set; } = new();
     

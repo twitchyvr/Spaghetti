@@ -17,7 +17,8 @@ import {
   CheckCircle,
   XCircle,
   Clock,
-  Pause
+  Pause,
+  X
 } from 'lucide-react';
 
 /**
@@ -41,8 +42,8 @@ interface ClientOrganization {
   name: string;
   subdomain: string;
   domain?: string;
-  tier: 'Trial' | 'Professional' | 'Enterprise' | 'Custom';
-  status: 'Active' | 'Trial' | 'Suspended' | 'Inactive' | 'Pending';
+  tier: string; // Changed from specific string literals to string
+  status: string; // Changed from specific string literals to string  
   userCount: number;
   documentCount: number;
   storageUsedMB: number;
@@ -75,6 +76,18 @@ interface ClientFilters {
   sortOrder: 'asc' | 'desc';
 }
 
+interface CreateClientForm {
+  name: string;
+  subdomain: string;
+  domain: string;
+  tier: 'Trial' | 'Professional' | 'Enterprise' | 'Custom';
+  billingContactName: string;
+  billingContactEmail: string;
+  technicalContactName: string;
+  technicalContactEmail: string;
+  notes: string;
+}
+
 export default function ClientManagement() {
   // State management
   const [clients, setClients] = useState<ClientOrganization[]>([]);
@@ -83,6 +96,18 @@ export default function ClientManagement() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddClientModal, setShowAddClientModal] = useState(false);
+  const [isCreatingClient, setIsCreatingClient] = useState(false);
+  const [createClientForm, setCreateClientForm] = useState<CreateClientForm>({
+    name: '',
+    subdomain: '',
+    domain: '',
+    tier: 'Trial',
+    billingContactName: '',
+    billingContactEmail: '',
+    technicalContactName: '',
+    technicalContactEmail: '',
+    notes: ''
+  });
   const [filters, setFilters] = useState<ClientFilters>({
     status: 'all',
     tier: 'all',
@@ -110,127 +135,11 @@ export default function ClientManagement() {
       setIsLoading(true);
       setError(null);
 
-      // TODO: Replace with actual client management APIs
-      // For now, using comprehensive demo data that represents enterprise-level clients
-      const mockClients: ClientOrganization[] = [
-        {
-          id: 'client-1',
-          name: 'Acme Legal Partners',
-          subdomain: 'acme-legal',
-          domain: 'acmelegal.com',
-          tier: 'Enterprise',
-          status: 'Active',
-          userCount: 156,
-          documentCount: 2847,
-          storageUsedMB: 1024,
-          storageQuotaMB: 5120,
-          monthlyRevenue: 2499,
-          annualContract: 29988,
-          createdAt: '2024-03-15T10:30:00Z',
-          lastActive: '2025-07-25T10:30:00Z',
-          healthScore: 98,
-          supportTickets: 2,
-          billingContact: {
-            name: 'Sarah Johnson',
-            email: 'billing@acmelegal.com'
-          },
-          technicalContact: {
-            name: 'Michael Chen',
-            email: 'tech@acmelegal.com'
-          },
-          features: ['SSO', 'API Access', 'Custom Branding', 'Advanced Analytics', 'Priority Support'],
-          customBranding: true,
-          ssoEnabled: true,
-          apiAccess: true
-        },
-        {
-          id: 'client-2',
-          name: 'TechStart Innovation',
-          subdomain: 'techstart',
-          tier: 'Professional',
-          status: 'Active',
-          userCount: 28,
-          documentCount: 445,
-          storageUsedMB: 256,
-          storageQuotaMB: 1024,
-          monthlyRevenue: 799,
-          createdAt: '2024-11-08T14:22:00Z',
-          lastActive: '2025-07-25T09:15:00Z',
-          healthScore: 95,
-          supportTickets: 0,
-          billingContact: {
-            name: 'Alex Thompson',
-            email: 'alex@techstart.io'
-          },
-          technicalContact: {
-            name: 'Jamie Rodriguez',
-            email: 'jamie@techstart.io'
-          },
-          features: ['Standard Support', 'Team Collaboration', 'Document Templates'],
-          customBranding: false,
-          ssoEnabled: false,
-          apiAccess: true
-        },
-        {
-          id: 'client-3',
-          name: 'Global Consulting Group',
-          subdomain: 'global-consulting',
-          domain: 'globalconsulting.com',
-          tier: 'Enterprise',
-          status: 'Trial',
-          userCount: 75,
-          documentCount: 1203,
-          storageUsedMB: 512,
-          storageQuotaMB: 5120,
-          monthlyRevenue: 0, // Trial period
-          createdAt: '2025-07-10T08:45:00Z',
-          lastActive: '2025-07-25T11:45:00Z',
-          healthScore: 87,
-          supportTickets: 3,
-          billingContact: {
-            name: 'Robert Kim',
-            email: 'finance@globalconsulting.com'
-          },
-          technicalContact: {
-            name: 'Lisa Wang',
-            email: 'lisa.wang@globalconsulting.com'  
-          },
-          features: ['Trial Access', 'SSO', 'Custom Branding', 'Advanced Analytics'],
-          customBranding: true,
-          ssoEnabled: true,
-          apiAccess: false
-        },
-        {
-          id: 'client-4',
-          name: 'StartupLaw Advisors',
-          subdomain: 'startuplaw',
-          tier: 'Professional',
-          status: 'Suspended',
-          userCount: 12,
-          documentCount: 189,
-          storageUsedMB: 128,
-          storageQuotaMB: 1024,
-          monthlyRevenue: 599,
-          createdAt: '2024-09-22T16:10:00Z',
-          lastActive: '2025-07-20T14:22:00Z',
-          healthScore: 65,
-          supportTickets: 5,
-          billingContact: {
-            name: 'David Lee',
-            email: 'david@startuplaw.com'
-          },
-          technicalContact: {
-            name: 'Emily Chen',
-            email: 'emily@startuplaw.com'
-          },
-          features: ['Standard Support', 'Team Collaboration'],
-          customBranding: false,
-          ssoEnabled: false,
-          apiAccess: false
-        }
-      ];
-
-      setClients(mockClients);
+      // Import API service and fetch real client data
+      const { platformAdminApi } = await import('../services/api');
+      const clientsData = await platformAdminApi.getClients();
+      
+      setClients(clientsData);
 
     } catch (err) {
       console.error('Failed to fetch client data:', err);
@@ -336,6 +245,93 @@ export default function ClientManagement() {
         <span className="font-medium">{score}%</span>
       </div>
     );
+  };
+
+  /**
+   * Create a new client organization
+   */
+  const handleCreateClient = async () => {
+    try {
+      setIsCreatingClient(true);
+      
+      // Import API service
+      const { platformAdminApi } = await import('../services/api');
+      
+      // Validate form
+      if (!createClientForm.name.trim()) {
+        alert('Organization name is required');
+        return;
+      }
+      
+      if (!createClientForm.subdomain.trim()) {
+        alert('Subdomain is required');
+        return;
+      }
+      
+      // Validate subdomain format
+      if (!/^[a-z0-9-]+$/.test(createClientForm.subdomain)) {
+        alert('Subdomain can only contain lowercase letters, numbers, and hyphens');
+        return;
+      }
+      
+      // Create the client
+      const clientData = {
+        name: createClientForm.name.trim(),
+        subdomain: createClientForm.subdomain.trim().toLowerCase(),
+        tier: createClientForm.tier,
+        ...(createClientForm.domain.trim() && { domain: createClientForm.domain.trim() }),
+        ...(createClientForm.billingContactName.trim() && { billingContactName: createClientForm.billingContactName.trim() }),
+        ...(createClientForm.billingContactEmail.trim() && { billingContactEmail: createClientForm.billingContactEmail.trim() }),
+        ...(createClientForm.technicalContactName.trim() && { technicalContactName: createClientForm.technicalContactName.trim() }),
+        ...(createClientForm.technicalContactEmail.trim() && { technicalContactEmail: createClientForm.technicalContactEmail.trim() }),
+        ...(createClientForm.notes.trim() && { notes: createClientForm.notes.trim() })
+      };
+      
+      const newClient = await platformAdminApi.createClient(clientData);
+      
+      // Add to the client list
+      setClients(prev => [newClient as ClientOrganization, ...prev]);
+      
+      // Reset form and close modal
+      setCreateClientForm({
+        name: '',
+        subdomain: '',
+        domain: '',
+        tier: 'Trial',
+        billingContactName: '',
+        billingContactEmail: '',
+        technicalContactName: '',
+        technicalContactEmail: '',
+        notes: ''
+      });
+      setShowAddClientModal(false);
+      
+      // Show success message
+      alert(`Client "${newClient.name}" created successfully!`);
+      
+    } catch (err) {
+      console.error('Failed to create client:', err);
+      alert(err instanceof Error ? err.message : 'Failed to create client');
+    } finally {
+      setIsCreatingClient(false);
+    }
+  };
+
+  /**
+   * Handle subdomain auto-generation from organization name
+   */
+  const handleNameChange = (name: string) => {
+    setCreateClientForm(prev => ({
+      ...prev,
+      name,
+      // Auto-generate subdomain if empty
+      subdomain: prev.subdomain || name.toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/--+/g, '-')
+        .replace(/^-|-$/g, '')
+        .substring(0, 50)
+    }));
   };
 
   // Action handlers
@@ -622,22 +618,194 @@ export default function ClientManagement() {
         </div>
       </section>
 
-      {/* Add Client Modal - TODO: Implement */}
+      {/* Create Client Modal */}
       {showAddClientModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">Add New Client</h3>
-            <p className="text-gray-600 mb-4">Client creation modal will be implemented here.</p>
-            <div className="flex space-x-3">
-              <button 
-                onClick={() => setShowAddClientModal(false)}
-                className="btn btn-secondary flex-1"
-              >
-                Cancel
-              </button>
-              <button className="btn btn-primary flex-1">
-                Create Client
-              </button>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-semibold text-gray-900">Create New Client Organization</h3>
+                <button 
+                  onClick={() => setShowAddClientModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+
+              <form onSubmit={(e) => { e.preventDefault(); handleCreateClient(); }} className="space-y-6">
+                {/* Organization Details */}
+                <div className="space-y-4">
+                  <h4 className="text-lg font-medium text-gray-900">Organization Details</h4>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Organization Name *
+                    </label>
+                    <input
+                      type="text"
+                      value={createClientForm.name}
+                      onChange={(e) => handleNameChange(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="e.g. Acme Legal Partners"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Subdomain *
+                    </label>
+                    <div className="flex items-center">
+                      <input
+                        type="text"
+                        value={createClientForm.subdomain}
+                        onChange={(e) => setCreateClientForm(prev => ({ ...prev, subdomain: e.target.value.toLowerCase() }))}
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="acme-legal"
+                        pattern="^[a-z0-9-]+$"
+                        required
+                      />
+                      <span className="px-3 py-2 bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg text-gray-600">
+                        .spaghetti.app
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">Only lowercase letters, numbers, and hyphens</p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Custom Domain (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={createClientForm.domain}
+                      onChange={(e) => setCreateClientForm(prev => ({ ...prev, domain: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="e.g. docs.acmelegal.com"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Subscription Tier *
+                    </label>
+                    <select
+                      value={createClientForm.tier}
+                      onChange={(e) => setCreateClientForm(prev => ({ ...prev, tier: e.target.value as any }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      required
+                    >
+                      <option value="Trial">Trial (Free, 30 days)</option>
+                      <option value="Professional">Professional ($799/month)</option>
+                      <option value="Enterprise">Enterprise ($2,499/month)</option>
+                      <option value="Custom">Custom (Contact sales)</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Contact Information */}
+                <div className="space-y-4">
+                  <h4 className="text-lg font-medium text-gray-900">Contact Information</h4>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Billing Contact Name
+                      </label>
+                      <input
+                        type="text"
+                        value={createClientForm.billingContactName}
+                        onChange={(e) => setCreateClientForm(prev => ({ ...prev, billingContactName: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="John Smith"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Billing Contact Email
+                      </label>
+                      <input
+                        type="email"
+                        value={createClientForm.billingContactEmail}
+                        onChange={(e) => setCreateClientForm(prev => ({ ...prev, billingContactEmail: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="billing@example.com"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Technical Contact Name
+                      </label>
+                      <input
+                        type="text"
+                        value={createClientForm.technicalContactName}
+                        onChange={(e) => setCreateClientForm(prev => ({ ...prev, technicalContactName: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Jane Doe"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Technical Contact Email
+                      </label>
+                      <input
+                        type="email"
+                        value={createClientForm.technicalContactEmail}
+                        onChange={(e) => setCreateClientForm(prev => ({ ...prev, technicalContactEmail: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="tech@example.com"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Platform Admin Notes */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Platform Admin Notes
+                  </label>
+                  <textarea
+                    value={createClientForm.notes}
+                    onChange={(e) => setCreateClientForm(prev => ({ ...prev, notes: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    rows={3}
+                    placeholder="Internal notes about this client organization..."
+                  />
+                </div>
+
+                {/* Actions */}
+                <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                  <button 
+                    type="button"
+                    onClick={() => setShowAddClientModal(false)}
+                    className="btn btn-secondary"
+                    disabled={isCreatingClient}
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit"
+                    className="btn btn-primary flex items-center space-x-2"
+                    disabled={isCreatingClient}
+                  >
+                    {isCreatingClient ? (
+                      <>
+                        <Activity className="animate-spin" size={16} />
+                        <span>Creating...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Plus size={16} />
+                        <span>Create Client</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
