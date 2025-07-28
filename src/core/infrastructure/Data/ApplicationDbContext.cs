@@ -160,6 +160,11 @@ public class ApplicationDbContext : DbContext
                     .HasConversion(stringListConverter);
             });
 
+        // Configure Document MetaKeywords property
+        modelBuilder.Entity<Document>()
+            .Property(e => e.MetaKeywords)
+            .HasConversion(stringListConverter);
+
         modelBuilder.Entity<UserAuthentication>()
             .Property(e => e.ProviderData)
             .HasConversion(dictionaryConverter);
@@ -295,6 +300,27 @@ public class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<Document>()
             .HasIndex(e => e.ParentDocumentId);
+
+        // File-related indexes for document management
+        modelBuilder.Entity<Document>()
+            .HasIndex(e => new { e.TenantId, e.FileHash })
+            .HasFilter("FileHash IS NOT NULL");
+
+        modelBuilder.Entity<Document>()
+            .HasIndex(e => new { e.TenantId, e.FileName })
+            .HasFilter("FileName IS NOT NULL");
+
+        modelBuilder.Entity<Document>()
+            .HasIndex(e => new { e.ContentType, e.TenantId })
+            .HasFilter("ContentType IS NOT NULL");
+
+        modelBuilder.Entity<Document>()
+            .HasIndex(e => new { e.TenantId, e.IsLatestVersion, e.ParentDocumentId })
+            .HasFilter("ParentDocumentId IS NOT NULL");
+
+        modelBuilder.Entity<Document>()
+            .HasIndex(e => new { e.TenantId, e.Version, e.ParentDocumentId })
+            .HasFilter("ParentDocumentId IS NOT NULL");
 
         // Document tags indexes
         modelBuilder.Entity<DocumentTag>()

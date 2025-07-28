@@ -153,6 +153,101 @@ public class DocumentRepository : BaseRepository<Document, Guid>, IDocumentRepos
             .FirstOrDefaultAsync(cancellationToken);
     }
 
+    public async Task<Document?> CreateVersionAsync(Guid originalDocumentId, Document newVersion, CancellationToken cancellationToken = default)
+    {
+        var originalDocument = await GetByIdAsync(originalDocumentId, cancellationToken);
+        if (originalDocument == null)
+        {
+            return null;
+        }
+
+        // Set the parent document reference
+        newVersion.ParentDocumentId = originalDocument.ParentDocumentId ?? originalDocumentId;
+        
+        // Get the next version number
+        var latestVersion = await DbSet
+            .Where(d => d.ParentDocumentId == newVersion.ParentDocumentId || d.Id == newVersion.ParentDocumentId)
+            .MaxAsync(d => (int?)d.Version, cancellationToken) ?? 0;
+        
+        newVersion.Version = latestVersion + 1;
+        
+        // Mark all other versions as not latest
+        await UpdateLatestVersionFlagAsync(originalDocumentId, false, cancellationToken);
+        
+        // Mark new version as latest
+        newVersion.IsLatestVersion = true;
+        
+        return await AddAsync(newVersion, cancellationToken);
+    }
+
+    public async Task UpdateLatestVersionFlagAsync(Guid documentId, bool isLatest, CancellationToken cancellationToken = default)
+    {
+        var document = await GetByIdAsync(documentId, cancellationToken);
+        if (document != null)
+        {
+            // Update all versions of this document
+            var parentId = document.ParentDocumentId ?? documentId;
+            var allVersions = await DbSet
+                .Where(d => d.ParentDocumentId == parentId || d.Id == parentId)
+                .ToListAsync(cancellationToken);
+
+            foreach (var version in allVersions)
+            {
+                version.IsLatestVersion = version.Id == documentId && isLatest;
+            }
+
+            await Context.SaveChangesAsync(cancellationToken);
+        }
+    }
+
+    public async Task<Document?> GetByFileHashAsync(string fileHash, Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        return await DbSet
+            .Where(d => d.FileHash == fileHash && d.TenantId == tenantId)
+            .Include(d => d.CreatedByUser)
+            .Include(d => d.Tags)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<IEnumerable<Document>> GetByFileNameAsync(string fileName, Guid? tenantId = null, CancellationToken cancellationToken = default)
+    {
+        var query = DbSet.Where(d => d.FileName == fileName);
+        
+        if (tenantId.HasValue)
+        {
+            query = query.Where(d => d.TenantId == tenantId);
+        }
+        
+        return await query
+            .Include(d => d.CreatedByUser)
+            .Include(d => d.Tags)
+            .OrderByDescending(d => d.CreatedAt)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IEnumerable<Document>> GetByContentTypeAsync(string contentType, Guid? tenantId = null, CancellationToken cancellationToken = default)
+    {
+        var query = DbSet.Where(d => d.ContentType == contentType);
+        
+        if (tenantId.HasValue)
+        {
+            query = query.Where(d => d.TenantId == tenantId);
+        }
+        
+        return await query
+            .Include(d => d.CreatedByUser)
+            .Include(d => d.Tags)
+            .OrderByDescending(d => d.CreatedAt)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<long> GetTotalFileSizeByTenantAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        return await DbSet
+            .Where(d => d.TenantId == tenantId && d.FileSize.HasValue)
+            .SumAsync(d => d.FileSize ?? 0, cancellationToken);
+    }
+
     public async Task<bool> HasUserAccessAsync(Guid documentId, Guid userId, PermissionType permissionType, CancellationToken cancellationToken = default)
     {
         // First check if user is the owner

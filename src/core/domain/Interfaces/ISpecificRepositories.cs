@@ -27,6 +27,14 @@ public interface IDocumentRepository : IRepository<Document, Guid>
     // Version management
     Task<IEnumerable<Document>> GetVersionsAsync(Guid parentDocumentId, CancellationToken cancellationToken = default);
     Task<Document?> GetLatestVersionAsync(Guid parentDocumentId, CancellationToken cancellationToken = default);
+    Task<Document?> CreateVersionAsync(Guid originalDocumentId, Document newVersion, CancellationToken cancellationToken = default);
+    Task UpdateLatestVersionFlagAsync(Guid documentId, bool isLatest, CancellationToken cancellationToken = default);
+    
+    // File management
+    Task<Document?> GetByFileHashAsync(string fileHash, Guid tenantId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<Document>> GetByFileNameAsync(string fileName, Guid? tenantId = null, CancellationToken cancellationToken = default);
+    Task<IEnumerable<Document>> GetByContentTypeAsync(string contentType, Guid? tenantId = null, CancellationToken cancellationToken = default);
+    Task<long> GetTotalFileSizeByTenantAsync(Guid tenantId, CancellationToken cancellationToken = default);
     
     // Permission checking
     Task<bool> HasUserAccessAsync(Guid documentId, Guid userId, PermissionType permissionType, CancellationToken cancellationToken = default);

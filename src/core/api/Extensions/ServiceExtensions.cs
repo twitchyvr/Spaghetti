@@ -329,6 +329,26 @@ public class AzureBlobStorageService : Domain.Interfaces.IStorageService
     {
         throw new NotImplementedException("Azure Blob Storage implementation needed");
     }
+
+    public Task<string> UploadFileAsync(Stream fileStream, string fileName, string contentType, string? tenantId = null, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("Azure Blob Storage implementation needed");
+    }
+
+    public Task<(Stream stream, string contentType, string fileName)> DownloadFileAsync(string storagePath, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("Azure Blob Storage implementation needed");
+    }
+
+    public Task<string> CalculateFileHashAsync(Stream fileStream, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("Azure Blob Storage implementation needed");
+    }
+
+    public Task<(bool isValid, string? errorMessage)> ValidateFileAsync(Stream fileStream, string fileName, string contentType, long maxSize = 104857600, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("Azure Blob Storage implementation needed");
+    }
 }
 
 public class AwsS3StorageService : Domain.Interfaces.IStorageService
@@ -374,6 +394,26 @@ public class AwsS3StorageService : Domain.Interfaces.IStorageService
     }
 
     public Task<IEnumerable<EnterpriseDocsCore.Domain.Interfaces.FileInfo>> ListFilesAsync(string path = "", CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("AWS S3 implementation needed");
+    }
+
+    public Task<string> UploadFileAsync(Stream fileStream, string fileName, string contentType, string? tenantId = null, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("AWS S3 implementation needed");
+    }
+
+    public Task<(Stream stream, string contentType, string fileName)> DownloadFileAsync(string storagePath, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("AWS S3 implementation needed");
+    }
+
+    public Task<string> CalculateFileHashAsync(Stream fileStream, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("AWS S3 implementation needed");
+    }
+
+    public Task<(bool isValid, string? errorMessage)> ValidateFileAsync(Stream fileStream, string fileName, string contentType, long maxSize = 104857600, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException("AWS S3 implementation needed");
     }
@@ -425,6 +465,26 @@ public class DigitalOceanSpacesStorageService : Domain.Interfaces.IStorageServic
     {
         throw new NotImplementedException("DigitalOcean Spaces implementation needed");
     }
+
+    public Task<string> UploadFileAsync(Stream fileStream, string fileName, string contentType, string? tenantId = null, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("DigitalOcean Spaces implementation needed");
+    }
+
+    public Task<(Stream stream, string contentType, string fileName)> DownloadFileAsync(string storagePath, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("DigitalOcean Spaces implementation needed");
+    }
+
+    public Task<string> CalculateFileHashAsync(Stream fileStream, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("DigitalOcean Spaces implementation needed");
+    }
+
+    public Task<(bool isValid, string? errorMessage)> ValidateFileAsync(Stream fileStream, string fileName, string contentType, long maxSize = 104857600, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("DigitalOcean Spaces implementation needed");
+    }
 }
 
 public class LocalFileStorageService : Domain.Interfaces.IStorageService
@@ -472,32 +532,193 @@ public class LocalFileStorageService : Domain.Interfaces.IStorageService
 
     public Task<string?> GetFileUrlAsync(string storagePath, TimeSpan? expiry = null, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException("Local File Storage implementation needed");
+        // For local storage, return a relative URL that can be served by the web server
+        var fileName = Path.GetFileName(storagePath);
+        var relativeUrl = $"/uploads/{fileName}";
+        return Task.FromResult<string?>(relativeUrl);
     }
 
     public Task<bool> FileExistsAsync(string storagePath, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException("Local File Storage implementation needed");
+        return Task.FromResult(File.Exists(storagePath));
     }
 
     public Task<FileMetadata?> GetFileMetadataAsync(string storagePath, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException("Local File Storage implementation needed");
+        if (!File.Exists(storagePath))
+        {
+            return Task.FromResult<FileMetadata?>(null);
+        }
+
+        var fileInfo = new System.IO.FileInfo(storagePath);
+        var metadata = new FileMetadata
+        {
+            FileName = fileInfo.Name,
+            Size = fileInfo.Length,
+            ContentType = GetContentType(fileInfo.Extension),
+            Created = fileInfo.CreationTimeUtc,
+            LastModified = fileInfo.LastWriteTimeUtc,
+            ETag = GenerateETag(fileInfo),
+            CustomMetadata = new Dictionary<string, string>()
+        };
+
+        return Task.FromResult<FileMetadata?>(metadata);
     }
 
-    public Task<string> CopyFileAsync(string sourceStoragePath, string destinationFileName, CancellationToken cancellationToken = default)
+    public async Task<string> CopyFileAsync(string sourceStoragePath, string destinationFileName, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException("Local File Storage implementation needed");
+        if (!File.Exists(sourceStoragePath))
+        {
+            throw new FileNotFoundException("Source file not found", sourceStoragePath);
+        }
+
+        var extension = Path.GetExtension(destinationFileName);
+        var fileId = Guid.NewGuid().ToString("N");
+        var destinationPath = Path.Combine(_basePath, $"{fileId}{extension}");
+
+        File.Copy(sourceStoragePath, destinationPath);
+        return destinationPath;
     }
 
     public Task<long> GetStorageUsageAsync(string tenantId, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException("Local File Storage implementation needed");
+        // For local storage, calculate total size of files in tenant subdirectory
+        var tenantPath = Path.Combine(_basePath, tenantId);
+        if (!Directory.Exists(tenantPath))
+        {
+            return Task.FromResult(0L);
+        }
+
+        var totalSize = Directory.GetFiles(tenantPath, "*", SearchOption.AllDirectories)
+            .Sum(file => new System.IO.FileInfo(file).Length);
+
+        return Task.FromResult(totalSize);
     }
 
     public Task<IEnumerable<EnterpriseDocsCore.Domain.Interfaces.FileInfo>> ListFilesAsync(string path = "", CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException("Local File Storage implementation needed");
+        var searchPath = string.IsNullOrEmpty(path) ? _basePath : Path.Combine(_basePath, path);
+        
+        if (!Directory.Exists(searchPath))
+        {
+            return Task.FromResult(Enumerable.Empty<EnterpriseDocsCore.Domain.Interfaces.FileInfo>());
+        }
+
+        var files = Directory.GetFiles(searchPath)
+            .Select(filePath =>
+            {
+                var fileInfo = new System.IO.FileInfo(filePath);
+                return new EnterpriseDocsCore.Domain.Interfaces.FileInfo
+                {
+                    Name = fileInfo.Name,
+                    FullPath = filePath,
+                    Size = fileInfo.Length,
+                    LastModified = fileInfo.LastWriteTimeUtc,
+                    IsDirectory = false,
+                    ContentType = GetContentType(fileInfo.Extension)
+                };
+            });
+
+        return Task.FromResult(files);
+    }
+
+    public async Task<string> UploadFileAsync(Stream fileStream, string fileName, string contentType, string? tenantId = null, CancellationToken cancellationToken = default)
+    {
+        // Create tenant subdirectory if specified
+        var uploadPath = _basePath;
+        if (!string.IsNullOrEmpty(tenantId))
+        {
+            uploadPath = Path.Combine(_basePath, tenantId);
+            Directory.CreateDirectory(uploadPath);
+        }
+
+        var fileId = Guid.NewGuid().ToString("N");
+        var extension = Path.GetExtension(fileName);
+        var storagePath = Path.Combine(uploadPath, $"{fileId}{extension}");
+
+        await using var fileOutput = File.Create(storagePath);
+        await fileStream.CopyToAsync(fileOutput, cancellationToken);
+
+        return storagePath;
+    }
+
+    public async Task<(Stream stream, string contentType, string fileName)> DownloadFileAsync(string storagePath, CancellationToken cancellationToken = default)
+    {
+        if (!File.Exists(storagePath))
+        {
+            throw new FileNotFoundException("File not found", storagePath);
+        }
+
+        var fileInfo = new System.IO.FileInfo(storagePath);
+        var contentType = GetContentType(fileInfo.Extension);
+        var stream = File.OpenRead(storagePath);
+
+        return (stream, contentType, fileInfo.Name);
+    }
+
+    public async Task<string> CalculateFileHashAsync(Stream fileStream, CancellationToken cancellationToken = default)
+    {
+        using var sha256 = System.Security.Cryptography.SHA256.Create();
+        var originalPosition = fileStream.Position;
+        fileStream.Position = 0;
+        
+        var hashBytes = await sha256.ComputeHashAsync(fileStream, cancellationToken);
+        fileStream.Position = originalPosition;
+        
+        return Convert.ToHexString(hashBytes);
+    }
+
+    public async Task<(bool isValid, string? errorMessage)> ValidateFileAsync(Stream fileStream, string fileName, string contentType, long maxSize = 104857600, CancellationToken cancellationToken = default)
+    {
+        // Check file size
+        if (fileStream.Length > maxSize)
+        {
+            return (false, $"File size ({fileStream.Length:N0} bytes) exceeds maximum allowed size ({maxSize:N0} bytes)");
+        }
+
+        // Check file extension
+        var extension = Path.GetExtension(fileName).ToLowerInvariant();
+        var allowedExtensions = new[] { ".pdf", ".docx", ".xlsx", ".pptx", ".txt", ".md", ".png", ".jpg", ".jpeg", ".gif", ".zip" };
+        
+        if (!allowedExtensions.Contains(extension))
+        {
+            return (false, $"File type '{extension}' is not allowed");
+        }
+
+        // Validate content type matches extension
+        var expectedContentType = GetContentType(extension);
+        if (!string.Equals(contentType, expectedContentType, StringComparison.OrdinalIgnoreCase))
+        {
+            return (false, $"Content type '{contentType}' does not match file extension '{extension}'");
+        }
+
+        return (true, null);
+    }
+
+    private static string GetContentType(string extension)
+    {
+        return extension.ToLowerInvariant() switch
+        {
+            ".pdf" => "application/pdf",
+            ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            ".xlsx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            ".pptx" => "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+            ".txt" => "text/plain",
+            ".md" => "text/markdown",
+            ".png" => "image/png",
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".gif" => "image/gif",
+            ".zip" => "application/zip",
+            _ => "application/octet-stream"
+        };
+    }
+
+    private static string GenerateETag(System.IO.FileInfo fileInfo)
+    {
+        var hash = $"{fileInfo.LastWriteTimeUtc.Ticks}-{fileInfo.Length}";
+        using var sha1 = System.Security.Cryptography.SHA1.Create();
+        var hashBytes = sha1.ComputeHash(System.Text.Encoding.UTF8.GetBytes(hash));
+        return Convert.ToHexString(hashBytes)[..16];
     }
 }
 
