@@ -1,24 +1,29 @@
 # Spaghetti Platform Development Roadmap
-**Multi-Tier SaaS Platform Architecture & Development Order**
+**Multi-Level Enterprise Platform Architecture & Development Order**
 
 ## 🏗️ Platform Architecture Overview
 
-The Spaghetti Platform is a **3-tier enterprise SaaS solution** designed for white-label deployment:
+The Spaghetti Platform is a **4-level enterprise platform** designed for large organizations managing complex structures:
 
-### Tier 1: Platform Administration (Spaghetti Team)
-**Purpose**: Manage the entire SaaS platform, clients, and infrastructure
-- **Users**: Spaghetti platform developers, sales, support team
-- **Scope**: Cross-tenant platform management and monitoring
+### Level 1: Platform Administration (Spaghetti Team)
+**Purpose**: Manage enterprise client relationships and platform operations
+- **Users**: Platform developers, enterprise sales, customer success teams
+- **Scope**: Client onboarding, subscription management, platform infrastructure
 
-### Tier 2: Client Administration (Tenant Organizations) 
-**Purpose**: Manage individual client organizations using the platform
-- **Users**: Client admins, managers, IT teams within client organizations
-- **Scope**: Single-tenant organization management
+### Level 2: Client Administration (Enterprise Organizations)
+**Purpose**: Enterprise clients managing their organizational ecosystem
+- **Users**: Client executives, IT directors, admin teams at Fortune 5000 companies
+- **Scope**: Multi-tenant management, subscription allocation, organizational oversight
 
-### Tier 3: End User Application (Individual Contributors)
-**Purpose**: Day-to-day document creation and management
-- **Users**: Lawyers, consultants, employees within client organizations  
-- **Scope**: Personal and collaborative document workflows
+### Level 3: Tenant Management (Organizational Units)
+**Purpose**: Individual business units within enterprise client organizations
+- **Users**: Division managers, practice leads, subsidiary administrators
+- **Scope**: Single-tenant operations, user management, local customization
+
+### Level 4: End User Application (Individual Contributors)
+**Purpose**: Day-to-day document creation and collaboration within tenants
+- **Users**: Lawyers, consultants, employees within specific organizational units
+- **Scope**: Document workflows, collaboration, tenant-specific activities
 
 ## 📋 Development Order of Operations
 

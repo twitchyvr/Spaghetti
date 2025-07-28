@@ -1,7 +1,7 @@
 # Spaghetti Platform: Multi-Tier SaaS Architecture
 **Complete White-Label Enterprise Documentation Platform**
 
-## 🏗️ Three-Tier Platform Architecture
+## 🏗️ Multi-Level Enterprise Platform Architecture
 
 ### Tier 1: Platform Administration (Spaghetti Team)
 **URL**: `admin.spaghetti.platform` or `app.spaghetti.platform/platform-admin`
@@ -24,18 +24,18 @@
 - Infrastructure costs and margins
 - Support ticket volume and resolution times
 
-### Tier 2: Client Administration (Tenant Organizations)
+### Tier 2: Client Administration (Enterprise Organizations)
 **URL**: `{tenant}.spaghetti.app/admin` or `client-portal.{tenant}.com/admin`
 
 **Users**: Client organization admins, IT managers, billing contacts
 
 **Core Capabilities**:
-- **User Management**: Add/remove users, assign roles, manage permissions
-- **Usage Analytics**: Organization-specific document counts, user activity, storage usage
-- **Billing Dashboard**: Current plan, usage vs limits, billing history, upgrade options
-- **White-Label Branding**: Logo, colors, custom domain configuration
-- **Security Settings**: SSO configuration, access policies, data retention rules
-- **Public Portal Management**: Configure public documentation sites
+- **Tenant Management**: Create and manage multiple organizational units (subsidiaries, divisions, practice areas)
+- **Cross-Tenant Analytics**: Usage, collaboration, and performance across all their tenants
+- **Subscription Control**: Allocate licenses and features across their tenant ecosystem
+- **Enterprise Administration**: User management, roles, and permissions across all tenants
+- **White-Label Branding**: Configure branding settings for their entire organization
+- **Security & Compliance**: Enterprise-wide policies, audit trails, and regulatory compliance
 
 **Key Metrics Displayed**:
 - Documents created this month vs plan limits

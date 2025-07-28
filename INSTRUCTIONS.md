@@ -12,7 +12,7 @@
 ## Agent Signoff
 **project-manager**: concurs
 **scrum-master**: concurs
-**developer**: does not concur (JWT authentication not implemented)
+**developer**: does not concur (JWT authentication implementation pending)
 **ui-designer**: does not concur (UI changes needed)
 **qa-engineer**: does not concur (Comments in PR/Issue)
 
@@ -22,7 +22,16 @@
 
 We are building the **Salesforce of Enterprise Documentation** - a comprehensive, AI-powered platform that transforms how organizations create, manage, and leverage their institutional knowledge. Starting with legal professionals and expanding to all industries, this platform represents a $50B+ market opportunity with no dominant player.
 
-Similar to how Microsoft manages tenants, our platform will provide a multi-tenant architecture with row-level security, enabling enterprises to securely manage their data while leveraging AI for intelligent document processing.
+### Multi-Level Enterprise Architecture
+
+Our platform operates on a **four-level enterprise architecture** designed for maximum scalability and enterprise adoption:
+
+1. **Platform Level (Us)**: We are the platform provider managing multiple enterprise clients
+2. **Client Level**: Enterprise organizations (law firms, corporations) are our paying customers  
+3. **Tenant Level**: Each client can have multiple tenants (subsidiaries, divisions, merged companies)
+4. **User Level**: End users within each tenant with role-based permissions
+
+This architecture enables clients to self-manage their organizational structure while we focus on platform operations, subscriptions, and enterprise relationships.
 
 ### Current Achievement
 ✅ **MAJOR MILESTONE COMPLETE**: Enterprise foundation established with full-stack API integration, comparable to early Salesforce/Workday/ServiceNow architecture decisions.
@@ -54,10 +63,17 @@ A comprehensive platform that:
 4. **Delivers** - Context-aware documentation when needed
 
 ### Business Model & Market Opportunity
-- **Target Market**: Initially legal professionals, expanding to all enterprise verticals
-- **Revenue Model**: SaaS subscriptions ($29-$199/user/month) + Enterprise licensing
+- **Target Market**: Enterprise clients (law firms, corporations) managing their own tenant ecosystems
+- **Revenue Model**: Client-level subscriptions with tenant-based licensing and per-user pricing
 - **Market Size**: $50B+ TAM growing at 15% CAGR
 - **Competition**: No dominant platform player (opportunity like early Salesforce)
+
+### Key Enterprise Capabilities
+- **Client Self-Service**: Enterprise clients manage their own tenants and users
+- **Subscription Management**: License management at the client level with tenant allocation
+- **Multi-Tenant Security**: Row-level security with complete tenant isolation
+- **Scalable Architecture**: From MVP tenant management to full enterprise platform
+- **Audit & Compliance**: Platform, client, and tenant-level logging and compliance
 
 ---
 
@@ -181,10 +197,10 @@ Designed for deployment flexibility:
    - Add filters and facets
 
 ### Sprint Plan (Next Month)
-- **Week 1-2**: Authentication and core APIs
-- **Week 3-4**: Document management and search
-- **Week 5-6**: AI integration foundation
-- **Week 7-8**: First customer pilot
+- **Week 1-2**: Multi-level authentication and client management APIs
+- **Week 3-4**: Tenant self-service management and document APIs
+- **Week 5-6**: Client dashboard and subscription management
+- **Week 7-8**: First enterprise client pilot with multiple tenants
 
 ### Quarterly Milestones
 - **Q1 2025**: Foundation and core features ✅
@@ -197,17 +213,17 @@ Designed for deployment flexibility:
 ## 👥 Team Roles & Responsibilities
 
 ### Current Team Structure
-- **Solutions Architect**: Overall system design and architecture decisions
-- **Backend Engineers**: API development, database design, integrations
-- **Frontend Engineers**: UI/UX implementation, user experience
-- **DevOps Engineers**: Infrastructure, deployment, monitoring
-- **Product Manager**: Feature prioritization, customer feedback
+- **Solutions Architect**: Multi-level system design and enterprise architecture decisions
+- **Backend Engineers**: Multi-tenant API development, client/tenant isolation, subscription management
+- **Frontend Engineers**: Multi-dashboard UI/UX (platform, client, tenant levels)
+- **DevOps Engineers**: Scalable infrastructure, enterprise deployment, monitoring
+- **Product Manager**: Enterprise client feature prioritization, tenant management workflows
 
 ### Key Decisions Needed
-1. **AI Provider Selection**: Azure OpenAI vs. self-hosted models
-2. **Search Technology**: Elasticsearch vs. Azure Cognitive Search
-3. **Deployment Strategy**: Multi-region approach
-4. **Pricing Model**: Finalize tiers and features
+1. **Client Onboarding**: Self-service vs. assisted enterprise client setup
+2. **Tenant Limits**: Maximum tenants per client and pricing implications
+3. **Subscription Model**: Client-level vs. tenant-level vs. hybrid billing
+4. **Enterprise Features**: Priority order for client self-service capabilities
 
 ---
 
