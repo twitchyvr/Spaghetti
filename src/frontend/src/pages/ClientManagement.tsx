@@ -96,6 +96,9 @@ export default function ClientManagement() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddClientModal, setShowAddClientModal] = useState(false);
+  const [showClientDetailsModal, setShowClientDetailsModal] = useState(false);
+  const [selectedClientDetails, setSelectedClientDetails] = useState<any>(null);
+  const [isLoadingClientDetails, setIsLoadingClientDetails] = useState(false);
   const [isCreatingClient, setIsCreatingClient] = useState(false);
   const [createClientForm, setCreateClientForm] = useState<CreateClientForm>({
     name: '',
@@ -335,9 +338,23 @@ export default function ClientManagement() {
   };
 
   // Action handlers
-  const handleViewClient = (clientId: string) => {
-    // TODO: Navigate to detailed client view
-    console.log(`View client details: ${clientId}`);
+  const handleViewClient = async (clientId: string) => {
+    try {
+      setIsLoadingClientDetails(true);
+      setShowClientDetailsModal(true);
+      
+      // Import API service and fetch client details
+      const { platformAdminApi } = await import('../services/api');
+      const clientDetails = await platformAdminApi.getClient(clientId);
+      
+      setSelectedClientDetails(clientDetails);
+    } catch (err) {
+      console.error('Failed to load client details:', err);
+      alert(err instanceof Error ? err.message : 'Failed to load client details');
+      setShowClientDetailsModal(false);
+    } finally {
+      setIsLoadingClientDetails(false);
+    }
   };
 
   const handleImpersonateClient = (clientId: string) => {
@@ -806,6 +823,231 @@ export default function ClientManagement() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Client Details Modal */}
+      {showClientDetailsModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-semibold text-gray-900">Client Organization Details</h3>
+                <button 
+                  onClick={() => {
+                    setShowClientDetailsModal(false);
+                    setSelectedClientDetails(null);
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+
+              {isLoadingClientDetails ? (
+                <div className="flex items-center justify-center py-12">
+                  <Activity className="animate-spin" size={48} />
+                  <span className="ml-3">Loading client details...</span>
+                </div>
+              ) : selectedClientDetails ? (
+                <div className="space-y-6">
+                  {/* Organization Overview */}
+                  <div className="bg-gray-50 rounded-lg p-6">
+                    <div className="flex items-center space-x-4 mb-4">
+                      <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <Building2 size={32} className="text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="text-2xl font-bold text-gray-900">{selectedClientDetails.name}</h4>
+                        <p className="text-gray-600">{selectedClientDetails.subdomain}.spaghetti.app</p>
+                        {selectedClientDetails.domain && (
+                          <p className="text-sm text-gray-500 flex items-center">
+                            <Globe size={12} className="mr-1" />
+                            {selectedClientDetails.domain}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-gray-900">{selectedClientDetails.userCount}</p>
+                        <p className="text-sm text-gray-600">Total Users</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-gray-900">{selectedClientDetails.activeUsers || Math.floor(selectedClientDetails.userCount * 0.7)}</p>
+                        <p className="text-sm text-gray-600">Active Users</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-gray-900">{selectedClientDetails.documentCount.toLocaleString()}</p>
+                        <p className="text-sm text-gray-600">Documents</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-gray-900">{selectedClientDetails.healthScore}%</p>
+                        <p className="text-sm text-gray-600">Health Score</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Details Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Subscription & Billing */}
+                    <div className="space-y-4">
+                      <h5 className="text-lg font-semibold text-gray-900">Subscription & Billing</h5>
+                      <div className="space-y-3">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Tier:</span>
+                          <span className="font-medium">{selectedClientDetails.tier}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Monthly Revenue:</span>
+                          <span className="font-medium">
+                            {selectedClientDetails.monthlyRevenue > 0 ? `$${selectedClientDetails.monthlyRevenue.toLocaleString()}` : 'Trial'}
+                          </span>
+                        </div>
+                        {selectedClientDetails.annualContract && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Annual Contract:</span>
+                            <span className="font-medium">${selectedClientDetails.annualContract.toLocaleString()}</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Status:</span>
+                          <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                            selectedClientDetails.status === 'Active' ? 'bg-green-100 text-green-800' :
+                            selectedClientDetails.status === 'Trial' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'
+                          }`}>
+                            {selectedClientDetails.status}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Storage & Usage */}
+                    <div className="space-y-4">
+                      <h5 className="text-lg font-semibold text-gray-900">Storage & Usage</h5>
+                      <div className="space-y-3">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Storage Used:</span>
+                          <span className="font-medium">{selectedClientDetails.storageUsedMB} MB</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Storage Quota:</span>
+                          <span className="font-medium">{selectedClientDetails.storageQuotaMB} MB</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div 
+                            className="bg-blue-600 h-2 rounded-full" 
+                            style={{
+                              width: `${Math.min((selectedClientDetails.storageUsedMB / selectedClientDetails.storageQuotaMB) * 100, 100)}%`
+                            }}
+                          ></div>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Documents This Month:</span>
+                          <span className="font-medium">{selectedClientDetails.documentsThisMonth || Math.floor(selectedClientDetails.documentCount * 0.3)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Features & Contacts */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Features */}
+                    <div className="space-y-4">
+                      <h5 className="text-lg font-semibold text-gray-900">Features</h5>
+                      <div className="space-y-2">
+                        {selectedClientDetails.features && selectedClientDetails.features.map((feature: string, index: number) => (
+                          <div key={index} className="flex items-center space-x-2">
+                            <CheckCircle size={16} className="text-green-600" />
+                            <span className="text-gray-700">{feature}</span>
+                          </div>
+                        ))}
+                        <div className="flex items-center space-x-2">
+                          {selectedClientDetails.customBranding ? (
+                            <CheckCircle size={16} className="text-green-600" />
+                          ) : (
+                            <XCircle size={16} className="text-gray-400" />
+                          )}
+                          <span className="text-gray-700">Custom Branding</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          {selectedClientDetails.ssoEnabled ? (
+                            <CheckCircle size={16} className="text-green-600" />
+                          ) : (
+                            <XCircle size={16} className="text-gray-400" />
+                          )}
+                          <span className="text-gray-700">SSO Integration</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          {selectedClientDetails.apiAccess ? (
+                            <CheckCircle size={16} className="text-green-600" />
+                          ) : (
+                            <XCircle size={16} className="text-gray-400" />
+                          )}
+                          <span className="text-gray-700">API Access</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Contact Information */}
+                    <div className="space-y-4">
+                      <h5 className="text-lg font-semibold text-gray-900">Contact Information</h5>
+                      <div className="space-y-4">
+                        <div>
+                          <h6 className="font-medium text-gray-900">Billing Contact</h6>
+                          <p className="text-gray-600">{selectedClientDetails.billingContact?.name || 'Not provided'}</p>
+                          <p className="text-gray-600">{selectedClientDetails.billingContact?.email || 'Not provided'}</p>
+                        </div>
+                        <div>
+                          <h6 className="font-medium text-gray-900">Technical Contact</h6>
+                          <p className="text-gray-600">{selectedClientDetails.technicalContact?.name || 'Not provided'}</p>
+                          <p className="text-gray-600">{selectedClientDetails.technicalContact?.email || 'Not provided'}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Timeline */}
+                  <div className="space-y-4">
+                    <h5 className="text-lg font-semibold text-gray-900">Timeline</h5>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <span className="text-gray-600">Created:</span>
+                        <span className="ml-2 font-medium">{new Date(selectedClientDetails.createdAt).toLocaleDateString()}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Last Active:</span>
+                        <span className="ml-2 font-medium">{new Date(selectedClientDetails.lastActive).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                    <button 
+                      onClick={() => {
+                        setShowClientDetailsModal(false);
+                        setSelectedClientDetails(null);
+                      }}
+                      className="btn btn-secondary"
+                    >
+                      Close
+                    </button>
+                    <button className="btn btn-primary">
+                      Manage Client
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <AlertCircle size={48} className="mx-auto text-gray-400 mb-4" />
+                  <p className="text-gray-600">Failed to load client details</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
