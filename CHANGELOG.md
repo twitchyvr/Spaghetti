@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.0.0-pre-alpha] - 2025-07-25
+## [0.0.0-pre-alpha]
 
 ### 🚀 Major Milestone: Begin Frontend-Backend API Integration
 
@@ -108,20 +108,25 @@ This release establishes the start of the **foundational integration layer** for
 
 ---
 
-## [0.0.1-alpha] - 2025-07-25
+## Pre-Alpha Development History
+
+### Version 0.0.1-pre-alpha
 
 ### Added
-- Text visibility CSS bug fix for dark theme
-- Theme selector correction from `[data-theme="dark"]` to `.dark` class
+- Initial project setup with React 18 + TypeScript frontend
+- .NET Core 8 API with Entity Framework Core
+- PostgreSQL database with multi-tenant architecture
+- Docker containerization with docker-compose
+- Basic authentication and authorization framework
 
-## [0.0.2-alpha] - 2025-07-25
+### Version 0.0.2-pre-alpha
 
 ### Added
 - CSS architecture overhaul with centralized theme system
 - Professional dashboard with collapsible sidebar and modern cards
 - Responsive design with proper container constraints
 
-## [0.0.3-alpha] - 2025-07-24
+### Version 0.0.1-pre-alpha
 
 ### Added
 - Initial project setup with React 18 + TypeScript frontend

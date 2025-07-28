@@ -33,6 +33,7 @@ public class UnitOfWork : IUnitOfWork
     private IUserAuditEntryRepository? _userAuditEntries;
     private ITenantModuleRepository? _tenantModules;
     private ITenantAuditEntryRepository? _tenantAuditEntries;
+    private IRefreshTokenRepository? _refreshTokens;
 
     // New authentication-related repositories
     private IAuthenticationSessionRepository? _authenticationSessions;

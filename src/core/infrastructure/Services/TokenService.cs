@@ -119,8 +119,9 @@ public class TokenService : ITokenService
                 ExpiresAt = DateTime.UtcNow.AddDays(_refreshTokenExpirationDays)
             };
 
-            // Store in database (would need to add RefreshToken repository)
-            // For now, we'll store in a separate table or extend UserAuthentication
+            // Store in database
+            await _unitOfWork.RefreshTokens.AddAsync(refreshToken, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(user.Id, cancellationToken);
             
             _logger.LogDebug("Generated refresh token for user {UserId}, expires at {ExpiresAt}",
                 user.Id, refreshToken.ExpiresAt);
@@ -213,18 +214,43 @@ public class TokenService : ITokenService
     {
         try
         {
-            // In a real implementation, you would:
-            // 1. Look up the refresh token in the database
-            // 2. Check if it's not expired and not revoked
-            // 3. Return the associated user
-            
-            // For now, we'll implement a basic version
-            // This would need a proper RefreshToken repository
-            
             _logger.LogDebug("Validating refresh token");
             
-            // Placeholder implementation - in production, implement proper refresh token storage
-            return Domain.Interfaces.TokenValidationResult.Failure("Refresh token validation not yet implemented");
+            // Look up the refresh token in the database
+            var token = await _unitOfWork.RefreshTokens.GetByTokenAsync(refreshToken, cancellationToken);
+            if (token == null)
+            {
+                return Domain.Interfaces.TokenValidationResult.Failure("Invalid refresh token");
+            }
+
+            // Check if it's expired or revoked
+            if (token.IsExpired)
+            {
+                return Domain.Interfaces.TokenValidationResult.Failure("Refresh token has expired");
+            }
+
+            if (token.IsRevoked)
+            {
+                return Domain.Interfaces.TokenValidationResult.Failure("Refresh token has been revoked");
+            }
+
+            // Get the associated user
+            var user = token.User ?? await _unitOfWork.Users.GetByIdAsync(token.UserId, cancellationToken);
+            if (user == null)
+            {
+                return Domain.Interfaces.TokenValidationResult.Failure("User not found");
+            }
+
+            if (!user.IsActive)
+            {
+                return Domain.Interfaces.TokenValidationResult.Failure("User account is inactive");
+            }
+
+            // Get user roles and permissions
+            var roles = await GetUserRolesAsync(user.Id, cancellationToken);
+            var permissions = await GetUserPermissionsAsync(user.Id, cancellationToken);
+
+            return Domain.Interfaces.TokenValidationResult.Success(user, token.ExpiresAt, roles, permissions, user.TenantId);
         }
         catch (Exception ex)
         {
@@ -237,15 +263,15 @@ public class TokenService : ITokenService
     {
         try
         {
-            // In a real implementation, you would:
-            // 1. Find the refresh token in the database
-            // 2. Mark it as revoked with timestamp and reason
-            
             _logger.LogDebug("Revoking refresh token");
             
-            // Placeholder implementation
-            await Task.CompletedTask;
-            return true;
+            var success = await _unitOfWork.RefreshTokens.RevokeTokenAsync(refreshToken, cancellationToken: cancellationToken);
+            if (success)
+            {
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+            }
+            
+            return success;
         }
         catch (Exception ex)
         {
@@ -258,15 +284,15 @@ public class TokenService : ITokenService
     {
         try
         {
-            // In a real implementation, you would:
-            // 1. Find all active refresh tokens for the user
-            // 2. Mark them all as revoked
-            
             _logger.LogDebug("Revoking all tokens for user {UserId}", userId);
             
-            // Placeholder implementation
-            await Task.CompletedTask;
-            return 0;
+            var revokedCount = await _unitOfWork.RefreshTokens.RevokeAllUserTokensAsync(userId, cancellationToken: cancellationToken);
+            if (revokedCount > 0)
+            {
+                await _unitOfWork.SaveChangesAsync(userId, cancellationToken);
+            }
+            
+            return revokedCount;
         }
         catch (Exception ex)
         {
@@ -279,15 +305,15 @@ public class TokenService : ITokenService
     {
         try
         {
-            // In a real implementation, you would:
-            // 1. Find all expired refresh tokens
-            // 2. Delete them from the database
-            
             _logger.LogDebug("Cleaning up expired tokens");
             
-            // Placeholder implementation
-            await Task.CompletedTask;
-            return 0;
+            var deletedCount = await _unitOfWork.RefreshTokens.DeleteExpiredTokensAsync(cancellationToken);
+            if (deletedCount > 0)
+            {
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+            }
+            
+            return deletedCount;
         }
         catch (Exception ex)
         {

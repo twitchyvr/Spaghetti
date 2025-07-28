@@ -70,6 +70,7 @@ public interface IUnitOfWork : IDisposable
     IUserAuditEntryRepository UserAuditEntries { get; }
     ITenantModuleRepository TenantModules { get; }
     ITenantAuditEntryRepository TenantAuditEntries { get; }
+    IRefreshTokenRepository RefreshTokens { get; }
     
     // Enhanced authentication repositories
     IAuthenticationSessionRepository AuthenticationSessions { get; }
