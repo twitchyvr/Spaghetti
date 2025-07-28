@@ -198,5 +198,5 @@ docker run -p 8080:8080 test-app
 
 ---
 
-*Last Updated: 2025-07-25*
+*Last Updated: Current Release*
 *Build Time Target: <3 minutes for any change*
