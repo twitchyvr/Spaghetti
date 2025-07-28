@@ -167,6 +167,26 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<TenantModule>()
             .Property(e => e.Configuration)
             .HasConversion(dictionaryConverter);
+
+        // Configure RefreshToken entity
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.HasKey(rt => rt.Id);
+            entity.Property(rt => rt.Token)
+                .IsRequired()
+                .HasMaxLength(500);
+            entity.HasIndex(rt => rt.Token)
+                .IsUnique();
+            entity.HasIndex(rt => rt.UserId);
+            entity.HasIndex(rt => rt.ExpiresAt);
+            entity.HasIndex(rt => rt.RevokedAt);
+            
+            // Configure relationship with User
+            entity.HasOne(rt => rt.User)
+                .WithMany()
+                .HasForeignKey(rt => rt.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
     }
 
     private static void ConfigureGlobalConventions(ModelBuilder modelBuilder)
