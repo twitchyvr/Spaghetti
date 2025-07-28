@@ -220,7 +220,7 @@ export default function Dashboard() {
       <div className="dashboard">
         <div className="loading-container">
           <div className="loading-spinner">
-            <Activity className="animate-spin" size={48} />
+            <Activity className="loading-icon animate-spin" />
           </div>
           <p className="loading-text">Loading dashboard data...</p>
         </div>
@@ -369,7 +369,7 @@ export default function Dashboard() {
       {!hasSampleData && !isLoading && (
         <section className="empty-state">
           <div className="empty-state-content card">
-            <Database size={48} className="empty-state-icon" />
+            <Database className="empty-state-icon" />
             <h3 className="empty-state-title">No Data Available</h3>
             <p className="empty-state-text">
               Your database is empty. Seed sample data to see the dashboard in action,

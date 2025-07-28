@@ -293,7 +293,7 @@ export default function PlatformAdminDashboard() {
       <div className="dashboard">
         <div className="loading-container">
           <div className="loading-spinner">
-            <Activity className="animate-spin" size={48} />
+            <Activity className="loading-icon animate-spin" />
           </div>
           <p className="loading-text">Loading platform administration data...</p>
         </div>
