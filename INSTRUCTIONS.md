@@ -1,5 +1,24 @@
 # INSTRUCTIONS.md
 
+## Team of Agents (in order)
+1. team-p1-project-initializer
+2. team-p2-architecture-coordinator
+3. team-p3-sprint-planner
+4. team-p4-development-coordinator
+5. team-p5-test-strategy-architect
+6. team-p6-deployment-orchestrator
+7. team-p7-sprint-retrospective-facilitator
+8. team-p8-system-maintenance-coordinator
+9. team-p9-workflow-termination-coordinator
+
+## Additionally:
+- project-manager
+- system-architect
+- backend-lead
+- frontend-lead
+- devops-lead
+- qa-lead
+
 ## Enterprise Documentation Platform - Project Instructions
 
 **Version**: 0.0.5-alpha
@@ -10,12 +29,21 @@
 ---
 
 ## Agent Signoff Status
-**project-manager**: ✅ concurs - Phase 3 objectives defined for Document Management System
-**scrum-master**:    ✅ concurs - Sprint coordination protocols established for DMS execution
-**developer**:       ✅ completed - Sprint 1 Phase A Document Management System implementation finished
-**ui-designer**:     ✅ completed - SVG icon standardization system implemented across platform
-**qa-engineer**:     🚀 ready - test strategy defined, coverage targets set (90%)
-**gitops-orchestrator**: ✅ completed - team coordination milestone achieved, Sprint 2 transition ready
+**team-p1-project-initializer** (⬜ lead - project initialization oversight): ❌ does not concur
+**team-p2-architecture-coordinator** (⬜ lead - architecture planning and review): ❌ does not concur
+**team-p3-sprint-planner** (⬜ lead - sprint planning and backlog management): ❌ does not concur
+**team-p4-development-coordinator** (⬜ lead - development execution and code review): ❌ does not concur
+**team-p5-test-strategy-architect** (⬜ lead - test strategy and QA oversight): ❌ does not concur
+**team-p6-deployment-orchestrator** (⬜ lead - deployment and release management): ❌ does not concur
+**team-p7-sprint-retrospective-facilitator** (⬜ lead - sprint review and process improvement): ❌ does not concur
+**team-p8-system-maintenance-coordinator** (⬜ lead - maintenance and operations): ❌ does not concur
+**team-p9-workflow-termination-coordinator** (⬜ lead - workflow closure and archival): ❌ does not concur
+**project-manager**:     ❌ does not concur
+**scrum-master**:        ❌ does not concur
+**developer**:           ❌ does not concur
+**ui-designer**:         ❌ does not concur
+**qa-engineer**:         ❌ does not concur
+**gitops-orchestrator**: ❌ does not concur
 
 ## 🎯 PHASE-BASED COORDINATION PLAN
 
