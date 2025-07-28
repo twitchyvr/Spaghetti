@@ -120,8 +120,22 @@ builder.Services.AddUnitOfWork();
 // builder.Services.AddScoped<IDocumentService, DocumentService>();
 builder.Services.AddScoped<DatabaseSeedingService>();
 
+// Sprint 2: Add search and collaboration services
+// TODO: Implement ElasticsearchService and CollaborationService
+// builder.Services.AddScoped<ISearchService, ElasticsearchService>();
+// builder.Services.AddScoped<ICollaborationService, CollaborationService>();
+
 // Add memory cache (always needed for local caching)
 builder.Services.AddMemoryCache();
+
+// Sprint 2: Add SignalR for real-time collaboration
+builder.Services.AddSignalR(options =>
+{
+    options.EnableDetailedErrors = builder.Environment.IsDevelopment();
+    options.KeepAliveInterval = TimeSpan.FromSeconds(15);
+    options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
+})
+.AddStackExchangeRedis(redisConnection ?? "localhost:6379"); // Redis backplane for scaling
 
 // Add Redis caching if configured (for distributed caching)
 var redisConnection = builder.Configuration.GetConnectionString("Redis");
@@ -175,6 +189,9 @@ app.UseMiddleware<RequestLoggingMiddleware>();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.MapControllers();
+
+// Sprint 2: Map SignalR hubs for real-time collaboration
+app.MapHub<EnterpriseDocsCore.API.Hubs.DocumentCollaborationHub>("/hubs/collaboration");
 
 // Temporarily disable module initialization
 // TODO: Re-enable after fixing module system
