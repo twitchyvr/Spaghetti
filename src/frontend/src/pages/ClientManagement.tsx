@@ -366,7 +366,7 @@ export default function ClientManagement() {
       <div className="client-management">
         <div className="loading-container">
           <div className="loading-spinner">
-            <Activity className="animate-spin" size={48} />
+            <Activity className="loading-icon animate-spin" />
           </div>
           <p className="loading-text">Loading client organizations...</p>
         </div>
@@ -600,7 +600,7 @@ export default function ClientManagement() {
           {/* Empty State */}
           {filteredClients.length === 0 && !isLoading && (
             <div className="text-center py-12">
-              <Building2 size={48} className="mx-auto text-gray-400 mb-4" />
+              <Building2 className="empty-state-icon mx-auto text-gray-400 mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No clients found</h3>
               <p className="text-gray-600 mb-6">
                 {searchTerm || filters.status !== 'all' || filters.tier !== 'all' 

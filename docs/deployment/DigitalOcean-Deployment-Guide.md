@@ -1,4 +1,5 @@
 # DigitalOcean Deployment Guide
+
 Enterprise Documentation Platform
 
 ## Overview
@@ -8,17 +9,20 @@ This guide provides comprehensive instructions for deploying the Enterprise Docu
 ## Architecture Options
 
 ### 1. DigitalOcean Native Deployment
+
 - **App Platform**: Managed container deployment with auto-scaling
 - **Kubernetes**: Full control with DigitalOcean Kubernetes (DOKS)
 - **Droplets**: Traditional VPS deployment with Docker Compose
 
 ### 2. Hybrid Cloud Integration
+
 - **DigitalOcean + Azure AD**: Authentication via Azure Active Directory
 - **DigitalOcean + Google Workspace**: SSO with Google Workspace
 - **DigitalOcean + Microsoft 365**: Integration with SharePoint and Teams
 - **Multi-Cloud Storage**: DigitalOcean Spaces + Azure Blob + Google Cloud Storage
 
 ### 3. Automation & Workflow Integration
+
 - **n8n.io Integration**: Workflow automation and document triggers
 - **Microsoft Power Automate**: Enterprise workflow integration
 - **Google Apps Script**: Custom automation workflows
@@ -27,6 +31,7 @@ This guide provides comprehensive instructions for deploying the Enterprise Docu
 ## Pre-Deployment Requirements
 
 ### DigitalOcean Account Setup
+
 ```bash
 # Install DigitalOcean CLI
 curl -sL https://github.com/digitalocean/doctl/releases/download/v1.94.0/doctl-1.94.0-linux-amd64.tar.gz | tar -xzv
@@ -37,6 +42,7 @@ doctl auth init
 ```
 
 ### Domain and SSL Configuration
+
 1. **Domain Setup**
    - Register domain or configure DNS to point to DigitalOcean
    - Set up subdomain structure:
@@ -232,6 +238,7 @@ helm install enterprise-docs ./helm \
 ### Azure Active Directory Integration
 
 1. **Register Application in Azure AD**
+
 ```bash
 # Azure CLI setup
 az login
@@ -240,6 +247,7 @@ az ad app create --display-name "Enterprise Docs Platform" \
 ```
 
 2. **Configure Environment Variables**
+
 ```bash
 # In DigitalOcean App Platform or Kubernetes secrets
 AZUREAD_TENANT_ID=your-tenant-id
@@ -251,6 +259,7 @@ AZUREAD_REDIRECT_URI=https://app.yourdomain.com/auth/callback
 ### Google Workspace Integration
 
 1. **Google Cloud Console Setup**
+
 ```bash
 # Enable APIs
 gcloud services enable admin.googleapis.com
@@ -259,6 +268,7 @@ gcloud services enable calendar.googleapis.com
 ```
 
 2. **OAuth Configuration**
+
 ```bash
 # Environment variables
 GOOGLE_CLIENT_ID=your-google-client-id
@@ -269,6 +279,7 @@ GOOGLE_WORKSPACE_DOMAIN=yourcompany.com
 ### Microsoft 365 Integration
 
 1. **SharePoint Integration**
+
 ```bash
 # Microsoft Graph API setup
 MSGRAPH_CLIENT_ID=your-msgraph-client-id
@@ -317,6 +328,7 @@ PUT    /users/{id}
 ### API Client Examples
 
 **C# Client**
+
 ```csharp
 // Install NuGet package
 Install-Package EnterpriseDocsCore.Client
@@ -328,6 +340,7 @@ var documents = await client.Documents.GetAllAsync();
 ```
 
 **JavaScript/Node.js Client**
+
 ```javascript
 // npm install enterprise-docs-client
 const { EnterpriseDocsClient } = require('enterprise-docs-client');
@@ -338,6 +351,7 @@ const documents = await client.documents.getAll();
 ```
 
 **Python Client**
+
 ```python
 # pip install enterprise-docs-python
 from enterprise_docs import EnterpriseDocsClient
@@ -352,6 +366,7 @@ documents = client.documents.get_all()
 ### n8n.io Integration
 
 1. **Deploy n8n alongside the platform**
+
 ```yaml
 # Add to docker-compose.yml or Kubernetes
 n8n:
@@ -368,6 +383,7 @@ n8n:
 ```
 
 2. **Create Custom n8n Nodes**
+
 ```javascript
 // Enterprise Docs Platform n8n node
 export class EnterpriseDocsNode implements INodeType {
@@ -413,6 +429,7 @@ export class EnterpriseDocsNode implements INodeType {
 ### Microsoft Power Automate Integration
 
 1. **Custom Connector Configuration**
+
 ```json
 {
   "swagger": "2.0",
@@ -450,6 +467,7 @@ export class EnterpriseDocsNode implements INodeType {
 ## Security Configuration
 
 ### Firewall Rules
+
 ```bash
 # Configure DigitalOcean Cloud Firewall
 doctl compute firewall create enterprise-docs-fw \
@@ -460,6 +478,7 @@ doctl compute firewall create enterprise-docs-fw \
 ```
 
 ### SSL/TLS Configuration
+
 ```bash
 # Let's Encrypt with certbot
 sudo apt install certbot python3-certbot-nginx
@@ -471,6 +490,7 @@ sudo crontab -e
 ```
 
 ### Environment Variables Security
+
 ```bash
 # Use DigitalOcean App Platform encrypted environment variables
 doctl apps update <app-id> --spec app-config.yaml
@@ -485,6 +505,7 @@ kubectl create secret generic enterprise-docs-secrets \
 ## Monitoring and Alerting
 
 ### DigitalOcean Monitoring
+
 ```bash
 # Enable monitoring
 doctl monitoring alert policy create \
@@ -497,6 +518,7 @@ doctl monitoring alert policy create \
 ```
 
 ### Application Performance Monitoring
+
 ```yaml
 # Add to docker-compose.yml
 prometheus:
@@ -519,6 +541,7 @@ grafana:
 ## Backup and Disaster Recovery
 
 ### Database Backups
+
 ```bash
 # Automated PostgreSQL backups to DigitalOcean Spaces
 #!/bin/bash
@@ -538,6 +561,7 @@ find $BACKUP_DIR -name "backup_*.sql" -mtime +30 -delete
 ```
 
 ### Application State Backup
+
 ```bash
 # Backup configuration and user data
 kubectl create backup enterprise-docs-backup \
@@ -559,6 +583,7 @@ spec:
 ## Scaling Configuration
 
 ### Horizontal Pod Autoscaler (Kubernetes)
+
 ```yaml
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -587,6 +612,7 @@ spec:
 ```
 
 ### Database Scaling
+
 ```bash
 # Scale DigitalOcean Managed Database
 doctl databases resize <database-id> --size db-s-2vcpu-4gb --num-nodes 2
@@ -601,6 +627,7 @@ doctl databases replica create <database-id> \
 ## Cost Optimization
 
 ### Resource Right-Sizing
+
 ```bash
 # Monitor resource usage
 doctl monitoring metrics droplet cpu <droplet-id>
@@ -611,6 +638,7 @@ doctl droplets actions resize <droplet-id> --size s-1vcpu-2gb
 ```
 
 ### Reserved Instances
+
 ```bash
 # Use DigitalOcean Reserved Instances for predictable workloads
 # Contact DigitalOcean sales for enterprise pricing
@@ -619,6 +647,7 @@ doctl droplets actions resize <droplet-id> --size s-1vcpu-2gb
 ## Support and Maintenance
 
 ### Log Aggregation
+
 ```yaml
 # Centralized logging with ELK stack
 elasticsearch:
@@ -644,6 +673,7 @@ kibana:
 ```
 
 ### Health Checks and Uptime Monitoring
+
 ```bash
 # Configure uptime monitoring
 curl -X POST https://api.digitalocean.com/v2/uptime/checks \

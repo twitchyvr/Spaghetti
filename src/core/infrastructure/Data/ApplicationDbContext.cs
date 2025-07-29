@@ -170,6 +170,11 @@ public class ApplicationDbContext : DbContext
                     .HasConversion(stringListConverter);
             });
 
+        // Configure Document MetaKeywords property
+        modelBuilder.Entity<Document>()
+            .Property(e => e.MetaKeywords)
+            .HasConversion(stringListConverter);
+
         modelBuilder.Entity<UserAuthentication>()
             .Property(e => e.ProviderData)
             .HasConversion(dictionaryConverter);
@@ -270,6 +275,9 @@ public class ApplicationDbContext : DbContext
 
         // Configure indexes for performance
         ConfigureIndexes(modelBuilder);
+
+        // Configure entity relationships
+        ConfigureEntityRelationships(modelBuilder);
     }
 
     private static void ConfigureIndexes(ModelBuilder modelBuilder)
@@ -305,6 +313,27 @@ public class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<Document>()
             .HasIndex(e => e.ParentDocumentId);
+
+        // File-related indexes for document management
+        modelBuilder.Entity<Document>()
+            .HasIndex(e => new { e.TenantId, e.FileHash })
+            .HasFilter("FileHash IS NOT NULL");
+
+        modelBuilder.Entity<Document>()
+            .HasIndex(e => new { e.TenantId, e.FileName })
+            .HasFilter("FileName IS NOT NULL");
+
+        modelBuilder.Entity<Document>()
+            .HasIndex(e => new { e.ContentType, e.TenantId })
+            .HasFilter("ContentType IS NOT NULL");
+
+        modelBuilder.Entity<Document>()
+            .HasIndex(e => new { e.TenantId, e.IsLatestVersion, e.ParentDocumentId })
+            .HasFilter("ParentDocumentId IS NOT NULL");
+
+        modelBuilder.Entity<Document>()
+            .HasIndex(e => new { e.TenantId, e.Version, e.ParentDocumentId })
+            .HasFilter("ParentDocumentId IS NOT NULL");
 
         // Document tags indexes
         modelBuilder.Entity<DocumentTag>()
@@ -367,6 +396,98 @@ public class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<PlatformAdminAuditLog>()
             .HasIndex(e => new { e.TargetEntityType, e.TargetEntityId });
+
+        // Refresh token indexes
+        modelBuilder.Entity<RefreshToken>()
+            .HasIndex(e => e.Token)
+            .IsUnique();
+
+        modelBuilder.Entity<RefreshToken>()
+            .HasIndex(e => new { e.UserId, e.CreatedAt });
+
+        modelBuilder.Entity<RefreshToken>()
+            .HasIndex(e => e.ExpiresAt);
+
+        modelBuilder.Entity<RefreshToken>()
+            .HasIndex(e => new { e.RevokedAt, e.RevokedByIp });
+
+        modelBuilder.Entity<RefreshToken>()
+            .HasIndex(e => e.CreatedByIp);
+    }
+
+    private static void ConfigureEntityRelationships(ModelBuilder modelBuilder)
+    {
+        // Configure Document relationships
+        modelBuilder.Entity<Document>()
+            .HasOne(d => d.CreatedByUser)
+            .WithMany()
+            .HasForeignKey(d => d.CreatedBy)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Document>()
+            .HasOne(d => d.PublishedByUser)
+            .WithMany()
+            .HasForeignKey(d => d.PublishedBy)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Document>()
+            .HasOne(d => d.Tenant)
+            .WithMany()
+            .HasForeignKey(d => d.TenantId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Configure Document versioning relationship
+        modelBuilder.Entity<Document>()
+            .HasOne<Document>()
+            .WithMany()
+            .HasForeignKey(d => d.ParentDocumentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Configure DocumentTag relationships
+        modelBuilder.Entity<DocumentTag>()
+            .HasOne(dt => dt.Document)
+            .WithMany(d => d.Tags)
+            .HasForeignKey(dt => dt.DocumentId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Configure DocumentAttachment relationships
+        modelBuilder.Entity<DocumentAttachment>()
+            .HasOne(da => da.Document)
+            .WithMany(d => d.Attachments)
+            .HasForeignKey(da => da.DocumentId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Configure DocumentPermission relationships
+        modelBuilder.Entity<DocumentPermission>()
+            .HasOne(dp => dp.Document)
+            .WithMany()
+            .HasForeignKey(dp => dp.DocumentId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<DocumentPermission>()
+            .HasOne(dp => dp.User)
+            .WithMany()
+            .HasForeignKey(dp => dp.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<DocumentPermission>()
+            .HasOne(dp => dp.Role)
+            .WithMany()
+            .HasForeignKey(dp => dp.RoleId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Configure DocumentAuditEntry relationships
+        modelBuilder.Entity<DocumentAuditEntry>()
+            .HasOne(dae => dae.Document)
+            .WithMany()
+            .HasForeignKey(dae => dae.DocumentId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<DocumentAuditEntry>()
+            .HasOne(dae => dae.User)
+            .WithMany()
+            .HasForeignKey(dae => dae.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 
     private static void SeedDefaultData(ModelBuilder modelBuilder)

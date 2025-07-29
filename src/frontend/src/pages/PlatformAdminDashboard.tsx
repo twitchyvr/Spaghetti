@@ -301,11 +301,68 @@ export default function PlatformAdminDashboard() {
     }
   };
 
-  /**
-   * Render the overview tab with platform metrics and client management
-   */
-  const renderOverviewTab = () => (
-    <>
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="dashboard">
+        <div className="loading-container">
+          <div className="loading-spinner">
+            <Activity className="loading-icon animate-spin" />
+          </div>
+          <p className="loading-text">Loading platform administration data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="platform-admin-dashboard">
+      {/* Error Alert */}
+      {error && (
+        <div className="alert alert-error mb-6">
+          <AlertCircle size={20} />
+          <span>{error}</span>
+          <button onClick={fetchPlatformData} className="btn btn-sm">
+            Retry
+          </button>
+        </div>
+      )}
+
+      {/* Platform Admin Header */}
+      <section className="dashboard-header mb-8">
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Platform Administration
+            </h1>
+            <p className="text-gray-600 mt-2">
+              Comprehensive oversight of the Spaghetti documentation platform
+            </p>
+            <p className="text-sm text-gray-500 mt-1">
+              Welcome back, {user?.firstName || 'Platform Admin'} • Last updated: {new Date().toLocaleString()}
+            </p>
+          </div>
+          
+          {/* Quick Actions */}
+          <div className="flex space-x-3">
+            <button 
+              onClick={handleAddClient}
+              className="btn btn-primary flex items-center space-x-2"
+            >
+              <Plus size={16} />
+              <span>Add Client</span>
+            </button>
+            <button className="btn btn-secondary flex items-center space-x-2">
+              <Shield size={16} />
+              <span>Impersonate</span>
+            </button>
+            <button className="btn btn-secondary flex items-center space-x-2">
+              <BarChart3 size={16} />
+              <span>Analytics</span>
+            </button>
+          </div>
+        </div>
+      </section>
       {/* Platform Metrics Overview */}
       <section className="metrics-overview mb-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
