@@ -7,6 +7,7 @@ This document outlines the Cross-Origin Resource Sharing (CORS) configuration im
 ## Problem Statement
 
 Modern web development often requires frontend and backend services running on different ports:
+
 - **Frontend**: React development server on `http://localhost:3001`
 - **API**: .NET Core API on `http://localhost:5001`
 - **Production**: Both services on same domain with HTTPS
@@ -38,22 +39,26 @@ app.UseCors("AllowFrontend");
 ### Configuration Breakdown
 
 #### Allowed Origins
+
 - `http://localhost:3000` - Standard React development port
 - `http://localhost:3001` - Alternative port (when 3000 is in use)
 - `https://localhost:3001` - HTTPS development testing
 
 #### Allowed Methods
+
 - **AllowAnyMethod()** permits: GET, POST, PUT, DELETE, OPTIONS, PATCH
 - Supports full RESTful API operations
 - Includes preflight OPTIONS requests
 
 #### Allowed Headers
+
 - **AllowAnyHeader()** permits custom headers including:
   - `Content-Type: application/json`
   - `Authorization: Bearer <token>`
   - Custom API headers for enterprise features
 
 #### Credentials Support
+
 - **AllowCredentials()** enables:
   - Cookie-based authentication
   - Bearer token transmission
@@ -84,13 +89,17 @@ sequenceDiagram
 ### Implementation Details
 
 #### 1. Preflight Handling
+
 Browser automatically sends OPTIONS request for:
+
 - Custom headers (Authorization, Content-Type)
 - Methods other than GET, HEAD, POST with simple content types
 - Credentials inclusion
 
 #### 2. Response Headers
+
 API includes these headers in responses:
+
 ```http
 Access-Control-Allow-Origin: http://localhost:3001
 Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS
@@ -100,7 +109,9 @@ Vary: Origin
 ```
 
 #### 3. Error Handling
+
 Failed CORS requests result in:
+
 ```
 Access to fetch at 'http://localhost:5001/api/admin/database-stats' 
 from origin 'http://localhost:3001' has been blocked by CORS policy
@@ -111,6 +122,7 @@ from origin 'http://localhost:3001' has been blocked by CORS policy
 ### Manual Testing
 
 #### 1. Preflight Request Test
+
 ```bash
 curl -H "Origin: http://localhost:3001" \
      -H "Access-Control-Request-Method: GET" \
@@ -121,6 +133,7 @@ curl -H "Origin: http://localhost:3001" \
 ```
 
 Expected response:
+
 ```http
 HTTP/1.1 204 No Content
 Access-Control-Allow-Origin: http://localhost:3001
@@ -130,6 +143,7 @@ Access-Control-Allow-Credentials: true
 ```
 
 #### 2. Actual Request Test
+
 ```bash
 curl -H "Origin: http://localhost:3001" \
      -H "Content-Type: application/json" \
@@ -138,6 +152,7 @@ curl -H "Origin: http://localhost:3001" \
 ```
 
 Expected response:
+
 ```http
 HTTP/1.1 200 OK
 Access-Control-Allow-Origin: http://localhost:3001
@@ -148,6 +163,7 @@ Content-Type: application/json
 ### Browser Developer Tools
 
 Check Network tab for:
+
 1. **OPTIONS request** with 204 status
 2. **Actual request** with 200 status
 3. **Response headers** including Access-Control-* headers
@@ -204,6 +220,7 @@ builder.Services.AddCors(options =>
 ### Issue 1: CORS Policy Execution Failed
 
 **Error Message:**
+
 ```
 CORS policy execution failed.
 Request origin http://localhost:3001 does not have permission to access the resource.
@@ -211,7 +228,8 @@ Request origin http://localhost:3001 does not have permission to access the reso
 
 **Cause:** Origin not included in allowed origins list
 
-**Solution:** 
+**Solution:**
+
 1. Verify origin in `WithOrigins()` method
 2. Check for typos in URL (http vs https, port numbers)
 3. Rebuild API container to pick up changes
@@ -219,6 +237,7 @@ Request origin http://localhost:3001 does not have permission to access the reso
 ### Issue 2: Preflight Request Fails
 
 **Error Message:**
+
 ```
 Response to preflight request doesn't pass access control check
 ```
@@ -226,6 +245,7 @@ Response to preflight request doesn't pass access control check
 **Cause:** Missing or incorrect preflight handling
 
 **Solution:**
+
 1. Ensure `UseCors()` is called before `UseRouting()`
 2. Verify `AllowAnyHeader()` or specific headers are configured
 3. Check HTTP method is allowed
@@ -233,6 +253,7 @@ Response to preflight request doesn't pass access control check
 ### Issue 3: Credentials Not Allowed
 
 **Error Message:**
+
 ```
 The value of the 'Access-Control-Allow-Credentials' header is '' which must be 'true'
 ```
@@ -240,6 +261,7 @@ The value of the 'Access-Control-Allow-Credentials' header is '' which must be '
 **Cause:** Missing `AllowCredentials()` configuration
 
 **Solution:**
+
 ```csharp
 policy.WithOrigins("http://localhost:3001")
       .AllowCredentials(); // Add this line
@@ -252,6 +274,7 @@ policy.WithOrigins("http://localhost:3001")
 **Cause:** Docker container using cached code
 
 **Solution:**
+
 ```bash
 # Rebuild container without cache
 docker-compose build api --no-cache
@@ -261,6 +284,7 @@ docker-compose up -d api
 ## Debugging Steps
 
 ### 1. Verify API Container
+
 ```bash
 # Check container status
 docker-compose ps
@@ -273,6 +297,7 @@ curl http://localhost:5001/api/admin/database-stats
 ```
 
 ### 2. Test CORS Headers
+
 ```bash
 # Test preflight
 curl -H "Origin: http://localhost:3001" \
@@ -285,6 +310,7 @@ curl -H "Origin: http://localhost:3001" \
 ```
 
 ### 3. Frontend Network Analysis
+
 1. Open browser Developer Tools
 2. Go to Network tab
 3. Refresh frontend page
@@ -294,18 +320,21 @@ curl -H "Origin: http://localhost:3001" \
 ## Best Practices
 
 ### Development
+
 - **Multiple Origins**: Support common development ports (3000, 3001)
 - **Flexible Headers**: Use `AllowAnyHeader()` for development ease
 - **Credential Support**: Enable for authentication testing
 - **Hot Reload**: Ensure CORS works with development servers
 
 ### Production
+
 - **Specific Origins**: Only allow production domain(s)
 - **Limited Methods**: Only required HTTP methods
 - **Explicit Headers**: List specific headers, avoid `AllowAnyHeader()`
 - **HTTPS Only**: Disable HTTP origins in production
 
 ### Security
+
 - **Origin Validation**: Never use wildcard (*) with credentials
 - **Regular Audits**: Review allowed origins periodically
 - **Environment Variables**: Store origins in configuration

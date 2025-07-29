@@ -584,7 +584,7 @@ export default function DatabaseAdmin() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center space-x-3">
-            <Database size={32} className="text-blue-600" />
+            <Database className="admin-header-icon text-blue-600" />
             <span>Database Administration</span>
           </h1>
           <p className="text-gray-600 mt-2">
@@ -2008,7 +2008,7 @@ LIMIT 100;"
 
       {activeTab === 'uploads' && (
         <div className="text-center py-8 text-gray-500">
-          <FileUp size={48} className="mx-auto mb-4 opacity-50" />
+          <FileUp className="upload-icon mx-auto mb-4" />
           <p>File Management interface coming soon...</p>
         </div>
       )}

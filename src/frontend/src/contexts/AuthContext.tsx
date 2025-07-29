@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useCallback, useEffect } from 'react';
-import { User, PrivacyLevel } from '../types';
+import { User } from '../types';
 import { authService } from '../services/authService';
 import { toast } from 'sonner';
 
@@ -12,7 +12,7 @@ interface AuthState {
 }
 
 interface AuthContextType extends AuthState {
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, tenantSubdomain?: string, rememberMe?: boolean) => Promise<void>;
   logout: () => void;
   register: (userData: RegisterData) => Promise<void>;
   checkAuthStatus: () => void;
@@ -37,50 +37,11 @@ type AuthAction =
   | { type: 'SET_TOKEN'; payload: { token: string; refreshToken?: string } };
 
 const initialState: AuthState = {
-  user: {
-    id: 'demo-user',
-    firstName: 'Demo',
-    lastName: 'User',
-    email: 'demo@enterprise-docs.com',
-    fullName: 'Demo User',
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    lastLoginAt: new Date().toISOString(),
-    tenantId: 'demo-tenant',
-    profile: {
-      jobTitle: 'Platform Administrator',
-      department: 'IT',
-      industry: 'Professional Services',
-      timeZone: 'America/New_York',
-      language: 'en',
-      customFields: {}
-    },
-    settings: {
-      enableAIAssistance: true,
-      enableAutoDocumentation: true,
-      enableVoiceCapture: true,
-      enableScreenCapture: true,
-      enableFileMonitoring: true,
-      privacyLevel: PrivacyLevel.Standard,
-      allowDataRetention: true,
-      dataRetentionDays: 365,
-      enableEmailNotifications: true,
-      enablePushNotifications: true,
-      enableSlackNotifications: false,
-      enableTeamsNotifications: false,
-      theme: 'system' as const,
-      defaultDocumentType: 'general',
-      favoriteAgents: [],
-      moduleSettings: {},
-      customSettings: {}
-    },
-    userRoles: []
-  },
+  user: null,
   isLoading: false,
-  isAuthenticated: true,
-  token: 'demo-token',
-  refreshToken: 'demo-refresh-token',
+  isAuthenticated: false,
+  token: null,
+  refreshToken: null,
 };
 
 function authReducer(state: AuthState, action: AuthAction): AuthState {
@@ -110,10 +71,11 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
     
     case 'LOGOUT':
       return {
-        ...initialState,
-        isLoading: false,
+        user: null,
         token: null,
         refreshToken: null,
+        isAuthenticated: false,
+        isLoading: false,
       };
     
     case 'UPDATE_USER':
@@ -139,16 +101,24 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
-  const login = useCallback(async (email: string, password: string) => {
+  const login = useCallback(async (email: string, password: string, tenantSubdomain?: string, rememberMe?: boolean) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       
-      const response = await authService.login(email, password);
+      const response = await authService.login(email, password, tenantSubdomain, rememberMe);
       
-      // Store tokens in localStorage
-      localStorage.setItem('auth_token', response.token);
-      if (response.refreshToken) {
-        localStorage.setItem('refresh_token', response.refreshToken);
+      // Store tokens in localStorage with appropriate duration
+      if (rememberMe) {
+        localStorage.setItem('auth_token', response.token);
+        if (response.refreshToken) {
+          localStorage.setItem('refresh_token', response.refreshToken);
+        }
+      } else {
+        // Use sessionStorage for temporary sessions
+        sessionStorage.setItem('auth_token', response.token);
+        if (response.refreshToken) {
+          sessionStorage.setItem('refresh_token', response.refreshToken);
+        }
       }
       
       dispatch({
@@ -160,7 +130,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         },
       });
       
-      toast.success('Welcome back!');
+      toast.success(`Welcome back, ${response.user.firstName}!`);
     } catch (error) {
       dispatch({ type: 'LOGIN_FAILURE' });
       const message = error instanceof Error ? error.message : 'Login failed';
@@ -169,11 +139,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('refresh_token');
-    dispatch({ type: 'LOGOUT' });
-    toast.success('Logged out successfully');
+  const logout = useCallback(async () => {
+    try {
+      // Get refresh token for proper logout
+      const refreshToken = localStorage.getItem('refresh_token') || sessionStorage.getItem('refresh_token');
+      
+      // Call backend logout endpoint
+      if (refreshToken) {
+        await authService.logout(refreshToken);
+      }
+    } catch (error) {
+      console.warn('Logout API call failed:', error);
+    } finally {
+      // Always clear local storage and state
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('refresh_token');
+      sessionStorage.removeItem('auth_token');
+      sessionStorage.removeItem('refresh_token');
+      dispatch({ type: 'LOGOUT' });
+      toast.success('Logged out successfully');
+    }
   }, []);
 
   const register = useCallback(async (userData: RegisterData) => {
@@ -207,44 +192,62 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const checkAuthStatus = useCallback(async () => {
-    // Demo mode - always authenticated
-    dispatch({ type: 'SET_LOADING', payload: false });
-    return;
+    dispatch({ type: 'SET_LOADING', payload: true });
     
-    // Original code commented out for demo
-    // if (!state.token) {
-    //   dispatch({ type: 'SET_LOADING', payload: false });
-    //   return;
-    // }
-    // try {
-    //   const user = await authService.getCurrentUser();
-    //   dispatch({
-    //     type: 'LOGIN_SUCCESS',
-    //     payload: {
-    //       user,
-    //       token: state.token,
-    //       refreshToken: state.refreshToken || '',
-    //     },
-    //   });
-    // } catch (error) {
-    //   localStorage.removeItem('auth_token');
-    //   localStorage.removeItem('refresh_token');
-    //   dispatch({ type: 'LOGIN_FAILURE' });
-    // }
-  }, [state.token, state.refreshToken]);
+    // Check for tokens in both localStorage and sessionStorage
+    const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+    const refreshToken = localStorage.getItem('refresh_token') || sessionStorage.getItem('refresh_token');
+    
+    if (!token) {
+      dispatch({ type: 'SET_LOADING', payload: false });
+      return;
+    }
+    
+    try {
+      // Verify token by getting current user
+      const user = await authService.getCurrentUser();
+      dispatch({
+        type: 'LOGIN_SUCCESS',
+        payload: {
+          user,
+          token,
+          refreshToken: refreshToken || '',
+        },
+      });
+    } catch (error) {
+      // Token is invalid, clear everything
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('refresh_token');
+      sessionStorage.removeItem('auth_token');
+      sessionStorage.removeItem('refresh_token');
+      dispatch({ type: 'LOGIN_FAILURE' });
+    }
+  }, []);
 
   const refreshAuthToken = useCallback(async () => {
-    if (!state.refreshToken) {
+    const refreshToken = localStorage.getItem('refresh_token') || sessionStorage.getItem('refresh_token');
+    
+    if (!refreshToken) {
       logout();
       return;
     }
 
     try {
-      const response = await authService.refreshToken(state.refreshToken);
+      const response = await authService.refreshToken(refreshToken);
       
-      localStorage.setItem('auth_token', response.token);
-      if (response.refreshToken) {
-        localStorage.setItem('refresh_token', response.refreshToken);
+      // Store new tokens in the same storage type as before
+      const useLocalStorage = localStorage.getItem('refresh_token') !== null;
+      
+      if (useLocalStorage) {
+        localStorage.setItem('auth_token', response.token);
+        if (response.refreshToken) {
+          localStorage.setItem('refresh_token', response.refreshToken);
+        }
+      } else {
+        sessionStorage.setItem('auth_token', response.token);
+        if (response.refreshToken) {
+          sessionStorage.setItem('refresh_token', response.refreshToken);
+        }
       }
       
       dispatch({
@@ -256,22 +259,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       logout();
     }
-  }, [state.refreshToken, logout]);
+  }, [logout]);
 
   const updateUser = useCallback((userData: Partial<User>) => {
     dispatch({ type: 'UPDATE_USER', payload: userData });
   }, []);
 
+  // Initialize auth state from storage on mount
+  useEffect(() => {
+    checkAuthStatus();
+  }, [checkAuthStatus]);
+
   // Set up automatic token refresh
   useEffect(() => {
-    if (!state.token) return;
+    if (!state.token || !state.isAuthenticated) return;
 
     const tokenRefreshInterval = setInterval(() => {
       refreshAuthToken();
-    }, 15 * 60 * 1000); // Refresh every 15 minutes
+    }, 45 * 60 * 1000); // Refresh every 45 minutes (tokens expire in 60 minutes)
 
     return () => clearInterval(tokenRefreshInterval);
-  }, [state.token, refreshAuthToken]);
+  }, [state.token, state.isAuthenticated, refreshAuthToken]);
 
   const value: AuthContextType = {
     ...state,

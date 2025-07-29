@@ -1,4 +1,5 @@
 # Multi-Cloud Integration Architecture
+
 Enterprise Documentation Platform
 
 ## Overview
@@ -76,6 +77,7 @@ Authentication:
 ### Single Sign-On (SSO) Integration
 
 **Azure Active Directory**
+
 ```csharp
 // Program.cs configuration
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -86,6 +88,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 ```
 
 **Google Workspace**
+
 ```csharp
 // Google authentication configuration
 builder.Services.AddAuthentication()
@@ -102,6 +105,7 @@ builder.Services.AddAuthentication()
 ### n8n.io Workflow Automation
 
 **Document Processing Workflows**
+
 ```json
 {
   "name": "Enterprise Docs - Document Processing",
@@ -166,6 +170,7 @@ builder.Services.AddAuthentication()
 ### Microsoft Power Automate Integration
 
 **SharePoint Document Synchronization**
+
 ```json
 {
   "definition": {
@@ -209,6 +214,7 @@ builder.Services.AddAuthentication()
 ### Zapier Integration
 
 **Custom Zapier App Configuration**
+
 ```javascript
 // zapier/creates/document.js
 const createDocument = {

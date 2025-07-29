@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLocation, Link } from 'react-router-dom';
 import '../../styles/layout.css';
@@ -15,7 +15,11 @@ import {
   Users,
   BarChart3,
   Shield,
-  Activity
+  Activity,
+  LogOut,
+  ChevronDown,
+  UserCircle,
+  Bell
 } from 'lucide-react';
 
 interface AppLayoutProps {
@@ -31,9 +35,11 @@ interface NavItem {
 }
 
 export default function AppLayout({ children }: AppLayoutProps) {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   // Platform Admin Navigation Items
   // TODO: Make this dynamic based on user role (Platform Admin vs Client User)
@@ -95,6 +101,29 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const isActiveRoute = (path: string) => {
     return location.pathname.startsWith(path);
   };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      setUserMenuOpen(false);
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="app-layout">
@@ -181,9 +210,91 @@ export default function AppLayout({ children }: AppLayoutProps) {
             </div>
 
             <div className="header-actions">
+              {/* Notifications */}
+              <button className="header-action-btn">
+                <Bell className="icon-sm" />
+              </button>
+
+              {/* User Menu */}
+              <div className="relative" ref={userMenuRef}>
+                <button
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                    <UserCircle className="icon-sm text-white" />
+                  </div>
+                  <div className="hidden md:block text-left">
+                    <p className="text-sm font-medium text-gray-900">
+                      {user?.firstName} {user?.lastName}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {user?.email || 'demo@enterprise-docs.com'}
+                    </p>
+                  </div>
+                  <ChevronDown className={`icon-sm text-gray-400 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {/* User Dropdown Menu */}
+                {userMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                    {/* User Info */}
+                    <div className="px-4 py-3 border-b border-gray-100">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                          <UserCircle className="icon-md text-white" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">
+                            {user?.firstName} {user?.lastName}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {user?.email || 'demo@enterprise-docs.com'}
+                          </p>
+                          <p className="text-xs text-blue-600 font-medium">
+                            Professional Plan
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Menu Items */}
+                    <div className="py-2">
+                      <Link
+                        to="/settings"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        <Settings className="icon-sm mr-3" />
+                        Account Settings
+                      </Link>
+                      <Link
+                        to="/profile"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        <User className="icon-sm mr-3" />
+                        Profile
+                      </Link>
+                    </div>
+
+                    {/* Logout */}
+                    <div className="border-t border-gray-100 mt-2 pt-2">
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        <LogOut className="icon-sm mr-3" />
+                        Sign Out
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <span className="connection-status">
                 <span className="status-dot"></span>
-                Database Connected
+                Connected
               </span>
             </div>
           </div>

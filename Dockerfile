@@ -3,6 +3,9 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
+# Install Python and build dependencies for native npm packages
+RUN apk add --no-cache python3 make g++ git
+
 # Copy package files
 COPY src/frontend/package*.json ./
 
