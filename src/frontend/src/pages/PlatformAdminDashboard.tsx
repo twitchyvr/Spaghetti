@@ -62,7 +62,7 @@ interface ClientSummary {
   name: string;
   subdomain: string;
   tier: string;
-  status: 'Active' | 'Trial' | 'Suspended' | 'Inactive';
+  status: string; // Changed from specific string literals to string
   userCount: number;
   documentCount: number;
   storageUsedMB: number;
@@ -111,68 +111,17 @@ export default function PlatformAdminDashboard() {
       setIsLoading(true);
       setError(null);
 
-      // TODO: Replace with actual platform admin APIs
-      // For now, using demo data that represents what the platform admin should see
-      const mockMetrics: PlatformMetrics = {
-        totalClients: 47,
-        activeClients: 42,
-        totalUsers: 1247,
-        activeUsers: 892,
-        totalDocuments: 15678,
-        monthlyRecurringRevenue: 18950,
-        annualRecurringRevenue: 227400,
-        platformHealth: {
-          apiResponseTime: 145,
-          databaseHealth: true,
-          systemUptime: 99.97,
-          activeIncidents: 0
-        }
-      };
+      // Import API service
+      const { platformAdminApi } = await import('../services/api');
+      
+      // Fetch actual platform metrics and client data
+      const [metricsData, clientsData] = await Promise.all([
+        platformAdminApi.getPlatformMetrics(),
+        platformAdminApi.getClients()
+      ]);
 
-      const mockClients: ClientSummary[] = [
-        {
-          id: 'client-1',
-          name: 'Acme Legal Partners',
-          subdomain: 'acme-legal',
-          tier: 'Enterprise',
-          status: 'Active',
-          userCount: 156,
-          documentCount: 2847,
-          storageUsedMB: 1024,
-          monthlyRevenue: 2499,
-          lastActive: '2025-07-25T10:30:00Z',
-          healthScore: 98
-        },
-        {
-          id: 'client-2', 
-          name: 'TechStart Innovation',
-          subdomain: 'techstart',
-          tier: 'Professional',
-          status: 'Active',
-          userCount: 28,
-          documentCount: 445,
-          storageUsedMB: 256,
-          monthlyRevenue: 799,
-          lastActive: '2025-07-25T09:15:00Z',
-          healthScore: 95
-        },
-        {
-          id: 'client-3',
-          name: 'Global Consulting Group',
-          subdomain: 'global-consulting',
-          tier: 'Enterprise',
-          status: 'Trial',
-          userCount: 75,
-          documentCount: 1203,
-          storageUsedMB: 512,
-          monthlyRevenue: 0, // Trial period
-          lastActive: '2025-07-25T11:45:00Z',
-          healthScore: 87
-        }
-      ];
-
-      setMetrics(mockMetrics);
-      setClients(mockClients);
+      setMetrics(metricsData);
+      setClients(clientsData);
 
     } catch (err) {
       console.error('Failed to fetch platform admin data:', err);
