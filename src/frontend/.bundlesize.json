@@ -1,0 +1,19 @@
+{
+  "files": [
+    {
+      "path": "./dist/assets/*.js",
+      "maxSize": "500 KB",
+      "compression": "gzip"
+    },
+    {
+      "path": "./dist/assets/*.css",
+      "maxSize": "50 KB",
+      "compression": "gzip"
+    },
+    {
+      "path": "./dist/index.html",
+      "maxSize": "10 KB"
+    }
+  ],
+  "defaultCompression": "gzip"
+}
