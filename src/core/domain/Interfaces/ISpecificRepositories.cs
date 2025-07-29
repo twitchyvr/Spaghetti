@@ -27,6 +27,14 @@ public interface IDocumentRepository : IRepository<Document, Guid>
     // Version management
     Task<IEnumerable<Document>> GetVersionsAsync(Guid parentDocumentId, CancellationToken cancellationToken = default);
     Task<Document?> GetLatestVersionAsync(Guid parentDocumentId, CancellationToken cancellationToken = default);
+    Task<Document?> CreateVersionAsync(Guid originalDocumentId, Document newVersion, CancellationToken cancellationToken = default);
+    Task UpdateLatestVersionFlagAsync(Guid documentId, bool isLatest, CancellationToken cancellationToken = default);
+    
+    // File management
+    Task<Document?> GetByFileHashAsync(string fileHash, Guid tenantId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<Document>> GetByFileNameAsync(string fileName, Guid? tenantId = null, CancellationToken cancellationToken = default);
+    Task<IEnumerable<Document>> GetByContentTypeAsync(string contentType, Guid? tenantId = null, CancellationToken cancellationToken = default);
+    Task<long> GetTotalFileSizeByTenantAsync(Guid tenantId, CancellationToken cancellationToken = default);
     
     // Permission checking
     Task<bool> HasUserAccessAsync(Guid documentId, Guid userId, PermissionType permissionType, CancellationToken cancellationToken = default);
@@ -279,5 +287,4 @@ public interface IMaintenanceWindowRepository : IRepository<MaintenanceWindow, G
     Task<IEnumerable<MaintenanceWindow>> GetUpcomingMaintenanceAsync(TimeSpan withinTimeSpan, CancellationToken cancellationToken = default);
     Task<IEnumerable<MaintenanceWindow>> GetByAffectedServiceAsync(string serviceName, CancellationToken cancellationToken = default);
     Task<IEnumerable<MaintenanceWindow>> GetConflictingMaintenanceAsync(DateTime startTime, DateTime endTime, CancellationToken cancellationToken = default);
-
 }

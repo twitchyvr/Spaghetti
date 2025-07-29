@@ -1,4 +1,5 @@
 # Spaghetti Platform Development Roadmap
+
 **Multi-Level Enterprise Platform Architecture & Development Order**
 
 ## 🏗️ Platform Architecture Overview
@@ -6,22 +7,30 @@
 The Spaghetti Platform is a **4-level enterprise platform** designed for large organizations managing complex structures:
 
 ### Level 1: Platform Administration (Spaghetti Team)
+
 **Purpose**: Manage enterprise client relationships and platform operations
+
 - **Users**: Platform developers, enterprise sales, customer success teams
 - **Scope**: Client onboarding, subscription management, platform infrastructure
 
 ### Level 2: Client Administration (Enterprise Organizations)
+
 **Purpose**: Enterprise clients managing their organizational ecosystem
+
 - **Users**: Client executives, IT directors, admin teams at Fortune 5000 companies
 - **Scope**: Multi-tenant management, subscription allocation, organizational oversight
 
 ### Level 3: Tenant Management (Organizational Units)
+
 **Purpose**: Individual business units within enterprise client organizations
+
 - **Users**: Division managers, practice leads, subsidiary administrators
 - **Scope**: Single-tenant operations, user management, local customization
 
 ### Level 4: End User Application (Individual Contributors)
+
 **Purpose**: Day-to-day document creation and collaboration within tenants
+
 - **Users**: Lawyers, consultants, employees within specific organizational units
 - **Scope**: Document workflows, collaboration, tenant-specific activities
 
@@ -30,9 +39,11 @@ The Spaghetti Platform is a **4-level enterprise platform** designed for large o
 Based on enterprise SaaS best practices (Salesforce, Workday, ServiceNow model):
 
 ### Phase 1: Platform Foundation (Current Phase)
+
 **Priority: CRITICAL - Required for client onboarding**
 
 #### 1.1 Platform Admin Dashboard (Spaghetti Team Interface)
+
 - [ ] **Client Management**: Create, edit, disable client organizations
 - [ ] **Licensing Control**: Assign tiers (Trial, Starter, Professional, Enterprise)
 - [ ] **Usage Monitoring**: Cross-tenant analytics and billing metrics
@@ -41,6 +52,7 @@ Based on enterprise SaaS best practices (Salesforce, Workday, ServiceNow model):
 - [ ] **Billing Management**: View revenue, payment status, usage overages
 
 #### 1.2 Multi-Tenant Security & Data Isolation
+
 - [x] **Database Schema**: Tenant-based row-level security (COMPLETED)
 - [ ] **Authentication**: Platform admin vs client user authentication
 - [ ] **Role-Based Access**: Platform admin, client admin, end user roles
@@ -48,6 +60,7 @@ Based on enterprise SaaS best practices (Salesforce, Workday, ServiceNow model):
 - [ ] **Audit Logging**: Track all platform admin actions
 
 #### 1.3 Client Onboarding Workflow
+
 - [ ] **Tenant Creation**: Automated client setup process
 - [ ] **Initial Admin User**: Create first client admin account
 - [ ] **Branding Setup**: White-label configuration per client
@@ -55,9 +68,11 @@ Based on enterprise SaaS best practices (Salesforce, Workday, ServiceNow model):
 - [ ] **Welcome & Training**: Client onboarding documentation
 
 ### Phase 2: Client Admin Interface (Next Phase)
+
 **Priority: HIGH - Required for client self-service**
 
 #### 2.1 Client Admin Dashboard
+
 - [ ] **Organization Overview**: User count, document count, storage usage
 - [ ] **Billing & Usage**: Current plan, usage vs limits, billing history
 - [ ] **User Management**: Add/remove users, assign roles, manage permissions
@@ -65,6 +80,7 @@ Based on enterprise SaaS best practices (Salesforce, Workday, ServiceNow model):
 - [ ] **Organization Settings**: Security policies, data retention, integrations
 
 #### 2.2 Role & Permission Management
+
 - [ ] **Core Role System**: Platform Admin, Client Admin, User, Guest/Public Viewer
 - [ ] **Custom Roles**: Define organization-specific roles (like SharePoint)
 - [ ] **Permission Matrix**: Granular permissions for documents and features
@@ -74,15 +90,18 @@ Based on enterprise SaaS best practices (Salesforce, Workday, ServiceNow model):
 - [ ] **Bulk Operations**: Import users, mass role changes
 
 #### 2.3 Analytics & Reporting  
+
 - [ ] **Usage Analytics**: Document creation trends, user activity
 - [ ] **Compliance Reporting**: Audit trails, data access logs
 - [ ] **Performance Metrics**: Platform usage efficiency
 - [ ] **Export Capabilities**: CSV/PDF reports for management
 
 ### Phase 3: End User Application (Weeks 6-10)
+
 **Priority: MEDIUM - Core product functionality**
 
 #### 3.1 Document Management Interface
+
 - [ ] **Personal Dashboard**: Recent documents, activity feed, quick actions
 - [ ] **Document Library**: Browse, search, filter, organize documents
 - [ ] **Document Editor**: Rich text editor with templates and AI assistance
@@ -90,6 +109,7 @@ Based on enterprise SaaS best practices (Salesforce, Workday, ServiceNow model):
 - [ ] **Document Workflows**: Approvals, reviews, publishing processes
 
 #### 3.2 Public Documentation Publishing
+
 - [ ] **Public Portal**: Branded public documentation sites for each client
 - [ ] **Custom Domains**: client.com/docs or docs.client.com hosting
 - [ ] **SEO Optimization**: Search engine friendly documentation
@@ -98,6 +118,7 @@ Based on enterprise SaaS best practices (Salesforce, Workday, ServiceNow model):
 - [ ] **Version Control**: Manage public vs internal document versions
 
 #### 3.3 Legal Industry Specialization
+
 - [ ] **Time Tracking**: Document time spent for billing
 - [ ] **Client Matter Association**: Link documents to clients and cases
 - [ ] **Legal Templates**: Contracts, briefs, correspondence templates
@@ -105,21 +126,25 @@ Based on enterprise SaaS best practices (Salesforce, Workday, ServiceNow model):
 - [ ] **Public Legal Resources**: FAQ sections, legal guides, firm knowledge bases
 
 #### 3.3 Productivity Features
+
 - [ ] **AI Document Generation**: Smart templates and content suggestions
 - [ ] **Voice Capture**: Dictation and transcription capabilities
 - [ ] **Screen Capture**: Screenshot and annotation tools
 - [ ] **Mobile Access**: iOS/Android apps for field work
 
 ### Phase 4: Advanced Platform Features (Weeks 10-16)
+
 **Priority: LOW - Competitive differentiation**
 
 #### 4.1 Platform Marketplace
+
 - [ ] **Module System**: Add-on modules for specific industries
 - [ ] **Third-Party Integrations**: API marketplace for partners
 - [ ] **Custom Workflows**: Visual workflow builder (n8n.io style)
 - [ ] **Developer APIs**: Allow clients to build custom integrations
 
 #### 4.2 Enterprise Features
+
 - [ ] **SSO Integration**: SAML, OAuth, Active Directory
 - [ ] **Advanced Security**: MFA, IP restrictions, device management
 - [ ] **Global Deployment**: Multi-region support for enterprise clients
@@ -128,12 +153,14 @@ Based on enterprise SaaS best practices (Salesforce, Workday, ServiceNow model):
 ## 🎯 Current Status & Next Steps
 
 ### ✅ Already Completed
+
 - Multi-tenant database schema with proper isolation
 - Docker containerization and development environment
 - Basic API endpoints for database management
 - Frontend framework with authentication context
 
 ### 🚧 Immediate Next Steps (This Week)
+
 1. **Refactor Current Dashboard** → Platform Admin Dashboard
 2. **Create Client Management Interface** for tenant administration
 3. **Implement Impersonation System** for client support
@@ -141,22 +168,26 @@ Based on enterprise SaaS best practices (Salesforce, Workday, ServiceNow model):
 
 ### 📊 Success Metrics by Phase
 
-**Phase 1 Success**: 
+**Phase 1 Success**:
+
 - Can onboard new clients in <15 minutes
 - Platform admin can impersonate any user
 - All client usage data visible in platform dashboard
 
 **Phase 2 Success**:
+
 - Clients can self-manage users and settings
 - White-label branding working for each client
 - Billing usage accurately tracked and displayed
 
 **Phase 3 Success**:
+
 - End users can create and manage documents effectively
 - Legal professionals can track time and associate with matters
 - Document collaboration workflows functioning
 
 **Phase 4 Success**:
+
 - Client retention >95%, expansion revenue >120%
 - Platform ready for Series A funding
 - Competitive differentiation vs existing solutions
@@ -164,12 +195,14 @@ Based on enterprise SaaS best practices (Salesforce, Workday, ServiceNow model):
 ## 🔄 Development Workflow
 
 ### Current Codebase Assessment
+
 - **Frontend**: React/TypeScript dashboard (needs role-based refactoring)
 - **Backend**: .NET Core API with multi-tenant entities (solid foundation)
 - **Database**: PostgreSQL with proper tenant isolation (production ready)
 - **Infrastructure**: Docker + DigitalOcean deployment (scalable)
 
 ### Technology Decisions Validated
+
 - ✅ Multi-tenant architecture matches Salesforce model
 - ✅ PostgreSQL can scale to enterprise level (Salesforce uses similar)
 - ✅ .NET Core API provides enterprise security and performance

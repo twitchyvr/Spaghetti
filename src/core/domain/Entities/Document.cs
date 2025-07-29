@@ -51,11 +51,20 @@ public class Document
     // Document metadata
     public DocumentMetadata Metadata { get; set; } = new();
     
+    // File properties for document management
+    public string? FileName { get; set; }
+    public string? ContentType { get; set; }
+    public long? FileSize { get; set; }
+    public string? FilePath { get; set; }
+    public string? FileHash { get; set; } // For duplicate detection and integrity checking
+    
     // Version control
     public int Version { get; set; } = 1;
+    public bool IsLatestVersion { get; set; } = true;
     public Guid? ParentDocumentId { get; set; }
     public Document? ParentDocument { get; set; }
     public List<Document> ChildDocuments { get; set; } = new();
+    public string? VersionNotes { get; set; }
     
     // AI processing metadata
     public AIMetadata? AIMetadata { get; set; }

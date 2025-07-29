@@ -36,42 +36,45 @@ public class DatabaseSeedingService
 
             try
             {
-                // 1. Create demo tenants
+                // 1. Create system roles if they don't exist
+                await CreateSystemRolesIfNotExist();
+                
+                // 2. Create demo tenants
                 var demoTenants = CreateDemoTenants();
                 _context.Tenants.AddRange(demoTenants);
                 await _context.SaveChangesAsync();
 
-                // 2. Create sample users
+                // 3. Create sample users
                 var sampleUsers = CreateSampleUsers(demoTenants);
                 _context.Users.AddRange(sampleUsers);
                 await _context.SaveChangesAsync();
 
-                // 3. Assign user roles
+                // 4. Assign user roles
                 var userRoles = CreateUserRoles(sampleUsers);
                 _context.UserRoles.AddRange(userRoles);
                 await _context.SaveChangesAsync();
 
-                // 4. Create sample documents
+                // 5. Create sample documents
                 var sampleDocuments = CreateSampleDocuments(sampleUsers, demoTenants);
                 _context.Documents.AddRange(sampleDocuments);
                 await _context.SaveChangesAsync();
 
-                // 5. Create document tags
+                // 6. Create document tags
                 var documentTags = CreateDocumentTags(sampleDocuments);
                 _context.DocumentTags.AddRange(documentTags);
                 await _context.SaveChangesAsync();
 
-                // 6. Create document permissions
+                // 7. Create document permissions
                 var documentPermissions = CreateDocumentPermissions(sampleDocuments, sampleUsers);
                 _context.DocumentPermissions.AddRange(documentPermissions);
                 await _context.SaveChangesAsync();
 
-                // 7. Create tenant modules
+                // 8. Create tenant modules
                 var tenantModules = CreateTenantModules(demoTenants, sampleUsers.First());
                 _context.TenantModules.AddRange(tenantModules);
                 await _context.SaveChangesAsync();
 
-                // 8. Create audit entries for realistic activity
+                // 9. Create audit entries for realistic activity
                 var auditEntries = CreateAuditEntries(sampleUsers, sampleDocuments, demoTenants);
                 _context.DocumentAuditEntries.AddRange(auditEntries.DocumentAudits);
                 _context.UserAuditEntries.AddRange(auditEntries.UserAudits);
@@ -249,7 +252,7 @@ public class DatabaseSeedingService
         // Demo user (matches frontend auth bypass)
         users.Add(new User
         {
-            Id = Guid.Parse("00000000-0000-0000-0000-000000000000"),
+            Id = Guid.NewGuid(),
             FirstName = "Demo",
             LastName = "User",
             Email = "demo@enterprise-docs.com",
@@ -1080,5 +1083,49 @@ This analysis provides a clear path to operational excellence...",
 
             _ => "Sample consulting document content would be generated here."
         };
+    }
+
+    private async Task CreateSystemRolesIfNotExist()
+    {
+        var systemAdminRoleId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        var tenantAdminRoleId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        var userRoleId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+
+        // Check if system roles already exist
+        if (await _context.Roles.AnyAsync(r => r.Id == systemAdminRoleId))
+        {
+            return; // System roles already exist
+        }
+
+        var systemRoles = new List<Role>
+        {
+            new Role
+            {
+                Id = systemAdminRoleId,
+                Name = "System Administrator",
+                Description = "Full system access with all permissions",
+                IsSystemRole = true,
+                IsActive = true
+            },
+            new Role
+            {
+                Id = tenantAdminRoleId,
+                Name = "Tenant Administrator",
+                Description = "Administrative access within tenant scope",
+                IsSystemRole = true,
+                IsActive = true
+            },
+            new Role
+            {
+                Id = userRoleId,
+                Name = "User",
+                Description = "Standard user access with basic permissions",
+                IsSystemRole = true,
+                IsActive = true
+            }
+        };
+
+        _context.Roles.AddRange(systemRoles);
+        await _context.SaveChangesAsync();
     }
 }

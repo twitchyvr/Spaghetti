@@ -57,6 +57,7 @@ enterprise-docs-platform/
 ## Core Technology Stack
 
 ### Backend (.NET Core 8)
+
 - **API Layer**: ASP.NET Core Web API with Swagger/OpenAPI
 - **Authentication**: Configurable (Azure AD, Auth0, JWT)
 - **Database**: Entity Framework Core with PostgreSQL
@@ -67,6 +68,7 @@ enterprise-docs-platform/
 - **Logging**: Serilog with structured logging
 
 ### Frontend (React 18 + TypeScript)
+
 - **Framework**: React 18 with TypeScript
 - **Build Tool**: Vite for fast development
 - **Styling**: Tailwind CSS with component library
@@ -77,6 +79,7 @@ enterprise-docs-platform/
 - **Testing**: Vitest + React Testing Library
 
 ### Module Architecture
+
 Each module follows a standard interface:
 
 ```typescript
@@ -91,6 +94,7 @@ interface PlatformModule {
 ```
 
 ### Agent Architecture
+
 AI agents are industry-specific and pluggable:
 
 ```typescript
@@ -105,6 +109,7 @@ interface DocumentationAgent {
 ## Configuration-Based Deployment
 
 ### Environment Configuration
+
 ```json
 {
   "deployment": {
@@ -121,7 +126,9 @@ interface DocumentationAgent {
 ```
 
 ### Module Loading
+
 Modules are loaded dynamically based on configuration:
+
 - Development: All modules available
 - SharePoint Deployment: Only SharePoint + Teams modules
 - Azure Enterprise: Full enterprise modules
