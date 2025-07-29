@@ -196,8 +196,27 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.MapControllers();
 
 // Add health endpoint for Docker healthcheck
-app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }))
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow, service = "enterprise-docs-api" }))
    .AllowAnonymous();
+
+// Add detailed health endpoint for monitoring
+app.MapGet("/health/detailed", async (ApplicationDbContext context) => 
+{
+    try 
+    {
+        var canConnect = await context.Database.CanConnectAsync();
+        return Results.Ok(new { 
+            status = canConnect ? "healthy" : "unhealthy", 
+            timestamp = DateTime.UtcNow,
+            service = "enterprise-docs-api",
+            database = canConnect ? "connected" : "disconnected"
+        });
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem(detail: ex.Message, title: "Health check failed");
+    }
+}).AllowAnonymous();
 
 // Sprint 2: Map SignalR hubs for real-time collaboration
 app.MapHub<EnterpriseDocsCore.API.Hubs.DocumentCollaborationHub>("/hubs/collaboration");
