@@ -70,23 +70,29 @@ public class HealthController : ControllerBase
     {
         try
         {
+            // Check components first
+            var databaseHealth = CheckDatabaseHealth();
+            var memoryHealth = CheckMemoryHealth();
+            var uptimeInfo = GetUptime();
+            
+            // Extract healthy status from database health check
+            var isDatabaseHealthy = _context.Database.CanConnect();
+            
             var healthStatus = new
             {
-                status = "healthy",
+                status = isDatabaseHealthy ? "healthy" : "unhealthy",
                 timestamp = DateTime.UtcNow,
                 service = "enterprise-docs-api",
                 version = "1.0.0",
                 components = new
                 {
-                    database = CheckDatabaseHealth(),
-                    memory = CheckMemoryHealth(),
-                    uptime = GetUptime()
+                    database = databaseHealth,
+                    memory = memoryHealth,
+                    uptime = uptimeInfo
                 }
             };
-
-            var overallHealthy = healthStatus.components.database.healthy;
             
-            if (overallHealthy)
+            if (isDatabaseHealthy)
             {
                 return Ok(healthStatus);
             }
