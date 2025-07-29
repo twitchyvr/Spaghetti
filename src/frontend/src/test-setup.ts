@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { vi } from 'vitest';
+import { vi, beforeAll, afterAll, beforeEach, expect } from 'vitest';
 
 // Mock IntersectionObserver
 global.IntersectionObserver = vi.fn().mockImplementation(() => ({
@@ -94,9 +94,9 @@ Object.defineProperty(window, 'performance', {
 });
 
 // Mock WebSocket for real-time collaboration testing
-global.WebSocket = vi.fn().mockImplementation((url) => ({
+const MockWebSocket = vi.fn().mockImplementation((url: string) => ({
   url,
-  readyState: WebSocket.CONNECTING,
+  readyState: 0, // CONNECTING
   send: vi.fn(),
   close: vi.fn(),
   addEventListener: vi.fn(),
@@ -107,11 +107,14 @@ global.WebSocket = vi.fn().mockImplementation((url) => ({
   onerror: null,
 }));
 
-// Define WebSocket constants
-Object.defineProperty(WebSocket, 'CONNECTING', { value: 0 });
-Object.defineProperty(WebSocket, 'OPEN', { value: 1 });
-Object.defineProperty(WebSocket, 'CLOSING', { value: 2 });
-Object.defineProperty(WebSocket, 'CLOSED', { value: 3 });
+// Add static properties to MockWebSocket
+MockWebSocket.CONNECTING = 0;
+MockWebSocket.OPEN = 1;
+MockWebSocket.CLOSING = 2;
+MockWebSocket.CLOSED = 3;
+
+global.WebSocket = MockWebSocket as any;
+
 
 // Mock console methods for cleaner test output
 const originalError = console.error;
@@ -184,5 +187,5 @@ expect.extend({
 });
 
 // Mock environment variables for testing
-process.env.NODE_ENV = 'test';
-process.env.VITE_API_BASE_URL = 'http://localhost:5001';
+process.env['NODE_ENV'] = 'test';
+process.env['VITE_API_BASE_URL'] = 'http://localhost:5001';
