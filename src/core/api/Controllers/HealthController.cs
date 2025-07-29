@@ -70,6 +70,7 @@ public class HealthController : ControllerBase
     {
         try
         {
+            var databaseHealth = CheckDatabaseHealth();
             var healthStatus = new
             {
                 status = "healthy",
@@ -78,13 +79,13 @@ public class HealthController : ControllerBase
                 version = "1.0.0",
                 components = new
                 {
-                    database = CheckDatabaseHealth(),
+                    database = databaseHealth,
                     memory = CheckMemoryHealth(),
                     uptime = GetUptime()
                 }
             };
 
-            var overallHealthy = healthStatus.components.database.healthy;
+            var overallHealthy = ((dynamic)databaseHealth).healthy;
             
             if (overallHealthy)
             {
