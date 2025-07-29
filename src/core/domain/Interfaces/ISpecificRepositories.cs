@@ -56,6 +56,8 @@ public interface IUserRepository : IRepository<User, Guid>
     Task<IEnumerable<User>> GetByDepartmentAsync(string department, Guid? tenantId = null, CancellationToken cancellationToken = default);
     
     // Authentication related
+    Task<User?> GetBySessionTokenAsync(string sessionToken, CancellationToken cancellationToken = default);
+    Task<IEnumerable<User>> GetExpiredSessionUsersAsync(CancellationToken cancellationToken = default);
     Task<User?> GetByExternalIdAsync(string provider, string externalId, CancellationToken cancellationToken = default);
     Task<IEnumerable<string>> GetUserPermissionsAsync(Guid userId, CancellationToken cancellationToken = default);
 }
@@ -222,6 +224,60 @@ public interface ITenantAuditEntryRepository : IRepository<TenantAuditEntry, Gui
     Task<int> DeleteOldEntriesAsync(DateTime beforeDate, CancellationToken cancellationToken = default);
 }
 
+// New repository interfaces for enhanced authentication
+
+public interface IAuthenticationSessionRepository : IRepository<AuthenticationSession, Guid>
+{
+    // Session-specific queries
+    Task<AuthenticationSession?> GetBySessionTokenAsync(string sessionToken, CancellationToken cancellationToken = default);
+    Task<AuthenticationSession?> GetByRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default);
+    Task<IEnumerable<AuthenticationSession>> GetActiveByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<AuthenticationSession>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+    
+    Task<IEnumerable<AuthenticationSession>> GetExpiredSessionsAsync(CancellationToken cancellationToken = default);
+    Task<IEnumerable<AuthenticationSession>> GetSessionsByIPAddressAsync(string ipAddress, CancellationToken cancellationToken = default);
+    Task<IEnumerable<AuthenticationSession>> GetImpersonationSessionsAsync(Guid? adminUserId = null, CancellationToken cancellationToken = default);
+    
+    Task<int> DeleteExpiredSessionsAsync(CancellationToken cancellationToken = default);
+    Task<int> DeleteByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<bool> IsSessionActiveAsync(string sessionToken, CancellationToken cancellationToken = default);
+}
+
+public interface IUserPermissionRepository : IRepository<UserPermission, Guid>
+{
+    // UserPermission-specific queries
+    Task<IEnumerable<UserPermission>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<UserPermission>> GetActiveByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<UserPermission>> GetByPermissionAsync(string permission, CancellationToken cancellationToken = default);
+    Task<IEnumerable<UserPermission>> GetByResourceAsync(string resource, CancellationToken cancellationToken = default);
+    Task<IEnumerable<UserPermission>> GetExpiringPermissionsAsync(DateTime beforeDate, CancellationToken cancellationToken = default);
+    
+    Task<UserPermission?> GetUserPermissionAsync(Guid userId, string permission, string? resource = null, CancellationToken cancellationToken = default);
+    Task<bool> HasPermissionAsync(Guid userId, string permission, string? resource = null, CancellationToken cancellationToken = default);
+    Task<IEnumerable<string>> GetUserPermissionsAsync(Guid userId, CancellationToken cancellationToken = default);
+    
+    Task<int> DeleteExpiredPermissionsAsync(CancellationToken cancellationToken = default);
+    Task<int> DeleteByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+}
+
+public interface IUserAuthenticationMethodRepository : IRepository<UserAuthenticationMethod, Guid>
+{
+    // UserAuthenticationMethod-specific queries
+    Task<IEnumerable<UserAuthenticationMethod>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<UserAuthenticationMethod>> GetActiveByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<UserAuthenticationMethod?> GetByProviderAsync(string provider, string? externalId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<UserAuthenticationMethod>> GetByProviderAsync(string provider, CancellationToken cancellationToken = default);
+    Task<IEnumerable<UserAuthenticationMethod>> GetByAuthenticationTypeAsync(string authenticationType, CancellationToken cancellationToken = default);
+    
+    Task<IEnumerable<UserAuthenticationMethod>> GetMFAMethodsAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<UserAuthenticationMethod?> GetPrimaryMethodAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<UserAuthenticationMethod>> GetExpiredMethodsAsync(CancellationToken cancellationToken = default);
+    Task<IEnumerable<UserAuthenticationMethod>> GetLockedMethodsAsync(CancellationToken cancellationToken = default);
+    
+    Task<bool> HasProviderAsync(Guid userId, string provider, CancellationToken cancellationToken = default);
+    Task<bool> HasMFAEnabledAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<int> DeleteByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<int> DeleteExpiredMethodsAsync(CancellationToken cancellationToken = default);
 // Health Monitoring Repository Interfaces
 
 public interface ISystemHealthMetricRepository : IRepository<SystemHealthMetric, Guid>

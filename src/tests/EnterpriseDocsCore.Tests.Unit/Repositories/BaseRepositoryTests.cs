@@ -276,7 +276,7 @@ public class BaseRepositoryTests : IDisposable
     {
         // Act & Assert
         var exception = await Assert.ThrowsAsync<ArgumentException>(
-            () => _repository.GetPagedAsync(page, pageSize, CancellationToken.None));
+            () => _repository.GetPagedAsync(page, pageSize, cancellationToken: CancellationToken.None));
         
         exception.Should().NotBeNull();
     }
