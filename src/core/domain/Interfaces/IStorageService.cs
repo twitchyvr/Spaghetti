@@ -49,6 +49,26 @@ public interface IStorageService
     /// Lists files in a directory/container
     /// </summary>
     Task<IEnumerable<FileInfo>> ListFilesAsync(string path = "", CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Uploads a file with content type validation
+    /// </summary>
+    Task<string> UploadFileAsync(Stream fileStream, string fileName, string contentType, string? tenantId = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Downloads a file as a stream
+    /// </summary>
+    Task<(Stream stream, string contentType, string fileName)> DownloadFileAsync(string storagePath, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Calculates file hash for duplicate detection
+    /// </summary>
+    Task<string> CalculateFileHashAsync(Stream fileStream, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Validates file type and size
+    /// </summary>
+    Task<(bool isValid, string? errorMessage)> ValidateFileAsync(Stream fileStream, string fileName, string contentType, long maxSize = 104857600, CancellationToken cancellationToken = default); // 100MB default
 }
 
 /// <summary>

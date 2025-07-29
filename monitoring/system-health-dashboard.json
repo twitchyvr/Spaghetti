@@ -1,0 +1,634 @@
+{
+  "dashboard": {
+    "id": "enterprise-docs-health",
+    "title": "Enterprise Documentation Platform - System Health",
+    "version": "1.0.0",
+    "description": "Real-time system health monitoring for Sprint 4 operations",
+    "refresh": "30s",
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": "system-overview",
+        "title": "System Overview",
+        "type": "stat",
+        "gridPos": {
+          "h": 4,
+          "w": 24,
+          "x": 0,
+          "y": 0
+        },
+        "targets": [
+          {
+            "expr": "up{job=\"enterprise-docs\"}",
+            "legendFormat": "System Status"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {
+                  "color": "red",
+                  "value": 0
+                },
+                {
+                  "color": "yellow",
+                  "value": 0.8
+                },
+                {
+                  "color": "green",
+                  "value": 1
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": "container-status",
+        "title": "Container Health Status",
+        "type": "table",
+        "gridPos": {
+          "h": 6,
+          "w": 12,
+          "x": 0,
+          "y": 4
+        },
+        "description": "Real-time status of all system containers",
+        "columns": [
+          {
+            "field": "container_name",
+            "displayName": "Container"
+          },
+          {
+            "field": "status",
+            "displayName": "Status"
+          },
+          {
+            "field": "cpu_usage",
+            "displayName": "CPU %"
+          },
+          {
+            "field": "memory_usage",
+            "displayName": "Memory"
+          },
+          {
+            "field": "uptime",
+            "displayName": "Uptime"
+          }
+        ]
+      },
+      {
+        "id": "performance-metrics",
+        "title": "Performance Metrics",
+        "type": "graph",
+        "gridPos": {
+          "h": 6,
+          "w": 12,
+          "x": 12,
+          "y": 4
+        },
+        "description": "API response time and throughput metrics",
+        "yAxes": [
+          {
+            "label": "Response Time (ms)",
+            "min": 0
+          },
+          {
+            "label": "Requests/sec",
+            "min": 0
+          }
+        ],
+        "targets": [
+          {
+            "expr": "avg(http_request_duration_seconds{job=\"enterprise-docs-api\"})",
+            "legendFormat": "Avg Response Time"
+          },
+          {
+            "expr": "rate(http_requests_total{job=\"enterprise-docs-api\"}[5m])",
+            "legendFormat": "Request Rate"
+          }
+        ]
+      },
+      {
+        "id": "resource-utilization",
+        "title": "System Resource Utilization",
+        "type": "graph",
+        "gridPos": {
+          "h": 6,
+          "w": 8,
+          "x": 0,
+          "y": 10
+        },
+        "description": "CPU, Memory, and Disk utilization trends",
+        "yAxes": [
+          {
+            "label": "Percentage",
+            "min": 0,
+            "max": 100
+          }
+        ],
+        "targets": [
+          {
+            "expr": "100 - (avg(rate(cpu_idle_seconds_total[5m])) * 100)",
+            "legendFormat": "CPU Usage %"
+          },
+          {
+            "expr": "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100",
+            "legendFormat": "Memory Usage %"
+          },
+          {
+            "expr": "100 - ((node_filesystem_avail_bytes{mountpoint=\"/\"} / node_filesystem_size_bytes{mountpoint=\"/\"}) * 100)",
+            "legendFormat": "Disk Usage %"
+          }
+        ],
+        "alert": {
+          "conditions": [
+            {
+              "query": {
+                "params": ["A", "5m", "now"]
+              },
+              "reducer": {
+                "type": "avg"
+              },
+              "evaluator": {
+                "params": [80],
+                "type": "gt"
+              }
+            }
+          ],
+          "executionErrorState": "alerting",
+          "noDataState": "no_data",
+          "frequency": "10s",
+          "handler": 1,
+          "name": "High Resource Usage Alert",
+          "message": "System resource usage is above 80%"
+        }
+      },
+      {
+        "id": "database-performance",
+        "title": "Database Performance",
+        "type": "graph",
+        "gridPos": {
+          "h": 6,
+          "w": 8,
+          "x": 8,
+          "y": 10
+        },
+        "description": "Database query performance and connection metrics",
+        "yAxes": [
+          {
+            "label": "Query Time (ms)",
+            "min": 0
+          },
+          {
+            "label": "Connections",
+            "min": 0
+          }
+        ],
+        "targets": [
+          {
+            "expr": "avg(postgresql_query_duration_seconds{job=\"enterprise-docs-db\"})",
+            "legendFormat": "Avg Query Time"
+          },
+          {
+            "expr": "postgresql_connections_active{job=\"enterprise-docs-db\"}",
+            "legendFormat": "Active Connections"
+          },
+          {
+            "expr": "postgresql_connections_idle{job=\"enterprise-docs-db\"}",
+            "legendFormat": "Idle Connections"
+          }
+        ]
+      },
+      {
+        "id": "error-rates",
+        "title": "Error Rates and Status Codes",
+        "type": "graph",
+        "gridPos": {
+          "h": 6,
+          "w": 8,
+          "x": 16,
+          "y": 10
+        },
+        "description": "HTTP error rates and status code distribution",
+        "yAxes": [
+          {
+            "label": "Requests/sec",
+            "min": 0
+          }
+        ],
+        "targets": [
+          {
+            "expr": "rate(http_requests_total{job=\"enterprise-docs-api\",code=~\"2..\"}[5m])",
+            "legendFormat": "2xx Success"
+          },
+          {
+            "expr": "rate(http_requests_total{job=\"enterprise-docs-api\",code=~\"4..\"}[5m])",
+            "legendFormat": "4xx Client Error"
+          },
+          {
+            "expr": "rate(http_requests_total{job=\"enterprise-docs-api\",code=~\"5..\"}[5m])",
+            "legendFormat": "5xx Server Error"
+          }
+        ],
+        "alert": {
+          "conditions": [
+            {
+              "query": {
+                "params": ["C", "5m", "now"]
+              },
+              "reducer": {
+                "type": "avg"
+              },
+              "evaluator": {
+                "params": [0.1],
+                "type": "gt"
+              }
+            }
+          ],
+          "executionErrorState": "alerting",
+          "noDataState": "no_data",
+          "frequency": "30s",
+          "handler": 1,
+          "name": "High Error Rate Alert",
+          "message": "Server error rate is above 0.1 requests/sec"
+        }
+      },
+      {
+        "id": "cache-performance",
+        "title": "Redis Cache Performance",
+        "type": "singlestat",
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 0,
+          "y": 16
+        },
+        "description": "Redis cache hit ratio and performance",
+        "targets": [
+          {
+            "expr": "redis_cache_hit_ratio{job=\"enterprise-docs-cache\"}",
+            "legendFormat": "Hit Ratio"
+          }
+        ],
+        "valueMaps": [
+          {
+            "value": "null",
+            "text": "N/A"
+          }
+        ],
+        "sparkline": {
+          "show": true
+        }
+      },
+      {
+        "id": "search-performance",
+        "title": "Elasticsearch Performance",
+        "type": "singlestat",
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 6,
+          "y": 16
+        },
+        "description": "Elasticsearch query performance and index health",
+        "targets": [
+          {
+            "expr": "elasticsearch_query_time_avg{job=\"enterprise-docs-search\"}",
+            "legendFormat": "Avg Query Time"
+          }
+        ],
+        "sparkline": {
+          "show": true
+        }
+      },
+      {
+        "id": "user-sessions",
+        "title": "Active User Sessions",
+        "type": "singlestat",
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 12,
+          "y": 16
+        },
+        "description": "Number of active user sessions",
+        "targets": [
+          {
+            "expr": "active_user_sessions{job=\"enterprise-docs-api\"}",
+            "legendFormat": "Active Sessions"
+          }
+        ],
+        "sparkline": {
+          "show": true
+        }
+      },
+      {
+        "id": "deployment-status",
+        "title": "Last Deployment",
+        "type": "text",
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 18,
+          "y": 16
+        },
+        "description": "Information about the most recent deployment",
+        "content": "Sprint 3 Complete - Comprehensive Retrospective Analysis\\n\\nLast Deploy: 2025-07-28\\nVersion: v0.0.13-alpha\\nStatus: ✅ Stable\\nUptime: 99.9%"
+      },
+      {
+        "id": "maintenance-schedule",
+        "title": "Maintenance Schedule & Alerts",
+        "type": "table",
+        "gridPos": {
+          "h": 6,
+          "w": 12,
+          "x": 0,
+          "y": 20
+        },
+        "description": "Upcoming maintenance activities and system alerts",
+        "columns": [
+          {
+            "field": "scheduled_time",
+            "displayName": "Scheduled Time"
+          },
+          {
+            "field": "maintenance_type",
+            "displayName": "Type"
+          },
+          {
+            "field": "estimated_duration",
+            "displayName": "Duration"
+          },
+          {
+            "field": "impact",
+            "displayName": "Impact"
+          },
+          {
+            "field": "responsible_team",
+            "displayName": "Team"
+          }
+        ]
+      },
+      {
+        "id": "system-logs",
+        "title": "Recent System Events",
+        "type": "logs",
+        "gridPos": {
+          "h": 6,
+          "w": 12,
+          "x": 12,
+          "y": 20
+        },
+        "description": "Recent system events and alerts from the last hour",
+        "targets": [
+          {
+            "expr": "{job=\"enterprise-docs\"} |= \"ERROR\" or \"WARNING\" or \"CRITICAL\"",
+            "legendFormat": ""
+          }
+        ],
+        "options": {
+          "showTime": true,
+          "showLabels": false,
+          "showCommonLabels": false,
+          "wrapLogMessage": true,
+          "sortOrder": "Descending"
+        }
+      }
+    ],
+    "templating": {
+      "list": [
+        {
+          "name": "environment",
+          "type": "constant",
+          "current": {
+            "value": "development",
+            "text": "development"
+          },
+          "options": [
+            {
+              "value": "development",
+              "text": "development"
+            },
+            {
+              "value": "production",
+              "text": "production"
+            }
+          ]
+        },
+        {
+          "name": "time_range",
+          "type": "interval",
+          "current": {
+            "value": "5m",
+            "text": "5m"
+          },
+          "options": [
+            {
+              "value": "1m",
+              "text": "1m"
+            },
+            {
+              "value": "5m",
+              "text": "5m"
+            },
+            {
+              "value": "15m",
+              "text": "15m"
+            },
+            {
+              "value": "1h",
+              "text": "1h"
+            }
+          ]
+        }
+      ]
+    },
+    "annotations": {
+      "list": [
+        {
+          "name": "Deployments",
+          "enable": true,
+          "iconColor": "green",
+          "query": "deployment_events{job=\"enterprise-docs\"}",
+          "textFormat": "Deployment: {{version}}"
+        },
+        {
+          "name": "Maintenance",
+          "enable": true,
+          "iconColor": "blue",
+          "query": "maintenance_events{job=\"enterprise-docs\"}",
+          "textFormat": "Maintenance: {{type}}"
+        },
+        {
+          "name": "Incidents",
+          "enable": true,
+          "iconColor": "red",
+          "query": "incident_events{job=\"enterprise-docs\"}",
+          "textFormat": "Incident: {{severity}} - {{description}}"
+        }
+      ]
+    }
+  },
+  "alerts": [
+    {
+      "name": "High CPU Usage",
+      "condition": "avg(cpu_usage_percent) > 80",
+      "frequency": "1m",
+      "severity": "warning",
+      "message": "System CPU usage is above 80% for more than 1 minute",
+      "actions": [
+        "notify_team_maintenance_coordinator",
+        "trigger_auto_scaling_if_available"
+      ]
+    },
+    {
+      "name": "High Memory Usage",
+      "condition": "avg(memory_usage_percent) > 85",
+      "frequency": "30s",
+      "severity": "critical",
+      "message": "System memory usage is above 85%",
+      "actions": [
+        "immediate_alert_all_teams",
+        "trigger_memory_cleanup_procedures"
+      ]
+    },
+    {
+      "name": "Database Connection Pool Exhaustion",
+      "condition": "postgresql_connections_active / postgresql_connections_max > 0.9",
+      "frequency": "30s",
+      "severity": "critical",
+      "message": "Database connection pool is 90% utilized",
+      "actions": [
+        "alert_backend_team",
+        "scale_connection_pool_if_possible"
+      ]
+    },
+    {
+      "name": "API High Response Time",
+      "condition": "avg(http_request_duration_seconds) > 5",
+      "frequency": "1m",
+      "severity": "warning", 
+      "message": "API average response time is above 5 seconds",
+      "actions": [
+        "alert_backend_team",
+        "investigate_performance_bottlenecks"
+      ]
+    },
+    {
+      "name": "Container Health Check Failure",
+      "condition": "container_health_status == 0",
+      "frequency": "30s",
+      "severity": "critical",
+      "message": "One or more containers failed health checks",
+      "actions": [
+        "immediate_alert_devops_team",
+        "attempt_container_restart"
+      ]
+    },
+    {
+      "name": "Disk Space Low",
+      "condition": "disk_usage_percent > 90",
+      "frequency": "5m",
+      "severity": "warning",
+      "message": "Disk usage is above 90%",
+      "actions": [
+        "alert_maintenance_coordinator",
+        "trigger_cleanup_procedures"
+      ]
+    },
+    {
+      "name": "High Error Rate",
+      "condition": "rate(http_requests_total{code=~\"5..\"}[5m]) > 0.1",
+      "frequency": "1m",
+      "severity": "critical",
+      "message": "Server error rate is above 0.1 requests/sec",
+      "actions": [
+        "immediate_alert_all_teams",
+        "capture_diagnostic_data"
+      ]
+    }
+  ],
+  "notification_channels": [
+    {
+      "name": "slack_system_alerts",
+      "type": "slack",
+      "webhook_url": "${SLACK_WEBHOOK_URL}",
+      "channel": "#system-health-alerts",
+      "title": "System Alert: {{alert_name}}",
+      "text": "{{alert_message}}\\n\\nSeverity: {{severity}}\\nTime: {{time}}\\nDashboard: {{dashboard_url}}"
+    },
+    {
+      "name": "email_critical_alerts",
+      "type": "email",
+      "addresses": [
+        "system-maintenance-coordinator@enterprisedocs.local",
+        "devops-lead@enterprisedocs.local"
+      ],
+      "subject": "CRITICAL: {{alert_name}}",
+      "body": "Critical system alert detected:\\n\\n{{alert_message}}\\n\\nImmediate attention required.\\n\\nDashboard: {{dashboard_url}}"
+    }
+  ],
+  "monitoring_targets": [
+    {
+      "job": "enterprise-docs-api",
+      "targets": ["localhost:5001/metrics"],
+      "metrics": [
+        "http_requests_total",
+        "http_request_duration_seconds",
+        "active_user_sessions",
+        "database_query_duration_seconds"
+      ]
+    },
+    {
+      "job": "enterprise-docs-db",
+      "targets": ["localhost:5432/metrics"],
+      "metrics": [
+        "postgresql_connections_active",
+        "postgresql_connections_idle",
+        "postgresql_connections_max",
+        "postgresql_query_duration_seconds"
+      ]
+    },
+    {
+      "job": "enterprise-docs-cache",
+      "targets": ["localhost:6379/metrics"],
+      "metrics": [
+        "redis_cache_hit_ratio",
+        "redis_memory_usage_bytes",
+        "redis_connected_clients"
+      ]
+    },
+    {
+      "job": "enterprise-docs-search",
+      "targets": ["localhost:9200/_prometheus/metrics"],
+      "metrics": [
+        "elasticsearch_query_time_avg",
+        "elasticsearch_index_health",
+        "elasticsearch_cluster_status"
+      ]
+    }
+  ],
+  "configuration": {
+    "refresh_interval": "30s",
+    "data_retention": "30d",
+    "alert_evaluation_interval": "30s",
+    "dashboard_theme": "dark",
+    "timezone": "UTC",
+    "default_time_range": "1h"
+  },
+  "maintenance_info": {
+    "created_by": "team-p8-system-maintenance-coordinator",
+    "created_date": "2025-07-29",
+    "version": "1.0.0",
+    "update_frequency": "weekly",
+    "review_schedule": "every Sprint retrospective"
+  }
+}

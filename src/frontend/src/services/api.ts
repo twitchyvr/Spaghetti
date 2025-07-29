@@ -23,8 +23,8 @@ async function fetchApi<T>(
     'Content-Type': 'application/json',
   };
 
-  // Add auth token if available
-  const token = localStorage.getItem('authToken');
+  // Add auth token if available (check both storage types)
+  const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
   if (token) {
     defaultHeaders['Authorization'] = `Bearer ${token}`;
   }
@@ -985,4 +985,9 @@ export default {
   health: healthApi,
   platformAdmin: platformAdminApi,
   clientManagement: clientManagementApi,
+  // Add HTTP client methods for compatibility
+  get: httpClient.get,
+  post: httpClient.post,
+  put: httpClient.put,
+  delete: httpClient.delete,
 };

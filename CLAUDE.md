@@ -16,6 +16,7 @@ Enterprise Documentation Platform - A comprehensive AI-powered document generati
 ## Technology Stack
 
 ### Backend (.NET Core 8)
+
 - **API**: ASP.NET Core Web API with Swagger/OpenAPI documentation
 - **Database**: PostgreSQL with Entity Framework Core
 - **Caching**: Redis for session management and performance
@@ -24,6 +25,7 @@ Enterprise Documentation Platform - A comprehensive AI-powered document generati
 - **Architecture**: Repository Pattern with Unit of Work, Clean Architecture principles
 
 ### Frontend (React 18 + TypeScript)
+
 - **Framework**: React 18 with TypeScript for type safety
 - **Build**: Vite for fast development and optimized production builds (966ms build time)
 - **Styling**: Tailwind CSS with modern enterprise design patterns
@@ -33,6 +35,7 @@ Enterprise Documentation Platform - A comprehensive AI-powered document generati
 - **Database Admin**: Comprehensive admin interface with tabbed navigation for database management
 
 ### Infrastructure
+
 - **Containerization**: Docker with multi-stage builds
 - **Orchestration**: Docker Compose for development, Kubernetes for production
 - **Reverse Proxy**: Nginx with SSL termination and load balancing
@@ -40,6 +43,7 @@ Enterprise Documentation Platform - A comprehensive AI-powered document generati
 - **Database Admin**: pgAdmin for PostgreSQL management
 
 ### Testing & Quality
+
 - **Unit Testing**: xUnit with FluentAssertions and Moq
 - **Integration Testing**: In-memory database testing with realistic data
 - **Test Data**: AutoFixture and Bogus for comprehensive test scenarios
@@ -48,18 +52,21 @@ Enterprise Documentation Platform - A comprehensive AI-powered document generati
 ## Multi-Tenant Architecture
 
 ### Tenant Isolation
+
 - **Database**: Row-level security with tenant-specific data isolation
 - **Authentication**: Tenant-aware JWT tokens with role-based permissions
 - **File Storage**: Tenant-specific blob storage containers
 - **Caching**: Tenant-prefixed cache keys for data isolation
 
 ### Deployment Scenarios
+
 1. **SaaS Multi-Tenant**: Single deployment serving multiple organizations
 2. **Enterprise Single-Tenant**: Dedicated instance for large organizations
 3. **On-Premises**: Air-gapped deployment for high-security environments
 4. **Hybrid Cloud**: Mix of cloud and on-premises components
 
 ### Security & Compliance
+
 - **Data Encryption**: AES-256 encryption at rest and in transit
 - **Compliance**: SOC 2, GDPR, HIPAA, ISO 27001 ready
 - **Audit Trails**: Comprehensive logging of all user actions
@@ -68,12 +75,14 @@ Enterprise Documentation Platform - A comprehensive AI-powered document generati
 ## Development Environment Setup
 
 ### Prerequisites
+
 - Docker Desktop 4.15+ with Compose V2
 - .NET 8 SDK
 - Node.js 18+ with npm
 - Git with conventional commit practices
 
 ### Quick Start
+
 ```bash
 # Clone and start development environment
 git clone <repository-url>
@@ -90,16 +99,18 @@ npm run dev
 ```
 
 ### Development Services
-- **API**: http://localhost:5001 (Swagger UI at /swagger)
-- **Frontend**: http://localhost:3001 (Vite dev server with HMR)
+
+- **API**: <http://localhost:5001> (Swagger UI at /swagger)
+- **Frontend**: <http://localhost:3001> (Vite dev server with HMR)
 - **Database**: PostgreSQL on localhost:5432
 - **Redis**: localhost:6379
-- **Elasticsearch**: http://localhost:9200
-- **pgAdmin**: http://localhost:8080
-- **Grafana**: http://localhost:3001
+- **Elasticsearch**: <http://localhost:9200>
+- **pgAdmin**: <http://localhost:8080>
+- **Grafana**: <http://localhost:3001>
 
 ### Local Testing Verification
-- Frontend serves successfully on http://localhost:3001 with React DevTools support
+
+- Frontend serves successfully on <http://localhost:3001> with React DevTools support
 - Professional dashboard displays with sample data and modern UI components
 - All TypeScript compilation passes without errors
 - Build completes in ~966ms with optimized output
@@ -123,6 +134,7 @@ npm run dev
 ### ✅ COMPLETED MILESTONE: Complete API Integration
 
 #### 🏗️ Enterprise Foundation Established
+
 We have successfully achieved **enterprise-platform level architecture** comparable to Salesforce, Workday, ServiceNow foundations:
 
 1. **Full-Stack API Integration** ✅
@@ -150,6 +162,7 @@ We have successfully achieved **enterprise-platform level architecture** compara
 ### 🎯 Available API Endpoints (Production Ready)
 
 #### Database Management APIs
+
 ```bash
 # Get database statistics and health
 GET /api/admin/database-stats
@@ -168,7 +181,9 @@ POST /api/admin/create-admin-user
 ```
 
 #### Sample Data Content
+
 When seeded, creates:
+
 - **3 Demo Tenants**: Acme Legal (Professional), TechStart (Trial), Global Consulting (Enterprise)
 - **8 Realistic Users**: Legal professionals, tech founders, consulting directors
 - **7 Sample Documents**: Contracts, PRDs, strategy docs with industry-specific content
@@ -196,6 +211,7 @@ When seeded, creates:
 ## Development Best Practices
 
 ### Critical Workflow Requirements
+
 - **MANDATORY**: For ANY changes, including desktop app window updates:
   - Always git commit changes with conventional commit messages
   - Create necessary feature branches
@@ -209,16 +225,19 @@ When seeded, creates:
   - **Execute these steps EVERY SINGLE TIME you make updates**
 
 ### Code Quality Standards
+
 1. **Before Coding**: Update todo list and mark tasks as in_progress
 2. **During Development**: Follow repository patterns and clean architecture
 3. **Local Testing**: ALWAYS test locally (npm run dev, docker-compose up) before committing
-4. **Build Verification**: Ensure TypeScript compilation passes (npm run build) 
+4. **Build Verification**: Ensure TypeScript compilation passes (npm run build)
 5. **Code Review**: Ensure proper error handling and logging
 6. **Documentation**: Update CLAUDE.md and README.md for significant changes
 7. **Commit**: Use conventional commit messages with frequent commits
 
 ### CSS and Styling Guidelines
+
 **CRITICAL**: Use consistent styling approaches - DO NOT mix inline styles with CSS classes
+
 1. **Primary Approach**: Use Tailwind CSS utility classes for all styling
 2. **Custom Styles**: Only use custom CSS classes when Tailwind utilities are insufficient
 3. **NO INLINE STYLES**: Never mix inline style objects with className-based styling
@@ -227,6 +246,7 @@ When seeded, creates:
 6. **Theme System**: Respect the existing theme.css variable system when using custom CSS
 
 ### Testing Strategy
+
 ```bash
 # Run all tests
 dotnet test
@@ -242,6 +262,7 @@ docker-compose -f docker-compose.test.yml up --build
 ```
 
 ### Database Migrations
+
 ```bash
 # Add new migration
 dotnet ef migrations add MigrationName --project src/core/infrastructure
@@ -254,6 +275,7 @@ dotnet ef migrations script --project src/core/infrastructure
 ```
 
 ### Performance & Security
+
 - All database queries use parameterized statements
 - Implement caching strategies for frequently accessed data
 - Use async/await patterns for all I/O operations
@@ -264,11 +286,13 @@ dotnet ef migrations script --project src/core/infrastructure
 ## Repository Pattern Implementation
 
 ### Core Interfaces
+
 - `IRepository<TEntity, TKey>`: Generic CRUD operations with pagination
 - `IUnitOfWork`: Transaction management and repository coordination
 - Domain-specific repositories: `IDocumentRepository`, `IUserRepository`, etc.
 
 ### Testing Approach
+
 - In-memory database for unit tests
 - Realistic test data using AutoFixture and Bogus
 - Comprehensive coverage of repository methods
@@ -276,27 +300,31 @@ dotnet ef migrations script --project src/core/infrastructure
 - Concurrent access scenarios
 
 ### Error Handling
+
 - Structured logging with Serilog
 - Custom exceptions for business logic violations
 - Automatic retry policies for transient failures
-- Circuit breaker patterns for external service calls 
+- Circuit breaker patterns for external service calls
 - Graceful degradation for non-critical features
 
 ## Development Best Practices
+
 - Every change needs a git commit and a matching doc update. Leave a clear trail for code, reviews, tests, and all enhancements.
 - Use feature flags for incomplete features to avoid breaking changes
 - Regularly update dependencies and monitor for security vulnerabilities
 - Use semantic versioning for releases
 - Maintain a clean and organized codebase with consistent formatting
 - Use pull requests for all changes, with at least one reviewer
-- Keep the codebase modular and decoupled to facilitate testing and maintenance 
+- Keep the codebase modular and decoupled to facilitate testing and maintenance
 - Use environment variables for configuration to avoid hardcoding sensitive data
 - Regularly back up critical data and configurations
 - Always build and test the docker build locally before committing to git and pushing to origin, but do that every single time.
 
 ## Version History Tracking
+
 - Maintain a `CHANGELOG.md` file to track all changes, features, and bug fixes
 - Use the following format for entries:
+
 ```markdown
 ## [Unreleased] 
 ### Added
@@ -306,9 +334,11 @@ dotnet ef migrations script --project src/core/infrastructure
 ### Fixed
 - Description of bug fixes
 ```
+
 - Ensure each entry is linked to a specific commit or pull request for traceability
 
 # Important Instruction Reminders
+
 Do what has been asked; nothing more, nothing less.
 NEVER create files unless they're absolutely necessary for achieving your goal.
 ALWAYS prefer editing an existing file to creating a new one.

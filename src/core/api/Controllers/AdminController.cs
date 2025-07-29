@@ -26,6 +26,33 @@ public class AdminController : ControllerBase
     }
 
     /// <summary>
+    /// Health check endpoint for Docker container monitoring
+    /// </summary>
+    [HttpGet("health")]
+    [AllowAnonymous] // Allow anonymous access for health checks
+    public IActionResult Health()
+    {
+        try
+        {
+            // Basic health check - verify database connectivity
+            var canConnect = _context.Database.CanConnect();
+            if (canConnect)
+            {
+                return Ok(new { status = "healthy", timestamp = DateTime.UtcNow, database = "connected" });
+            }
+            else
+            {
+                return StatusCode(503, new { status = "unhealthy", timestamp = DateTime.UtcNow, database = "disconnected" });
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Health check failed");
+            return StatusCode(503, new { status = "unhealthy", timestamp = DateTime.UtcNow, error = ex.Message });
+        }
+    }
+
+    /// <summary>
     /// Seeds the database with comprehensive sample data for demo purposes
     /// </summary>
     [HttpPost("seed-sample-data")]
