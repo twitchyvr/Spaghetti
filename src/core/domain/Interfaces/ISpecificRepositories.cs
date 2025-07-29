@@ -226,12 +226,20 @@ public interface IRefreshTokenRepository : IRepository<RefreshToken, Guid>
 {
     // RefreshToken-specific queries
     Task<RefreshToken?> GetByTokenAsync(string token, CancellationToken cancellationToken = default);
-    Task<IEnumerable<RefreshToken>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
     Task<IEnumerable<RefreshToken>> GetActiveByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
-    Task<IEnumerable<RefreshToken>> GetExpiredTokensAsync(CancellationToken cancellationToken = default);
+    Task<IEnumerable<RefreshToken>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
     
+    // Token validation and management
     Task<bool> IsTokenValidAsync(string token, CancellationToken cancellationToken = default);
     Task<bool> RevokeTokenAsync(string token, string? revokedByIp = null, string? reason = null, CancellationToken cancellationToken = default);
     Task<int> RevokeAllUserTokensAsync(Guid userId, string? revokedByIp = null, string? reason = null, CancellationToken cancellationToken = default);
+    
+    // Cleanup operations
     Task<int> DeleteExpiredTokensAsync(CancellationToken cancellationToken = default);
+    Task<int> DeleteRevokedTokensOlderThanAsync(DateTime cutoffDate, CancellationToken cancellationToken = default);
+    
+    // Security and audit queries
+    Task<IEnumerable<RefreshToken>> GetTokensByIpAsync(string ipAddress, CancellationToken cancellationToken = default);
+    Task<IEnumerable<RefreshToken>> GetExpiredTokensAsync(CancellationToken cancellationToken = default);
+    Task<IEnumerable<RefreshToken>> GetRevokedTokensAsync(CancellationToken cancellationToken = default);
 }
