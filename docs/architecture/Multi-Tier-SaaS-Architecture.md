@@ -1,14 +1,17 @@
 # Spaghetti Platform: Multi-Tier SaaS Architecture
+
 **Complete White-Label Enterprise Documentation Platform**
 
 ## 🏗️ Multi-Level Enterprise Platform Architecture
 
 ### Tier 1: Platform Administration (Spaghetti Team)
+
 **URL**: `admin.spaghetti.platform` or `app.spaghetti.platform/platform-admin`
 
 **Users**: Platform developers, sales team, customer success, billing team
 
 **Core Capabilities**:
+
 - **Client Management**: Create, configure, and manage all tenant organizations
 - **Licensing Control**: Assign and modify subscription tiers (Trial → Enterprise)
 - **Revenue Dashboard**: ARR, MRR, usage analytics, payment status across all clients
@@ -17,6 +20,7 @@
 - **Global Analytics**: Cross-tenant usage patterns, feature adoption, churn analysis
 
 **Key Metrics Displayed**:
+
 - Total platform revenue (ARR/MRR)
 - Number of active client organizations
 - Total users across all tenants
@@ -25,11 +29,13 @@
 - Support ticket volume and resolution times
 
 ### Tier 2: Client Administration (Enterprise Organizations)
+
 **URL**: `{tenant}.spaghetti.app/admin` or `client-portal.{tenant}.com/admin`
 
 **Users**: Client organization admins, IT managers, billing contacts
 
 **Core Capabilities**:
+
 - **Tenant Management**: Create and manage multiple organizational units (subsidiaries, divisions, practice areas)
 - **Cross-Tenant Analytics**: Usage, collaboration, and performance across all their tenants
 - **Subscription Control**: Allocate licenses and features across their tenant ecosystem
@@ -38,6 +44,7 @@
 - **Security & Compliance**: Enterprise-wide policies, audit trails, and regulatory compliance
 
 **Key Metrics Displayed**:
+
 - Documents created this month vs plan limits
 - Active users vs licensed seats
 - Storage used vs allocated quota
@@ -46,11 +53,13 @@
 - Cost breakdown and next billing date
 
 ### Tier 3: End User Application (Individual Contributors)
+
 **URL**: `{tenant}.spaghetti.app` or `docs.{tenant}.com`
 
 **Users**: Lawyers, consultants, employees, content creators
 
 **Core Capabilities**:
+
 - **Document Creation**: Rich editor with AI assistance and templates
 - **Collaboration**: Comments, reviews, shared workspaces, version control
 - **Personal Dashboard**: Recent documents, assigned tasks, activity feed
@@ -59,6 +68,7 @@
 - **Time Tracking**: Billable time tracking for legal professionals
 
 **Key Metrics Displayed**:
+
 - Personal document creation and collaboration stats
 - Time tracked on client matters (legal industry)
 - Recent activity and document updates
@@ -66,11 +76,13 @@
 - Team collaboration metrics
 
 ### Tier 4: Public Documentation Portal
+
 **URL**: `docs.{tenant}.com` or `{tenant}.com/docs` or custom domain
 
 **Users**: Public visitors, prospective clients, guest users
 
 **Core Capabilities**:
+
 - **Public Document Access**: SEO-optimized documentation sites
 - **Guest User Tracking**: Anonymous analytics and engagement metrics
 - **Access Controls**: Public, email-required, password-protected, IP-restricted
@@ -81,6 +93,7 @@
 ## 🔐 Role-Based Access Control System
 
 ### Platform-Level Roles (Cross-Tenant)
+
 ```yaml
 Platform Admin:
   - Full platform access
@@ -103,6 +116,7 @@ Platform Developer:
 ```
 
 ### Tenant-Level Roles (Organization Specific)
+
 ```yaml
 Client Admin:
   - Manage organization users
@@ -130,6 +144,7 @@ Client Guest:
 ```
 
 ### Public Access Roles
+
 ```yaml
 Public Viewer:
   - View public documents
@@ -147,14 +162,17 @@ Authenticated Public User:
 ## 🌐 Public Documentation Architecture
 
 ### White-Label Public Portals
+
 Each client can have a fully branded public documentation site:
 
 **Custom Domain Options**:
+
 - `docs.clientcompany.com` (preferred for SEO)
 - `clientcompany.com/docs` (subdirectory)
 - `client-docs.spaghetti.app` (fallback)
 
 **Features**:
+
 - **SEO Optimization**: Meta tags, structured data, sitemap generation
 - **Custom Branding**: Client logo, colors, fonts, custom CSS
 - **Access Controls**: Public, gated (email required), password protected
@@ -163,6 +181,7 @@ Each client can have a fully branded public documentation site:
 - **Search**: Public document search with autocomplete
 
 ### Public Document Access Levels
+
 ```yaml
 Private:
   - Only authenticated users with explicit permissions
@@ -198,6 +217,7 @@ Password Protected:
 ## 📊 Multi-Tier Analytics & KPIs
 
 ### Platform Admin KPIs (Spaghetti Team)
+
 ```yaml
 Business Metrics:
   - Monthly Recurring Revenue (MRR)
@@ -222,6 +242,7 @@ Growth Metrics:
 ```
 
 ### Client Admin KPIs (Tenant Organizations)
+
 ```yaml
 Usage Metrics:
   - Documents created vs plan limits
@@ -244,6 +265,7 @@ Business Impact:
 ```
 
 ### End User KPIs (Individual Contributors)
+
 ```yaml
 Personal Productivity:
   - Documents created per month
@@ -267,9 +289,11 @@ Team Collaboration:
 ## 🔄 Development Priority & Implementation Order
 
 ### Phase 1: Platform Foundation (Weeks 1-4)
+
 **CRITICAL FOR CLIENT ONBOARDING**
 
 1. **Transform Current Dashboard** → Platform Admin Dashboard
+
    ```yaml
    Current State: Mixed admin/user dashboard
    Target State: Pure platform administration interface
@@ -281,6 +305,7 @@ Team Collaboration:
    ```
 
 2. **Multi-Tenant Authentication & Security**
+
    ```yaml
    Features:
      - Platform admin vs client user authentication
@@ -290,6 +315,7 @@ Team Collaboration:
    ```
 
 3. **Client Onboarding Workflow**
+
    ```yaml
    Automation:
      - New tenant setup process
@@ -299,9 +325,11 @@ Team Collaboration:
    ```
 
 ### Phase 2: Client Admin Interface (Weeks 5-8)
+
 **REQUIRED FOR CLIENT SELF-SERVICE**
 
 1. **Client Admin Dashboard Creation**
+
    ```yaml
    New Interface:
      - Organization overview and metrics
@@ -311,6 +339,7 @@ Team Collaboration:
    ```
 
 2. **Public Portal Management**
+
    ```yaml
    Features:
      - Public documentation site configuration
@@ -320,9 +349,11 @@ Team Collaboration:
    ```
 
 ### Phase 3: Enhanced End User Experience (Weeks 9-12)
+
 **CORE PRODUCT DIFFERENTIATION**
 
 1. **Advanced Document Features**
+
    ```yaml
    Capabilities:
      - Public publishing with access controls
@@ -332,6 +363,7 @@ Team Collaboration:
    ```
 
 2. **Public Portal Frontend**
+
    ```yaml
    Public-Facing Features:
      - SEO-optimized document rendering
@@ -341,6 +373,7 @@ Team Collaboration:
    ```
 
 ### Phase 4: Enterprise Features (Weeks 13-16)
+
 **COMPETITIVE MOAT**
 
 1. **Advanced Analytics & Insights**

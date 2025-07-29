@@ -19,6 +19,7 @@ All endpoints require `System Administrator` role authorization except where not
 ### Database Statistics
 
 #### Get Database Statistics
+
 Retrieve comprehensive database health and entity counts.
 
 ```http
@@ -28,6 +29,7 @@ GET /api/admin/database-stats
 **Authorization:** `[AllowAnonymous]` - Available for health checks
 
 **Response:**
+
 ```json
 {
   "tenants": 3,
@@ -49,6 +51,7 @@ GET /api/admin/database-stats
 ### Sample Data Management
 
 #### Check Sample Data Status
+
 Verify if sample data exists in the database.
 
 ```http
@@ -58,6 +61,7 @@ GET /api/admin/sample-data-status
 **Authorization:** `[AllowAnonymous]` - Available for status checks
 
 **Response:**
+
 ```json
 {
   "hasSampleData": true,
@@ -70,6 +74,7 @@ GET /api/admin/sample-data-status
 ```
 
 #### Seed Sample Data
+
 Populate the database with comprehensive sample data for demonstration purposes.
 
 ```http
@@ -79,6 +84,7 @@ POST /api/admin/seed-sample-data
 **Authorization:** `System Administrator` required
 
 **Response (Success):**
+
 ```json
 {
   "message": "Sample data seeded successfully",
@@ -87,6 +93,7 @@ POST /api/admin/seed-sample-data
 ```
 
 **Response (Error):**
+
 ```json
 {
   "error": "Failed to seed sample data",
@@ -95,6 +102,7 @@ POST /api/admin/seed-sample-data
 ```
 
 **Sample Data Created:**
+
 - **3 Demo Tenants**: Different tiers and industries
 - **8 Professional Users**: Realistic profiles and roles
 - **7 Sample Documents**: Industry-specific content
@@ -105,6 +113,7 @@ POST /api/admin/seed-sample-data
 ### Production Management
 
 #### Clear All Data
+
 Remove all data from the database for production deployment preparation.
 
 ```http
@@ -114,9 +123,11 @@ DELETE /api/admin/clear-all-data?confirmationToken=CONFIRM_DELETE_ALL_DATA
 **Authorization:** `System Administrator` required
 
 **Parameters:**
+
 - `confirmationToken` (required): Must be exactly `CONFIRM_DELETE_ALL_DATA`
 
 **Response (Success):**
+
 ```json
 {
   "message": "All data cleared successfully",
@@ -125,6 +136,7 @@ DELETE /api/admin/clear-all-data?confirmationToken=CONFIRM_DELETE_ALL_DATA
 ```
 
 **Response (Invalid Token):**
+
 ```json
 {
   "error": "Invalid confirmation token. Use 'CONFIRM_DELETE_ALL_DATA' to confirm."
@@ -132,6 +144,7 @@ DELETE /api/admin/clear-all-data?confirmationToken=CONFIRM_DELETE_ALL_DATA
 ```
 
 **⚠️ Warning:** This operation deletes ALL data except system roles:
+
 - All tenants and tenant-specific data
 - All users and user authentication
 - All documents and attachments
@@ -143,6 +156,7 @@ System roles (System Administrator, Tenant Administrator, User) are preserved.
 ### User Management
 
 #### Create Admin User
+
 Create an initial administrator user for production environments.
 
 ```http
@@ -152,6 +166,7 @@ POST /api/admin/create-admin-user
 **Authorization:** `[AllowAnonymous]` - Only allowed on empty database
 
 **Request Body:**
+
 ```json
 {
   "email": "admin@company.com",
@@ -161,6 +176,7 @@ POST /api/admin/create-admin-user
 ```
 
 **Response (Success):**
+
 ```json
 {
   "message": "Admin user created successfully",
@@ -171,6 +187,7 @@ POST /api/admin/create-admin-user
 ```
 
 **Response (Database Not Empty):**
+
 ```json
 {
   "error": "Admin user creation only allowed on empty database"
@@ -178,6 +195,7 @@ POST /api/admin/create-admin-user
 ```
 
 **Response (Validation Error):**
+
 ```json
 {
   "error": "Email, FirstName, and LastName are required"
@@ -189,6 +207,7 @@ POST /api/admin/create-admin-user
 ### Demo Tenants
 
 #### Acme Legal Services
+
 - **Tier:** Professional
 - **Status:** Active
 - **Industry:** Legal
@@ -197,6 +216,7 @@ POST /api/admin/create-admin-user
 - **Features:** MFA required, AI features enabled, SOC2/ISO27001 compliance
 
 #### TechStart Inc
+
 - **Tier:** Starter (Trial)
 - **Status:** Trial
 - **Industry:** Technology
@@ -205,6 +225,7 @@ POST /api/admin/create-admin-user
 - **Features:** AI enabled, GDPR compliance, 14-day trial
 
 #### Global Consulting Group
+
 - **Tier:** Enterprise
 - **Status:** Active
 - **Industry:** Consulting
@@ -215,6 +236,7 @@ POST /api/admin/create-admin-user
 ### Sample Documents
 
 Each document includes:
+
 - **Realistic content** specific to the industry
 - **Metadata** with keywords, summaries, word counts
 - **AI processing metadata** with confidence scores
@@ -226,11 +248,13 @@ Each document includes:
 ### User Roles and Permissions
 
 #### System Roles
+
 - **System Administrator:** Full platform access
 - **Tenant Administrator:** Tenant-specific admin rights
 - **User:** Standard document access
 
 #### Permission Structure
+
 - **Document Permissions:** Read, Write, Comment, Share, Delete, Admin
 - **User Assignments:** Role-based with expiration support
 - **Tenant Isolation:** Complete separation between organizations
@@ -240,17 +264,20 @@ Each document includes:
 ### Development Workflow
 
 1. **Check Current State**
+
    ```bash
    curl GET https://spaghetti-platform-drgev.ondigitalocean.app/api/admin/database-stats
    ```
 
 2. **Seed Development Data**
+
    ```bash
    curl -X POST https://spaghetti-platform-drgev.ondigitalocean.app/api/admin/seed-sample-data \
         -H "Authorization: Bearer <admin-token>"
    ```
 
 3. **Verify Sample Data**
+
    ```bash
    curl GET https://spaghetti-platform-drgev.ondigitalocean.app/api/admin/sample-data-status
    ```
@@ -258,12 +285,14 @@ Each document includes:
 ### Production Deployment
 
 1. **Clear Development Data**
+
    ```bash
    curl -X DELETE "https://spaghetti-platform-drgev.ondigitalocean.app/api/admin/clear-all-data?confirmationToken=CONFIRM_DELETE_ALL_DATA" \
         -H "Authorization: Bearer <admin-token>"
    ```
 
 2. **Create Initial Admin**
+
    ```bash
    curl -X POST https://spaghetti-platform-drgev.ondigitalocean.app/api/admin/create-admin-user \
         -H "Content-Type: application/json" \
@@ -275,6 +304,7 @@ Each document includes:
    ```
 
 3. **Verify Clean State**
+
    ```bash
    curl GET https://spaghetti-platform-drgev.ondigitalocean.app/api/admin/database-stats
    ```
@@ -289,6 +319,7 @@ All endpoints implement comprehensive error handling:
 - **500 Internal Server Error:** Server-side errors with detailed logging
 
 Error responses include:
+
 - Clear error messages
 - Specific validation details
 - Timestamp for debugging

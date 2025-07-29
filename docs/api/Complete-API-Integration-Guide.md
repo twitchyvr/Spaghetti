@@ -39,6 +39,7 @@ The API integration milestone represents the completion of our platform's **foun
 All endpoints are production-ready and tested:
 
 #### GET /api/admin/database-stats
+
 ```typescript
 interface DatabaseStatsResponse {
   totalUsers: number;
@@ -58,6 +59,7 @@ interface DatabaseStatsResponse {
 ```
 
 **Response Example:**
+
 ```json
 {
   "tenants": 0,
@@ -77,6 +79,7 @@ interface DatabaseStatsResponse {
 ```
 
 #### GET /api/admin/sample-data-status
+
 ```typescript
 interface SampleDataStatusResponse {
   hasSampleData: boolean;
@@ -89,7 +92,9 @@ interface SampleDataStatusResponse {
 ```
 
 #### POST /api/admin/seed-sample-data
+
 Seeds comprehensive sample data including:
+
 - **3 Demo Tenants**: Acme Legal (Professional), TechStart (Trial), Global Consulting (Enterprise)
 - **8 Realistic Users**: Legal professionals, tech founders, consulting directors
 - **7 Sample Documents**: Industry-specific content with metadata
@@ -98,6 +103,7 @@ Seeds comprehensive sample data including:
 - **25+ Audit Entries**: Complete activity history
 
 #### DELETE /api/admin/clear-all-data
+
 Clears all data for production deployment (requires confirmation token).
 
 ## Frontend Integration
@@ -107,6 +113,7 @@ Clears all data for production deployment (requires confirmation token).
 Location: `src/frontend/src/services/api.ts`
 
 The service layer provides:
+
 - **Type-safe API contracts** with full TypeScript support
 - **Centralized error handling** with custom ApiError class
 - **Authentication token management** with Bearer token support
@@ -132,12 +139,14 @@ const fetchDashboardData = async () => {
 ### Component Integration
 
 #### Dashboard Component
+
 - **Real-time data loading** from `/api/admin/database-stats`
 - **Loading states and error boundaries** for professional UX
 - **Sample data status indicators** with visual feedback
 - **Database health monitoring** with system status
 
 #### DatabaseAdmin Component  
+
 - **Comprehensive database visualization** with tabbed interface
 - **Real-time statistics** with automatic refresh capabilities
 - **Sample data management** with seed/clear operations
@@ -195,6 +204,7 @@ builder.Services.AddCors(options =>
 Key achievements in database integration:
 
 #### Owned Type Configurations
+
 Fixed complex nested property configurations:
 
 ```csharp
@@ -213,6 +223,7 @@ modelBuilder.Entity<User>()
 ```
 
 #### Multi-tenant Architecture
+
 - **Row-level security** with tenant-aware global query filters
 - **Audit trails** for all entity operations
 - **Complex relationship management** with proper cascade behaviors
@@ -261,7 +272,7 @@ services:
 1. **Start all services**: `docker-compose up -d`
 2. **Run migrations**: `docker-compose exec api dotnet ef database update`
 3. **Start frontend**: `cd src/frontend && npm run dev`
-4. **Access application**: Frontend on http://localhost:3001, API on http://localhost:5001
+4. **Access application**: Frontend on <http://localhost:3001>, API on <http://localhost:5001>
 
 ### Hot Reload Support
 
@@ -322,8 +333,8 @@ docker-compose -f docker-compose.test.yml up --build
 
 ### Manual Testing Checklist
 
-- [ ] Frontend loads on http://localhost:3001
-- [ ] API responds on http://localhost:5001/api/admin/database-stats
+- [ ] Frontend loads on <http://localhost:3001>
+- [ ] API responds on <http://localhost:5001/api/admin/database-stats>
 - [ ] CORS headers present in API responses
 - [ ] Database Admin page displays real data
 - [ ] Sample data seeding works correctly
@@ -334,6 +345,7 @@ docker-compose -f docker-compose.test.yml up --build
 ### Common Issues
 
 #### CORS Errors
+
 ```
 Access to fetch at 'http://localhost:5001/api/admin/database-stats' 
 from origin 'http://localhost:3001' has been blocked by CORS policy
@@ -342,6 +354,7 @@ from origin 'http://localhost:3001' has been blocked by CORS policy
 **Solution**: Verify CORS configuration includes the frontend origin in Program.cs
 
 #### Database Connection Issues
+
 ```
 Unable to resolve service for type 'ApplicationDbContext'
 ```
@@ -349,6 +362,7 @@ Unable to resolve service for type 'ApplicationDbContext'
 **Solution**: Check connection string and ensure PostgreSQL container is running
 
 #### Entity Framework Errors
+
 ```
 The property 'Profile.CustomFields' could not be configured
 ```

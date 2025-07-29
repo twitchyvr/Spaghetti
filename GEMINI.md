@@ -1,6 +1,6 @@
-# CLAUDE.md
+# GEMINI.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Gemini Code (gemini.ai/code) when working with code in this repository.
 
 Your primary responsibility is ensuring agents maintain the INSTRUCTIONS.md file that serves as the operational guide for all other agents in the project ecosystem, including the `developer` agent, `project-manager` agent, `ui-designer` agent, `scrum-master` agent,and `qa-engineer` agent, as well as others that we might create later like the `gitops-engineer` agent.
 
@@ -125,9 +125,9 @@ npm run dev
 - **CRITICAL**: Always build and test Docker locally before committing to prevent deployment failures
 - Use branches for new features or bug fixes, merging into `master` when complete
 - Ensure all code is well-documented and follows best practices for readability and maintainability
-- Document all new features in CLAUDE.md and Version History section of README.md
+- Document all new features in GEMINI.md and Version History section of README.md
 - Use clear, descriptive commit messages following the established pattern
-- Each commit should include the Claude Code attribution footer
+- Each commit should include the Gemini Code attribution footer
 
 ## Current Implementation Status
 
@@ -231,7 +231,7 @@ When seeded, creates:
 3. **Local Testing**: ALWAYS test locally (npm run dev, docker-compose up) before committing
 4. **Build Verification**: Ensure TypeScript compilation passes (npm run build)
 5. **Code Review**: Ensure proper error handling and logging
-6. **Documentation**: Update CLAUDE.md and README.md for significant changes
+6. **Documentation**: Update GEMINI.md and README.md for significant changes
 7. **Commit**: Use conventional commit messages with frequent commits
 
 ### CSS and Styling Guidelines
