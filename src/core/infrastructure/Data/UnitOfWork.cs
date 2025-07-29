@@ -424,6 +424,12 @@ public static class UnitOfWorkExtensions
         services.AddScoped<ITenantAuditEntryRepository, TenantAuditEntryRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         
+        // Health Monitoring Repositories
+        services.AddScoped<ISystemHealthMetricRepository, SystemHealthMetricRepository>();
+        services.AddScoped<IIncidentRepository, IncidentRepository>();
+        services.AddScoped<IIncidentUpdateRepository, IncidentUpdateRepository>();
+        services.AddScoped<IMaintenanceWindowRepository, MaintenanceWindowRepository>();
+        
         return services;
     }
 }

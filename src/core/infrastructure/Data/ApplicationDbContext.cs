@@ -30,6 +30,12 @@ public class ApplicationDbContext : DbContext
     public DbSet<ImpersonationSession> ImpersonationSessions => Set<ImpersonationSession>();
     public DbSet<PlatformAdminAuditLog> PlatformAdminAuditLogs => Set<PlatformAdminAuditLog>();
     
+    // Health Monitoring Entity Sets
+    public DbSet<SystemHealthMetric> SystemHealthMetrics => Set<SystemHealthMetric>();
+    public DbSet<Incident> Incidents => Set<Incident>();
+    public DbSet<IncidentUpdate> IncidentUpdates => Set<IncidentUpdate>();
+    public DbSet<MaintenanceWindow> MaintenanceWindows => Set<MaintenanceWindow>();
+
     // Analytics Entity Sets
     public DbSet<PlatformMetricsDaily> PlatformMetricsDaily => Set<PlatformMetricsDaily>();
     public DbSet<RevenueMetricsMonthly> RevenueMetricsMonthly => Set<RevenueMetricsMonthly>();

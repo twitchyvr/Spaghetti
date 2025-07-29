@@ -7,6 +7,7 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 // Lazy load pages for better performance
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
 const PlatformAdminDashboard = React.lazy(() => import('./pages/PlatformAdminDashboard'));
+const PlatformMonitoringDashboard = React.lazy(() => import('./pages/PlatformMonitoringDashboard'));
 const ClientManagement = React.lazy(() => import('./pages/ClientManagement'));
 const Documents = React.lazy(() => import('./pages/Documents'));
 const DatabaseAdmin = React.lazy(() => import('./pages/DatabaseAdmin'));
@@ -84,14 +85,8 @@ function App() {
                       } 
                     />
                     <Route path="/client-dashboard" element={<Dashboard />} />
-                    <Route 
-                      path="/clients/*" 
-                      element={
-                        <ProtectedRoute requiredRoles={['Admin', 'PlatformAdmin']}>
-                          <ClientManagement />
-                        </ProtectedRoute>
-                      } 
-                    />
+                    <Route path="/clients/*" element={<ClientManagement />} />
+                    <Route path="/monitoring/*" element={<PlatformMonitoringDashboard />} />
                     <Route path="/documents/*" element={<Documents />} />
                     <Route 
                       path="/database/*" 
