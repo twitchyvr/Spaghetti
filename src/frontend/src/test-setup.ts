@@ -105,15 +105,15 @@ const MockWebSocket = vi.fn().mockImplementation((url: string) => ({
   onclose: null,
   onmessage: null,
   onerror: null,
-}));
+})) as any;
 
 // Add static properties to MockWebSocket
-MockWebSocket.CONNECTING = 0;
-MockWebSocket.OPEN = 1;
-MockWebSocket.CLOSING = 2;
-MockWebSocket.CLOSED = 3;
+(MockWebSocket as any).CONNECTING = 0;
+(MockWebSocket as any).OPEN = 1;
+(MockWebSocket as any).CLOSING = 2;
+(MockWebSocket as any).CLOSED = 3;
 
-global.WebSocket = MockWebSocket as any;
+global.WebSocket = MockWebSocket;
 
 
 // Mock console methods for cleaner test output
