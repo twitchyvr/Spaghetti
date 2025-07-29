@@ -222,24 +222,69 @@ public interface ITenantAuditEntryRepository : IRepository<TenantAuditEntry, Gui
     Task<int> DeleteOldEntriesAsync(DateTime beforeDate, CancellationToken cancellationToken = default);
 }
 
-public interface IRefreshTokenRepository : IRepository<RefreshToken, Guid>
+// Health Monitoring Repository Interfaces
+
+public interface ISystemHealthMetricRepository : IRepository<SystemHealthMetric, Guid>
 {
-    // RefreshToken-specific queries
-    Task<RefreshToken?> GetByTokenAsync(string token, CancellationToken cancellationToken = default);
-    Task<IEnumerable<RefreshToken>> GetActiveByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
-    Task<IEnumerable<RefreshToken>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+    // Health metric specific queries
+    Task<IEnumerable<SystemHealthMetric>> GetByServiceNameAsync(string serviceName, CancellationToken cancellationToken = default);
+    Task<IEnumerable<SystemHealthMetric>> GetByDateRangeAsync(DateTime from, DateTime to, CancellationToken cancellationToken = default);
+    Task<IEnumerable<SystemHealthMetric>> GetByServiceAndDateRangeAsync(string serviceName, DateTime from, DateTime to, CancellationToken cancellationToken = default);
+    Task<IEnumerable<SystemHealthMetric>> GetByStatusAsync(HealthStatus status, CancellationToken cancellationToken = default);
+    Task<IEnumerable<SystemHealthMetric>> GetByMetricNameAsync(string metricName, CancellationToken cancellationToken = default);
     
-    // Token validation and management
-    Task<bool> IsTokenValidAsync(string token, CancellationToken cancellationToken = default);
-    Task<bool> RevokeTokenAsync(string token, string? revokedByIp = null, string? reason = null, CancellationToken cancellationToken = default);
-    Task<int> RevokeAllUserTokensAsync(Guid userId, string? revokedByIp = null, string? reason = null, CancellationToken cancellationToken = default);
+    Task<SystemHealthMetric?> GetLatestByServiceAsync(string serviceName, string metricName, CancellationToken cancellationToken = default);
+    Task<IEnumerable<SystemHealthMetric>> GetRecentAsync(int count = 100, CancellationToken cancellationToken = default);
+    Task<IEnumerable<SystemHealthMetric>> GetRecentByServiceAsync(string serviceName, int count = 100, CancellationToken cancellationToken = default);
     
-    // Cleanup operations
-    Task<int> DeleteExpiredTokensAsync(CancellationToken cancellationToken = default);
-    Task<int> DeleteRevokedTokensOlderThanAsync(DateTime cutoffDate, CancellationToken cancellationToken = default);
+    Task<int> DeleteOldMetricsAsync(DateTime beforeDate, CancellationToken cancellationToken = default);
+    Task<IEnumerable<string>> GetDistinctServiceNamesAsync(CancellationToken cancellationToken = default);
+    Task<IEnumerable<string>> GetDistinctMetricNamesAsync(string? serviceName = null, CancellationToken cancellationToken = default);
+}
+
+public interface IIncidentRepository : IRepository<Incident, Guid>
+{
+    // Incident specific queries
+    Task<IEnumerable<Incident>> GetActiveIncidentsAsync(CancellationToken cancellationToken = default);
+    Task<IEnumerable<Incident>> GetByStatusAsync(IncidentStatus status, CancellationToken cancellationToken = default);
+    Task<IEnumerable<Incident>> GetBySeverityAsync(IncidentSeverity severity, CancellationToken cancellationToken = default);
+    Task<IEnumerable<Incident>> GetByAssignedToAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<Incident>> GetByCreatedByAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<Incident>> GetByDateRangeAsync(DateTime from, DateTime to, CancellationToken cancellationToken = default);
     
-    // Security and audit queries
-    Task<IEnumerable<RefreshToken>> GetTokensByIpAsync(string ipAddress, CancellationToken cancellationToken = default);
-    Task<IEnumerable<RefreshToken>> GetExpiredTokensAsync(CancellationToken cancellationToken = default);
-    Task<IEnumerable<RefreshToken>> GetRevokedTokensAsync(CancellationToken cancellationToken = default);
+    Task<IEnumerable<Incident>> GetByAffectedServiceAsync(string serviceName, CancellationToken cancellationToken = default);
+    Task<IEnumerable<Incident>> GetUnresolvedAsync(CancellationToken cancellationToken = default);
+    Task<IEnumerable<Incident>> GetRecentAsync(int count = 50, CancellationToken cancellationToken = default);
+    
+    Task<int> GetActiveIncidentCountAsync(CancellationToken cancellationToken = default);
+    Task<int> GetIncidentCountByStatusAsync(IncidentStatus status, CancellationToken cancellationToken = default);
+    Task<TimeSpan> GetAverageResolutionTimeAsync(IncidentSeverity? severity = null, CancellationToken cancellationToken = default);
+}
+
+public interface IIncidentUpdateRepository : IRepository<IncidentUpdate, Guid>
+{
+    // Incident update specific queries
+    Task<IEnumerable<IncidentUpdate>> GetByIncidentIdAsync(Guid incidentId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<IncidentUpdate>> GetByCreatedByAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<IncidentUpdate>> GetByUpdateTypeAsync(IncidentUpdateType updateType, CancellationToken cancellationToken = default);
+    Task<IEnumerable<IncidentUpdate>> GetByDateRangeAsync(DateTime from, DateTime to, CancellationToken cancellationToken = default);
+    
+    Task<IncidentUpdate?> GetLatestByIncidentIdAsync(Guid incidentId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<IncidentUpdate>> GetRecentAsync(int count = 100, CancellationToken cancellationToken = default);
+    Task<int> DeleteByIncidentIdAsync(Guid incidentId, CancellationToken cancellationToken = default);
+}
+
+public interface IMaintenanceWindowRepository : IRepository<MaintenanceWindow, Guid>
+{
+    // Maintenance window specific queries
+    Task<IEnumerable<MaintenanceWindow>> GetScheduledAsync(CancellationToken cancellationToken = default);
+    Task<IEnumerable<MaintenanceWindow>> GetByStatusAsync(MaintenanceStatus status, CancellationToken cancellationToken = default);
+    Task<IEnumerable<MaintenanceWindow>> GetByTypeAsync(MaintenanceType type, CancellationToken cancellationToken = default);
+    Task<IEnumerable<MaintenanceWindow>> GetByDateRangeAsync(DateTime from, DateTime to, CancellationToken cancellationToken = default);
+    Task<IEnumerable<MaintenanceWindow>> GetByCreatedByAsync(Guid userId, CancellationToken cancellationToken = default);
+    
+    Task<IEnumerable<MaintenanceWindow>> GetActiveMaintenanceAsync(CancellationToken cancellationToken = default);
+    Task<IEnumerable<MaintenanceWindow>> GetUpcomingMaintenanceAsync(TimeSpan withinTimeSpan, CancellationToken cancellationToken = default);
+    Task<IEnumerable<MaintenanceWindow>> GetByAffectedServiceAsync(string serviceName, CancellationToken cancellationToken = default);
+    Task<IEnumerable<MaintenanceWindow>> GetConflictingMaintenanceAsync(DateTime startTime, DateTime endTime, CancellationToken cancellationToken = default);
 }
