@@ -7,6 +7,7 @@ using EnterpriseDocsCore.Domain.Interfaces;
 using EnterpriseDocsCore.API.Extensions;
 using EnterpriseDocsCore.API.Middleware;
 using EnterpriseDocsCore.API.Authorization;
+using EnterpriseDocsCore.API.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -121,9 +122,8 @@ builder.Services.AddUnitOfWork();
 builder.Services.AddScoped<DatabaseSeedingService>();
 
 // Sprint 2: Add search and collaboration services
-// TODO: Implement ElasticsearchService and CollaborationService
-// builder.Services.AddScoped<ISearchService, ElasticsearchService>();
-// builder.Services.AddScoped<ICollaborationService, CollaborationService>();
+builder.Services.AddScoped<ISearchService, ElasticsearchService>();
+builder.Services.AddScoped<ICollaborationService, CollaborationService>();
 
 // Add memory cache (always needed for local caching)
 builder.Services.AddMemoryCache();
@@ -150,6 +150,11 @@ if (!string.IsNullOrEmpty(redisConnection))
     {
         options.Configuration = redisConnection;
     });
+}
+else
+{
+    // Fallback to in-memory cache when Redis is not available
+    builder.Services.AddDistributedMemoryCache();
 }
 
 // Configure CORS for frontend
@@ -219,7 +224,7 @@ app.MapGet("/health/detailed", async (ApplicationDbContext context) =>
 }).AllowAnonymous();
 
 // Sprint 2: Map SignalR hubs for real-time collaboration
-app.MapHub<EnterpriseDocsCore.API.Hubs.DocumentCollaborationHub>("/hubs/collaboration");
+app.MapHub<DocumentHub>("/hubs/collaboration");
 
 // Temporarily disable module initialization
 // TODO: Re-enable after fixing module system

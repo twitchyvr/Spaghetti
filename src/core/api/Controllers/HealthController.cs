@@ -84,7 +84,8 @@ public class HealthController : ControllerBase
                 }
             };
 
-            var overallHealthy = healthStatus.components.database.healthy;
+            var databaseComponent = (dynamic)healthStatus.components.database;
+            var overallHealthy = databaseComponent.healthy;
             
             if (overallHealthy)
             {
