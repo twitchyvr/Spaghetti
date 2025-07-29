@@ -12,6 +12,7 @@ const Documents = React.lazy(() => import('./pages/Documents'));
 const DatabaseAdmin = React.lazy(() => import('./pages/DatabaseAdmin'));
 const Login = React.lazy(() => import('./pages/Login'));
 const Settings = React.lazy(() => import('./pages/Settings'));
+const Profile = React.lazy(() => import('./pages/Profile'));
 const NotFound = React.lazy(() => import('./pages/NotFound'));
 
 // Layout components
@@ -101,6 +102,7 @@ function App() {
                       } 
                     />
                     <Route path="/settings/*" element={<Settings />} />
+                    <Route path="/profile" element={<Profile />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </AppLayout>

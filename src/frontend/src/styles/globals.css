@@ -162,6 +162,13 @@
 
 /* Custom Component Styles */
 @layer components {
+  /* Header Action Button Styles */
+  .header-action-btn {
+    @apply p-2 rounded-lg hover:bg-gray-100 transition-colors;
+    @apply text-gray-600 hover:text-gray-900;
+    @apply flex items-center justify-center;
+  }
+
   /* Scrollbar Styling */
   ::-webkit-scrollbar {
     width: 8px;
