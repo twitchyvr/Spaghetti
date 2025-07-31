@@ -175,6 +175,7 @@ public class HealthController : ControllerBase
     {
         try
         {
+
             if (hours <= 0 || hours > 24 * 7) // Max 1 week
             {
                 return BadRequest(new { error = "Hours must be between 1 and 168 (1 week)" });
