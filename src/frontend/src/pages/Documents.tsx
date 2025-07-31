@@ -1,343 +1,235 @@
-
-import { useState, useEffect } from 'react';
-import { Search, Upload, Grid, List, Filter, Download, Eye, Edit, Trash2, Tag, Calendar, User, FileText } from 'lucide-react';
-import DocumentUpload from '../components/documents/DocumentUpload';
+import { useState } from 'react';
+import { DocumentList } from '../components/documents/DocumentList';
+import { DocumentUpload } from '../components/documents/DocumentUpload';
 
 interface Document {
   id: string;
   title: string;
-  documentType: string;
-  industry: string;
-  status: 'Draft' | 'InReview' | 'Approved' | 'Published' | 'Archived';
+  content: string;
   createdAt: string;
   updatedAt: string;
-  createdByName: string;
-  fileName?: string;
-  contentType?: string;
-  fileSize?: number;
-  version: number;
-  isLatestVersion: boolean;
-  tagNames: string[];
-}
-
-interface PaginatedResponse<T> {
-  items: T[];
-  page: number;
-  pageSize: number;
-  totalItems: number;
-  totalPages: number;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
+  createdBy: string;
+  tenantId: string;
+  tags: string[];
 }
 
 export default function Documents() {
-  const [documents, setDocuments] = useState<Document[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
+  const [currentView, setCurrentView] = useState<'list' | 'upload' | 'detail'>('list');
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedDocuments, setSelectedDocuments] = useState<Set<string>>(new Set());
-  const [showUpload, setShowUpload] = useState(false);
-  const [filters, setFilters] = useState({
-    documentType: '',
-    industry: '',
-    status: '',
-    tags: [] as string[]
-  });
-  const [pagination, setPagination] = useState({
-    page: 1,
-    pageSize: 12,
-    totalItems: 0,
-    totalPages: 0
-  });
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  // Mock data for demo - replace with actual API calls
-  useEffect(() => {
-    const fetchDocuments = async () => {
-      setLoading(true);
-      try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        const mockDocuments: Document[] = [
-          {
-            id: '1',
-            title: 'Software Development Agreement',
-            documentType: 'Contract',
-            industry: 'Technology',
-            status: 'Published',
-            createdAt: '2024-01-15T10:30:00Z',
-            updatedAt: '2024-01-16T14:20:00Z',
-            createdByName: 'John Doe',
-            fileName: 'software-dev-agreement.pdf',
-            contentType: 'application/pdf',
-            fileSize: 2048576,
-            version: 2,
-            isLatestVersion: true,
-            tagNames: ['contract', 'technology', 'legal']
-          },
-          {
-            id: '2',
-            title: 'Product Requirements Document',
-            documentType: 'Specification',
-            industry: 'Technology',
-            status: 'InReview',
-            createdAt: '2024-01-14T09:15:00Z',
-            updatedAt: '2024-01-15T11:45:00Z',
-            createdByName: 'Jane Smith',
-            fileName: 'prd-v1.docx',
-            contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            fileSize: 1024000,
-            version: 1,
-            isLatestVersion: true,
-            tagNames: ['product', 'requirements', 'specification']
-          },
-          {
-            id: '3',
-            title: 'Company Policy Manual',
-            documentType: 'Policy',
-            industry: 'General',
-            status: 'Published',
-            createdAt: '2024-01-13T08:00:00Z',
-            updatedAt: '2024-01-14T16:30:00Z',
-            createdByName: 'HR Department',
-            fileName: 'policy-manual.pdf',
-            contentType: 'application/pdf',
-            fileSize: 5242880,
-            version: 3,
-            isLatestVersion: true,
-            tagNames: ['policy', 'hr', 'internal']
-          }
-        ];
-
-        setDocuments(mockDocuments);
-        setPagination({
-          page: 1,
-          pageSize: 12,
-          totalItems: mockDocuments.length,
-          totalPages: Math.ceil(mockDocuments.length / 12)
-        });
-      } catch (error) {
-        console.error('Error fetching documents:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDocuments();
-  }, [searchTerm, filters]);
-
-  const formatFileSize = (bytes?: number): string => {
-    if (!bytes) return 'Unknown';
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+  const handleDocumentSelect = (document: Document) => {
+    setSelectedDocument(document);
+    setCurrentView('detail');
   };
 
-  const formatDate = (dateString: string): string => {
+  const handleDocumentEdit = (document: Document) => {
+    setSelectedDocument(document);
+    // For Sprint 1, we'll just show the document details
+    // Edit functionality can be added in future sprints
+    setCurrentView('detail');
+  };
+
+  const handleDocumentDelete = (_documentId: string) => {
+    // Refresh the list after deletion
+    setRefreshKey(prev => prev + 1);
+  };
+
+  const handleUploadComplete = (_document: any) => {
+    // Refresh the list after upload
+    setRefreshKey(prev => prev + 1);
+    setCurrentView('list');
+  };
+
+  const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     });
   };
 
-  const getStatusColor = (status: string): string => {
-    switch (status) {
-      case 'Draft': return 'bg-gray-100 text-gray-800';
-      case 'InReview': return 'bg-yellow-100 text-yellow-800';
-      case 'Approved': return 'bg-green-100 text-green-800';
-      case 'Published': return 'bg-blue-100 text-blue-800';
-      case 'Archived': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const toggleDocumentSelection = (documentId: string) => {
-    const newSelection = new Set(selectedDocuments);
-    if (newSelection.has(documentId)) {
-      newSelection.delete(documentId);
-    } else {
-      newSelection.add(documentId);
-    }
-    setSelectedDocuments(newSelection);
-  };
-
-  const handleSelectAll = () => {
-    if (selectedDocuments.size === documents.length) {
-      setSelectedDocuments(new Set());
-    } else {
-      setSelectedDocuments(new Set(documents.map(d => d.id)));
-    }
-  };
-
-  const DocumentCard = ({ document }: { document: Document }) => (
-    <div className="bg-card border rounded-lg p-4 hover:shadow-md transition-shadow">
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            checked={selectedDocuments.has(document.id)}
-            onChange={() => toggleDocumentSelection(document.id)}
-            className="rounded border-gray-300"
-          />
-          <FileText className="icon-md text-blue-500" />
-        </div>
-        <div className="flex space-x-1">
-          <button className="p-1 hover:bg-gray-100 rounded">
-            <Eye className="icon-sm" />
-          </button>
-          <button className="p-1 hover:bg-gray-100 rounded">
-            <Download className="icon-sm" />
-          </button>
-          <button className="p-1 hover:bg-gray-100 rounded">
-            <Edit className="icon-sm" />
-          </button>
-        </div>
-      </div>
-      
-      <h3 className="font-semibold text-sm mb-2 line-clamp-2">{document.title}</h3>
-      
-      <div className="space-y-2 text-xs text-muted-foreground">
-        <div className="flex items-center space-x-4">
-          <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(document.status)}`}>
-            {document.status}
-          </span>
-          <span>v{document.version}</span>
-        </div>
-        
-        <div className="flex items-center space-x-1">
-          <User className="icon-xs" />
-          <span>{document.createdByName}</span>
-        </div>
-        
-        <div className="flex items-center space-x-1">
-          <Calendar className="icon-xs" />
-          <span>{formatDate(document.updatedAt)}</span>
-        </div>
-        
-        {document.fileSize && (
-          <div className="text-xs">
-            {formatFileSize(document.fileSize)}
-          </div>
-        )}
-        
-        {document.tagNames.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {document.tagNames.slice(0, 3).map(tag => (
-              <span key={tag} className="px-1 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">
-                {tag}
-              </span>
-            ))}
-            {document.tagNames.length > 3 && (
-              <span className="text-xs text-muted-foreground">+{document.tagNames.length - 3}</span>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
-  const DocumentListItem = ({ document }: { document: Document }) => (
-    <div className="bg-card border rounded-lg p-4 hover:shadow-sm transition-shadow">
-      <div className="flex items-center space-x-4">
-        <input
-          type="checkbox"
-          checked={selectedDocuments.has(document.id)}
-          onChange={() => toggleDocumentSelection(document.id)}
-          className="rounded border-gray-300"
-        />
-        
-        <FileText className="icon-lg text-blue-500 flex-shrink-0" />
-        
-        <div className="flex-grow min-w-0">
-          <div className="flex items-center space-x-3 mb-1">
-            <h3 className="font-semibold truncate">{document.title}</h3>
-            <span className={`px-2 py-1 rounded-full text-xs flex-shrink-0 ${getStatusColor(document.status)}`}>
-              {document.status}
-            </span>
-            <span className="text-sm text-muted-foreground flex-shrink-0">v{document.version}</span>
-          </div>
+  return (
+    <div className="p-6">
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-2xl font-bold text-gray-900">Documents</h1>
           
-          <div className="flex items-center space-x-6 text-sm text-muted-foreground">
-            <div className="flex items-center space-x-1">
-              <User className="icon-xs" />
-              <span>{document.createdByName}</span>
-            </div>
-            
-            <div className="flex items-center space-x-1">
-              <Calendar className="icon-xs" />
-              <span>{formatDate(document.updatedAt)}</span>
-            </div>
-            
-            <span>{document.documentType}</span>
-            
-            {document.fileSize && (
-              <span>{formatFileSize(document.fileSize)}</span>
-            )}
-          </div>
-          
-          {document.tagNames.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-2">
-              {document.tagNames.map(tag => (
-                <span key={tag} className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
-                  {tag}
-                </span>
-              ))}
+          {currentView === 'list' && (
+            <div className="flex items-center space-x-3">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search documents..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-64 px-4 py-2 pl-10 pr-4 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+              </div>
+              
+              <button
+                onClick={() => setCurrentView('upload')}
+                className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Upload Document
+              </button>
             </div>
           )}
-        </div>
-        
-        <div className="flex space-x-1 flex-shrink-0">
-          <button className="p-2 hover:bg-gray-100 rounded">
-            <Eye className="icon-sm" />
-          </button>
-          <button className="p-2 hover:bg-gray-100 rounded">
-            <Download className="icon-sm" />
-          </button>
-          <button className="p-2 hover:bg-gray-100 rounded">
-            <Edit className="icon-sm" />
-          </button>
-          <button className="p-2 hover:bg-gray-100 rounded text-red-500">
-            <Trash2 className="icon-sm" />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
-  return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Documents</h1>
-          <p className="text-muted-foreground">Manage your documents and files</p>
-        </div>
-        
-        <div className="flex items-center space-x-3 mt-4 lg:mt-0">
-          <button
-            onClick={() => setShowUpload(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2"
-          >
-            <Upload className="icon-sm" />
-            <span>Upload</span>
-          </button>
           
-          <div className="flex items-center border rounded-lg">
+          {currentView !== 'list' && (
             <button
-              onClick={() => setViewMode('list')}
-              className={`p-2 ${viewMode === 'list' ? 'bg-gray-100' : ''}`}
+              onClick={() => {
+                setCurrentView('list');
+                setSelectedDocument(null);
+              }}
+              className="px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
             >
-              <List className="icon-sm" />
+              Back to Documents
             </button>
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`p-2 ${viewMode === 'grid' ? 'bg-gray-100' : ''}`}
-            >
-              <Grid className="icon-sm" />
-            </button>
-          </div>
+          )}
         </div>
+
+        {/* Breadcrumb */}
+        <nav className="flex" aria-label="Breadcrumb">
+          <ol className="flex items-center space-x-4">
+            <li>
+              <div className="flex items-center">
+                <button
+                  onClick={() => setCurrentView('list')}
+                  className={`text-sm font-medium ${
+                    currentView === 'list' 
+                      ? 'text-blue-600' 
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  All Documents
+                </button>
+              </div>
+            </li>
+            
+            {currentView === 'upload' && (
+              <li>
+                <div className="flex items-center">
+                  <svg className="flex-shrink-0 h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                  </svg>
+                  <span className="ml-4 text-sm font-medium text-blue-600">Upload</span>
+                </div>
+              </li>
+            )}
+            
+            {currentView === 'detail' && selectedDocument && (
+              <li>
+                <div className="flex items-center">
+                  <svg className="flex-shrink-0 h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                  </svg>
+                  <span className="ml-4 text-sm font-medium text-blue-600 truncate max-w-md" title={selectedDocument.title}>
+                    {selectedDocument.title}
+                  </span>
+                </div>
+              </li>
+            )}
+          </ol>
+        </nav>
+      </div>
+
+      {/* Content */}
+      <div className="bg-white rounded-lg border border-gray-200">
+        {currentView === 'list' && (
+          <div className="p-6">
+            <DocumentList
+              key={refreshKey}
+              searchTerm={searchTerm}
+              onDocumentSelect={handleDocumentSelect}
+              onDocumentEdit={handleDocumentEdit}
+              onDocumentDelete={handleDocumentDelete}
+            />
+          </div>
+        )}
+
+        {currentView === 'upload' && (
+          <div className="p-6">
+            <h2 className="text-lg font-medium text-gray-900 mb-4">Upload New Document</h2>
+            <DocumentUpload
+              onUploadComplete={handleUploadComplete}
+              onCancel={() => setCurrentView('list')}
+            />
+          </div>
+        )}
+
+        {currentView === 'detail' && selectedDocument && (
+          <div className="p-6">
+            <div className="space-y-6">
+              {/* Document Header */}
+              <div className="border-b border-gray-200 pb-4">
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                  {selectedDocument.title}
+                </h2>
+                <div className="flex items-center space-x-6 text-sm text-gray-500">
+                  <span>Created: {formatDate(selectedDocument.createdAt)}</span>
+                  <span>Modified: {formatDate(selectedDocument.updatedAt)}</span>
+                </div>
+              </div>
+
+              {/* Document Tags */}
+              {selectedDocument.tags.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">Tags</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedDocument.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Document Content */}
+              <div>
+                <h3 className="text-sm font-medium text-gray-700 mb-2">Content</h3>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <pre className="whitespace-pre-wrap text-sm text-gray-900 font-mono">
+                    {selectedDocument.content || 'No content available'}
+                  </pre>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                <button
+                  onClick={() => handleDocumentEdit(selectedDocument)}
+                  className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                >
+                  Edit Document
+                </button>
+                <button
+                  onClick={() => {
+                    if (window.confirm('Are you sure you want to delete this document?')) {
+                      handleDocumentDelete(selectedDocument.id);
+                      setCurrentView('list');
+                    }
+                  }}
+                  className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                >
+                  Delete Document
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Search and Filters */}

@@ -179,4 +179,18 @@ public class UserRepository : BaseRepository<User, Guid>, IUserRepository
         
         return PagedResult<User>.Create(items, page, pageSize, totalItems);
     }
+
+    public async Task<User?> GetBySessionTokenAsync(string sessionToken, CancellationToken cancellationToken = default)
+    {
+        // This would require join with AuthenticationSession table
+        // For now, return null as placeholder implementation
+        return await Task.FromResult<User?>(null);
+    }
+
+    public async Task<IEnumerable<User>> GetExpiredSessionUsersAsync(CancellationToken cancellationToken = default)
+    {
+        // This would require join with AuthenticationSession table
+        // For now, return empty list as placeholder implementation
+        return await Task.FromResult(Enumerable.Empty<User>());
+    }
 }

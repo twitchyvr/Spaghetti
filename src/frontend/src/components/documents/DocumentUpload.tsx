@@ -1,461 +1,367 @@
-import { useState, useRef, useCallback } from 'react';
-import { Upload, X, File, Check, AlertCircle, Progress } from 'lucide-react';
+import React, { useState, useCallback } from 'react';
+import { documentApi } from '../../services/api';
 
 interface DocumentUploadProps {
-  onClose: () => void;
-  onUploadComplete?: (documents: any[]) => void;
+  onUploadComplete?: (document: any) => void;
+  onCancel?: () => void;
+  className?: string;
 }
 
-interface UploadFile {
-  id: string;
+interface UploadProgress {
   file: File;
-  status: 'pending' | 'uploading' | 'completed' | 'error';
   progress: number;
+  status: 'uploading' | 'completed' | 'error';
   error?: string;
   documentId?: string;
 }
 
-interface DocumentFormData {
-  title: string;
-  description: string;
-  documentType: string;
-  industry: string;
-  status: 'Draft' | 'InReview' | 'Approved' | 'Published';
-  publicAccessLevel: 'Private' | 'TenantUsers' | 'AuthenticatedUsers' | 'Public';
-  tags: string[];
-}
-
-export default function DocumentUpload({ onClose, onUploadComplete }: DocumentUploadProps) {
-  const [files, setFiles] = useState<UploadFile[]>([]);
-  const [isDragOver, setIsDragOver] = useState(false);
-  const [formData, setFormData] = useState<DocumentFormData>({
+export const DocumentUpload: React.FC<DocumentUploadProps> = ({
+  onUploadComplete,
+  onCancel,
+  className = '',
+}) => {
+  const [dragActive, setDragActive] = useState(false);
+  const [uploads, setUploads] = useState<UploadProgress[]>([]);
+  const [formData, setFormData] = useState({
     title: '',
     description: '',
-    documentType: 'Document',
-    industry: 'General',
-    status: 'Draft',
-    publicAccessLevel: 'Private',
-    tags: []
+    tags: '',
   });
-  const [tagInput, setTagInput] = useState('');
-  const [isUploading, setIsUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const allowedTypes = [
-    'application/pdf',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'application/vnd.ms-excel',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    'application/vnd.ms-powerpoint',
-    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-    'text/plain',
-    'text/markdown',
-    'image/jpeg',
-    'image/png',
-    'image/gif'
+  // Accepted file types
+  const acceptedTypes = [
+    '.pdf', '.doc', '.docx', '.txt', '.md',
+    '.xls', '.xlsx', '.ppt', '.pptx',
+    '.jpg', '.jpeg', '.png', '.gif',
+    '.zip', '.rar', '.7z'
   ];
 
-  const maxFileSize = 100 * 1024 * 1024; // 100MB
+  const maxFileSize = 50 * 1024 * 1024; // 50MB
 
   const validateFile = (file: File): string | null => {
-    if (!allowedTypes.includes(file.type)) {
-      return 'File type not supported';
-    }
     if (file.size > maxFileSize) {
-      return 'File size exceeds 100MB limit';
+      return `File size must be less than ${maxFileSize / (1024 * 1024)}MB`;
     }
+
+    const extension = '.' + file.name.split('.').pop()?.toLowerCase();
+    if (!acceptedTypes.includes(extension)) {
+      return `File type ${extension} is not supported`;
+    }
+
     return null;
   };
 
-  const addFiles = useCallback((newFiles: FileList | File[]) => {
-    const fileArray = Array.from(newFiles);
-    const validFiles: UploadFile[] = [];
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
 
-    fileArray.forEach(file => {
-      const error = validateFile(file);
-      const uploadFile: UploadFile = {
-        id: Math.random().toString(36).substr(2, 9),
-        file,
-        status: error ? 'error' : 'pending',
-        progress: 0,
-        error
+  const uploadFile = async (file: File) => {    
+    // Add to uploads list
+    setUploads(prev => [...prev, {
+      file,
+      progress: 0,
+      status: 'uploading',
+    }]);
+
+    try {
+      // Simulate upload progress
+      const updateProgress = (progress: number) => {
+        setUploads(prev => prev.map(upload => 
+          upload.file === file ? { ...upload, progress } : upload
+        ));
       };
-      validFiles.push(uploadFile);
-    });
 
-    setFiles(prev => [...prev, ...validFiles]);
-  }, []);
+      // Simulate progressive upload
+      for (let i = 10; i <= 90; i += 10) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        updateProgress(i);
+      }
 
-  const handleDragOver = useCallback((e: React.DragEvent) => {
+      // Create FormData for file upload
+      const uploadFormData = new FormData();
+      uploadFormData.append('file', file);
+      uploadFormData.append('title', formData.title || file.name);
+      uploadFormData.append('description', formData.description);
+      
+      if (formData.tags) {
+        const tagArray = formData.tags.split(',').map(tag => tag.trim()).filter(Boolean);
+        tagArray.forEach(tag => uploadFormData.append('tags', tag));
+      }
+
+      // Note: This would need to be updated to use the actual upload endpoint
+      // For now, we'll use the create document API as a placeholder
+      const result = await documentApi.createDocument({
+        title: formData.title || file.name,
+        content: formData.description || `Uploaded file: ${file.name}`,
+        tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()).filter(Boolean) : [],
+      });
+
+      updateProgress(100);
+      
+      setUploads(prev => prev.map(upload => 
+        upload.file === file ? { 
+          ...upload, 
+          status: 'completed',
+          documentId: result.id 
+        } : upload
+      ));
+
+      onUploadComplete?.(result);
+
+    } catch (error) {
+      setUploads(prev => prev.map(upload => 
+        upload.file === file ? { 
+          ...upload, 
+          status: 'error',
+          error: error instanceof Error ? error.message : 'Upload failed'
+        } : upload
+      ));
+    }
+  };
+
+  const handleFiles = (files: FileList | File[]) => {
+    const fileArray = Array.from(files);
+    
+    for (const file of fileArray) {
+      const validationError = validateFile(file);
+      if (validationError) {
+        alert(`${file.name}: ${validationError}`);
+        continue;
+      }
+      
+      uploadFile(file);
+    }
+  };
+
+  const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
-    setIsDragOver(true);
-  }, []);
-
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setDragActive(false);
+    }
   }, []);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
-    setIsDragOver(false);
-    const droppedFiles = e.dataTransfer.files;
-    addFiles(droppedFiles);
-  }, [addFiles]);
+    e.stopPropagation();
+    setDragActive(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFiles(e.dataTransfer.files);
+    }
+  }, []);
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      addFiles(e.target.files);
+    if (e.target.files && e.target.files[0]) {
+      handleFiles(e.target.files);
     }
   };
 
-  const removeFile = (fileId: string) => {
-    setFiles(prev => prev.filter(f => f.id !== fileId));
+  const removeUpload = (file: File) => {
+    setUploads(prev => prev.filter(upload => upload.file !== file));
   };
 
-  const addTag = () => {
-    const tag = tagInput.trim();
-    if (tag && !formData.tags.includes(tag)) {
-      setFormData(prev => ({
-        ...prev,
-        tags: [...prev.tags, tag]
-      }));
-      setTagInput('');
-    }
+  const clearCompleted = () => {
+    setUploads(prev => prev.filter(upload => upload.status !== 'completed'));
   };
 
-  const removeTag = (tagToRemove: string) => {
-    setFormData(prev => ({
-      ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove)
-    }));
-  };
-
-  const simulateUpload = async (file: UploadFile): Promise<void> => {
-    // Simulate file upload with progress
-    for (let progress = 0; progress <= 100; progress += 10) {
-      await new Promise(resolve => setTimeout(resolve, 200));
-      setFiles(prev => prev.map(f => 
-        f.id === file.id ? { ...f, progress, status: 'uploading' } : f
-      ));
-    }
-
-    // Simulate completion
-    setFiles(prev => prev.map(f => 
-      f.id === file.id 
-        ? { ...f, status: 'completed', documentId: Math.random().toString(36).substr(2, 9) }
-        : f
-    ));
-  };
-
-  const uploadFiles = async () => {
-    if (files.length === 0) return;
-
-    setIsUploading(true);
-    const validFiles = files.filter(f => f.status === 'pending');
-
-    try {
-      // Upload files in parallel
-      await Promise.all(validFiles.map(file => simulateUpload(file)));
-      
-      // Call completion callback
-      const completedFiles = files.filter(f => f.status === 'completed');
-      if (onUploadComplete) {
-        onUploadComplete(completedFiles);
-      }
-
-      // Close modal after successful upload
-      setTimeout(() => {
-        onClose();
-      }, 1000);
-    } catch (error) {
-      console.error('Upload failed:', error);
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const formatFileSize = (bytes: number): string => {
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
-  };
-
-  const getFileIcon = (fileType: string) => {
-    if (fileType.includes('image')) return '🖼️';
-    if (fileType.includes('pdf')) return '📄';
-    if (fileType.includes('word') || fileType.includes('document')) return '📝';
-    if (fileType.includes('excel') || fileType.includes('spreadsheet')) return '📊';
-    if (fileType.includes('powerpoint') || fileType.includes('presentation')) return '📑';
-    return '📄';
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'completed': return <Check className="icon-sm text-green-500" />;
-      case 'error': return <AlertCircle className="icon-sm text-red-500" />;
-      case 'uploading': return <Progress className="icon-sm text-blue-500 animate-spin" />;
-      default: return null;
-    }
-  };
+  const hasUploads = uploads.length > 0;
+  const hasCompleted = uploads.some(upload => upload.status === 'completed');
+  const allCompleted = uploads.length > 0 && uploads.every(upload => upload.status === 'completed');
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-xl font-semibold">Upload Documents</h2>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg"
-          >
-            <X className="icon-md" />
-          </button>
-        </div>
-
-        <div className="flex-1 overflow-y-auto">
-          <div className="p-6 space-y-6">
-            {/* Upload Area */}
-            <div
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
-              className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
-                isDragOver 
-                  ? 'border-blue-500 bg-blue-50' 
-                  : 'border-gray-300 hover:border-gray-400'
-              }`}
-            >
-              <Upload className="icon-3xl text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">
-                {isDragOver ? 'Drop files here' : 'Drag and drop files here'}
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                or click to browse your computer
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Supported: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, MD, Images (up to 100MB)
-              </p>
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                accept={allowedTypes.join(',')}
-                onChange={handleFileInput}
-                className="hidden"
-              />
-            </div>
-
-            {/* File List */}
-            {files.length > 0 && (
-              <div className="space-y-3">
-                <h3 className="font-medium">Files to Upload ({files.length})</h3>
-                <div className="space-y-2">
-                  {files.map(file => (
-                    <div key={file.id} className="flex items-center space-x-3 p-3 border rounded-lg">
-                      <div className="text-2xl">{getFileIcon(file.file.type)}</div>
-                      
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <h4 className="font-medium truncate">{file.file.name}</h4>
-                          <div className="flex items-center space-x-2">
-                            {getStatusIcon(file.status)}
-                            {file.status !== 'error' && file.status !== 'completed' && (
-                              <button
-                                onClick={() => removeFile(file.id)}
-                                className="p-1 hover:bg-gray-100 rounded"
-                              >
-                                <X className="icon-xs" />
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                          <span>{formatFileSize(file.file.size)}</span>
-                          <span>{file.file.type}</span>
-                        </div>
-                        
-                        {file.status === 'uploading' && (
-                          <div className="mt-2">
-                            <div className="w-full bg-gray-200 rounded-full h-1">
-                              <div
-                                className="bg-blue-600 h-1 rounded-full transition-all duration-300"
-                                style={{ width: `${file.progress}%` }}
-                              ></div>
-                            </div>
-                            <span className="text-xs text-muted-foreground">{file.progress}%</span>
-                          </div>
-                        )}
-                        
-                        {file.error && (
-                          <p className="text-sm text-red-600 mt-1">{file.error}</p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Document Metadata Form */}
-            {files.length > 0 && (
-              <div className="space-y-4">
-                <h3 className="font-medium">Document Information</h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Title</label>
-                    <input
-                      type="text"
-                      value={formData.title}
-                      onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                      placeholder="Document title (optional)"
-                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Document Type</label>
-                    <select
-                      value={formData.documentType}
-                      onChange={(e) => setFormData(prev => ({ ...prev, documentType: e.target.value }))}
-                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="Document">Document</option>
-                      <option value="Contract">Contract</option>
-                      <option value="Policy">Policy</option>
-                      <option value="Specification">Specification</option>
-                      <option value="Report">Report</option>
-                      <option value="Presentation">Presentation</option>
-                      <option value="Spreadsheet">Spreadsheet</option>
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Industry</label>
-                    <select
-                      value={formData.industry}
-                      onChange={(e) => setFormData(prev => ({ ...prev, industry: e.target.value }))}
-                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="General">General</option>
-                      <option value="Technology">Technology</option>
-                      <option value="Legal">Legal</option>
-                      <option value="Healthcare">Healthcare</option>
-                      <option value="Finance">Finance</option>
-                      <option value="Education">Education</option>
-                      <option value="Manufacturing">Manufacturing</option>
-                      <option value="Retail">Retail</option>
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Status</label>
-                    <select
-                      value={formData.status}
-                      onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as any }))}
-                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="Draft">Draft</option>
-                      <option value="InReview">In Review</option>
-                      <option value="Approved">Approved</option>
-                      <option value="Published">Published</option>
-                    </select>
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium mb-1">Description</label>
-                  <textarea
-                    value={formData.description}
-                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                    placeholder="Document description (optional)"
-                    rows={3}
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium mb-1">Tags</label>
-                  <div className="flex flex-wrap gap-2 mb-2">
-                    {formData.tags.map(tag => (
-                      <span
-                        key={tag}
-                        className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm flex items-center space-x-1"
-                      >
-                        <span>{tag}</span>
-                        <button
-                          onClick={() => removeTag(tag)}
-                          className="hover:text-blue-600"
-                        >
-                          <X className="icon-xs" />
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                  <div className="flex space-x-2">
-                    <input
-                      type="text"
-                      value={tagInput}
-                      onChange={(e) => setTagInput(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
-                      placeholder="Add tag..."
-                      className="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                    <button
-                      onClick={addTag}
-                      className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg"
-                    >
-                      Add
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="flex items-center justify-between p-6 border-t bg-gray-50">
-          <div className="text-sm text-muted-foreground">
-            {files.length > 0 && (
-              <span>
-                {files.filter(f => f.status === 'completed').length} of {files.length} files uploaded
-              </span>
-            )}
+    <div className={`space-y-6 ${className}`}>
+      {/* Document Information Form */}
+      <div className="bg-white p-6 rounded-lg border border-gray-200">
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Document Information</h3>
+        <div className="grid grid-cols-1 gap-4">
+          <div>
+            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+              Title
+            </label>
+            <input
+              type="text"
+              id="title"
+              value={formData.title}
+              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter document title (optional - will use filename if empty)"
+            />
           </div>
           
-          <div className="flex space-x-3">
-            <button
-              onClick={onClose}
-              disabled={isUploading}
-              className="px-4 py-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={uploadFiles}
-              disabled={files.length === 0 || isUploading || files.every(f => f.status === 'error')}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
-            >
-              {isUploading ? (
-                <>
-                  <Progress className="icon-sm animate-spin" />
-                  <span>Uploading...</span>
-                </>
-              ) : (
-                <>
-                  <Upload className="icon-sm" />
-                  <span>Upload Files</span>
-                </>
-              )}
-            </button>
+          <div>
+            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+              Description
+            </label>
+            <textarea
+              id="description"
+              rows={3}
+              value={formData.description}
+              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter document description"
+            />
+          </div>
+          
+          <div>
+            <label htmlFor="tags" className="block text-sm font-medium text-gray-700 mb-1">
+              Tags
+            </label>
+            <input
+              type="text"
+              id="tags"
+              value={formData.tags}
+              onChange={(e) => setFormData(prev => ({ ...prev, tags: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter tags separated by commas (e.g., legal, contract, important)"
+            />
           </div>
         </div>
       </div>
+
+      {/* File Upload Area */}
+      <div
+        className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+          dragActive
+            ? 'border-blue-400 bg-blue-50'
+            : 'border-gray-300 bg-gray-50 hover:bg-gray-100'
+        }`}
+        onDragEnter={handleDrag}
+        onDragLeave={handleDrag}
+        onDragOver={handleDrag}
+        onDrop={handleDrop}
+      >
+        <div className="space-y-4">
+          <div className="text-4xl text-gray-400">📁</div>
+          <div>
+            <p className="text-lg font-medium text-gray-900">
+              Drop files here or click to upload
+            </p>
+            <p className="text-sm text-gray-500 mt-1">
+              Supports: {acceptedTypes.join(', ')}
+            </p>
+            <p className="text-xs text-gray-400 mt-1">
+              Maximum file size: {maxFileSize / (1024 * 1024)}MB
+            </p>
+          </div>
+          
+          <div>
+            <input
+              type="file"
+              multiple
+              accept={acceptedTypes.join(',')}
+              onChange={handleFileInput}
+              className="hidden"
+              id="file-upload"
+            />
+            <label
+              htmlFor="file-upload"
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer"
+            >
+              Choose Files
+            </label>
+          </div>
+        </div>
+      </div>
+
+      {/* Upload Progress */}
+      {hasUploads && (
+        <div className="bg-white rounded-lg border border-gray-200">
+          <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+            <h3 className="text-lg font-medium text-gray-900">Upload Progress</h3>
+            {hasCompleted && (
+              <button
+                onClick={clearCompleted}
+                className="text-sm text-blue-600 hover:text-blue-700"
+              >
+                Clear Completed
+              </button>
+            )}
+          </div>
+          
+          <div className="max-h-64 overflow-y-auto">
+            {uploads.map((upload, index) => (
+              <div key={index} className="p-4 border-b border-gray-100 last:border-b-0">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {upload.file.name}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {formatFileSize(upload.file.size)}
+                    </p>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <div className="text-xs text-gray-500">
+                      {upload.status === 'uploading' && `${upload.progress}%`}
+                      {upload.status === 'completed' && '✓ Complete'}
+                      {upload.status === 'error' && '✗ Failed'}
+                    </div>
+                    
+                    <button
+                      onClick={() => removeUpload(upload.file)}
+                      className="text-gray-400 hover:text-gray-600"
+                      title="Remove"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+                
+                {upload.status === 'uploading' && (
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-blue-600 h-2 rounded-full transition-all"
+                      style={{ width: `${upload.progress}%` }}
+                    />
+                  </div>
+                )}
+                
+                {upload.status === 'error' && upload.error && (
+                  <p className="text-xs text-red-600 mt-1">{upload.error}</p>
+                )}
+                
+                {upload.status === 'completed' && (
+                  <div className="w-full bg-green-200 rounded-full h-2">
+                    <div className="bg-green-600 h-2 rounded-full w-full" />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Action Buttons */}
+      <div className="flex justify-end space-x-3">
+        {onCancel && (
+          <button
+            onClick={onCancel}
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            Cancel
+          </button>
+        )}
+        
+        {allCompleted && (
+          <button
+            onClick={() => {
+              setUploads([]);
+              setFormData({ title: '', description: '', tags: '' });
+            }}
+            className="px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          >
+            Done
+          </button>
+        )}
+      </div>
     </div>
   );
-}
+};
