@@ -249,6 +249,9 @@ public static class ServiceExtensions
         
         // Register module service
         services.AddScoped<IModuleService, ModuleService>();
+        
+        // Register analytics service
+        services.AddScoped<IPlatformAnalyticsService, PlatformAnalyticsService>();
 
         // Configure module discovery
         var moduleDirectory = configuration.GetValue<string>("Modules:Directory", "Modules");

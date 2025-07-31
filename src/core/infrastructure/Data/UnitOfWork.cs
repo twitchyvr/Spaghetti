@@ -35,6 +35,11 @@ public class UnitOfWork : IUnitOfWork
     private ITenantAuditEntryRepository? _tenantAuditEntries;
     private IRefreshTokenRepository? _refreshTokens;
 
+    // New authentication-related repositories
+    private IAuthenticationSessionRepository? _authenticationSessions;
+    private IUserPermissionRepository? _userPermissions;
+    private IUserAuthenticationMethodRepository? _userAuthenticationMethods;
+
     public UnitOfWork(ApplicationDbContext context, ILoggerFactory loggerFactory)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
@@ -85,8 +90,15 @@ public class UnitOfWork : IUnitOfWork
     public ITenantAuditEntryRepository TenantAuditEntries =>
         _tenantAuditEntries ??= new TenantAuditEntryRepository(_context, _loggerFactory.CreateLogger<TenantAuditEntryRepository>());
 
-    public IRefreshTokenRepository RefreshTokens =>
-        _refreshTokens ??= new RefreshTokenRepository(_context, _loggerFactory.CreateLogger<RefreshTokenRepository>());
+    // New authentication-related repository properties
+    public IAuthenticationSessionRepository AuthenticationSessions =>
+        _authenticationSessions ??= new AuthenticationSessionRepository(_context, _loggerFactory.CreateLogger<AuthenticationSessionRepository>());
+
+    public IUserPermissionRepository UserPermissions =>
+        _userPermissions ??= new UserPermissionRepository(_context, _loggerFactory.CreateLogger<UserPermissionRepository>());
+
+    public IUserAuthenticationMethodRepository UserAuthenticationMethods =>
+        _userAuthenticationMethods ??= new UserAuthenticationMethodRepository(_context, _loggerFactory.CreateLogger<UserAuthenticationMethodRepository>());
 
     #endregion
 
@@ -410,6 +422,13 @@ public static class UnitOfWorkExtensions
         services.AddScoped<IUserAuditEntryRepository, UserAuditEntryRepository>();
         services.AddScoped<ITenantModuleRepository, TenantModuleRepository>();
         services.AddScoped<ITenantAuditEntryRepository, TenantAuditEntryRepository>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        
+        // Health Monitoring Repositories
+        services.AddScoped<ISystemHealthMetricRepository, SystemHealthMetricRepository>();
+        services.AddScoped<IIncidentRepository, IncidentRepository>();
+        services.AddScoped<IIncidentUpdateRepository, IncidentUpdateRepository>();
+        services.AddScoped<IMaintenanceWindowRepository, MaintenanceWindowRepository>();
         
         return services;
     }
