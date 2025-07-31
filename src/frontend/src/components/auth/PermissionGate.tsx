@@ -43,11 +43,11 @@ export const PermissionGate: React.FC<PermissionGateProps> = ({
   // Check permission requirements
   const hasAccess = requireAll
     ? fullPermissions.every(permission => {
-        const basePermission = permission.includes('.') ? permission.split('.')[0] : permission;
+        const basePermission = permission.includes('.') ? permission.split('.')[0] ?? permission : permission;
         return userPermissions.includes(permission) || userPermissions.includes(basePermission);
       })
     : fullPermissions.some(permission => {
-        const basePermission = permission.includes('.') ? permission.split('.')[0] : permission;
+        const basePermission = permission.includes('.') ? permission.split('.')[0] ?? permission : permission;
         return userPermissions.includes(permission) || userPermissions.includes(basePermission);
       });
 

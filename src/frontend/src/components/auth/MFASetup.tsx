@@ -12,6 +12,10 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { toast } from 'sonner';
+import { Button } from '../ui/button';
+import { Badge } from '../ui/badge';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../ui/tabs';
+import { Alert, AlertDescription } from '../ui/alert';
 
 interface MFASetupProps {
   onComplete?: () => void;
@@ -41,8 +45,7 @@ export const MFASetup: React.FC<MFASetupProps> = ({ onComplete, onCancel }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
   const [secretKey, setSecretKey] = useState('');
-  // Remove unused variable
-  // const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
   const [backupCodes, setBackupCodes] = useState<string[]>([]);
   const [copiedCode, setCopiedCode] = useState('');
 
@@ -258,16 +261,16 @@ export const MFASetup: React.FC<MFASetupProps> = ({ onComplete, onCancel }) => {
       </div>
 
       <div className="flex gap-3 pt-6">
-        <button variant="outline" onClick={onCancel} className="flex-1">
+        <Button variant="outline" onClick={onCancel} className="flex-1">
           Cancel
-        </button>
-        <button 
+        </Button>
+        <Button 
           onClick={() => setCurrentStep(2)} 
           className="flex-1"
           disabled={!selectedMethod}
         >
           Continue
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -313,7 +316,7 @@ export const MFASetup: React.FC<MFASetupProps> = ({ onComplete, onCancel }) => {
                 readOnly
                 className="font-mono text-sm"
               />
-              <button
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() => copyToClipboard(secretKey, 'Secret key')}
@@ -323,7 +326,7 @@ export const MFASetup: React.FC<MFASetupProps> = ({ onComplete, onCancel }) => {
                 ) : (
                   <Copy className="h-4 w-4" />
                 )}
-              </button>
+              </Button>
             </div>
           </div>
           <Alert>
@@ -336,12 +339,12 @@ export const MFASetup: React.FC<MFASetupProps> = ({ onComplete, onCancel }) => {
       </Tabs>
 
       <div className="flex gap-3">
-        <button variant="outline" onClick={() => setCurrentStep(1)} className="flex-1">
+        <Button variant="outline" onClick={() => setCurrentStep(1)} className="flex-1">
           Back
-        </button>
-        <button onClick={() => setCurrentStep(3)} className="flex-1">
+        </Button>
+        <Button onClick={() => setCurrentStep(3)} className="flex-1">
           Continue
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -367,10 +370,10 @@ export const MFASetup: React.FC<MFASetupProps> = ({ onComplete, onCancel }) => {
       </div>
 
       <div className="flex gap-3">
-        <button variant="outline" onClick={() => setCurrentStep(2)} className="flex-1">
+        <Button variant="outline" onClick={() => setCurrentStep(2)} className="flex-1">
           Back
-        </button>
-        <button 
+        </Button>
+        <Button 
           onClick={verifyCode} 
           className="flex-1"
           disabled={verificationCode.length !== 6 || isLoading}
@@ -383,7 +386,7 @@ export const MFASetup: React.FC<MFASetupProps> = ({ onComplete, onCancel }) => {
           ) : (
             'Verify'
           )}
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -408,7 +411,7 @@ export const MFASetup: React.FC<MFASetupProps> = ({ onComplete, onCancel }) => {
           {backupCodes.map((code, index) => (
             <div key={index} className="flex items-center justify-between p-2 bg-white rounded border">
               <span>{code}</span>
-              <button
+              <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => copyToClipboard(code, 'Backup code')}
@@ -418,20 +421,20 @@ export const MFASetup: React.FC<MFASetupProps> = ({ onComplete, onCancel }) => {
                 ) : (
                   <Copy className="h-3 w-3" />
                 )}
-              </button>
+              </Button>
             </div>
           ))}
         </div>
       </div>
 
       <div className="flex gap-3">
-        <button variant="outline" onClick={downloadBackupCodes} className="flex-1">
+        <Button variant="outline" onClick={downloadBackupCodes} className="flex-1">
           <Download className="h-4 w-4 mr-2" />
           Download Codes
-        </button>
-        <button onClick={handleComplete} className="flex-1">
+        </Button>
+        <Button onClick={handleComplete} className="flex-1">
           Complete Setup
-        </button>
+        </Button>
       </div>
     </div>
   );
