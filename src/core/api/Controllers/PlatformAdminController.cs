@@ -2,8 +2,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using EnterpriseDocsCore.Domain.Entities;
+using EnterpriseDocsCore.Domain.Interfaces;
 using EnterpriseDocsCore.Infrastructure.Data;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace EnterpriseDocsCore.Api.Controllers;
 
@@ -29,11 +31,16 @@ public class PlatformAdminController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly ILogger<PlatformAdminController> _logger;
+    private readonly IPlatformAnalyticsService _analyticsService;
 
-    public PlatformAdminController(ApplicationDbContext context, ILogger<PlatformAdminController> logger)
+    public PlatformAdminController(
+        ApplicationDbContext context, 
+        ILogger<PlatformAdminController> logger,
+        IPlatformAnalyticsService analyticsService)
     {
         _context = context;
         _logger = logger;
+        _analyticsService = analyticsService;
     }
 
     /// <summary>
@@ -240,6 +247,8 @@ public class PlatformAdminController : ControllerBase
                 return BadRequest(new { message = "Subdomain already exists" });
             }
 
+            var currentAdminId = GetCurrentPlatformAdminId();
+            
             var tenant = new Tenant
             {
                 Name = request.Name,
@@ -248,6 +257,9 @@ public class PlatformAdminController : ControllerBase
                 Status = TenantStatus.Active,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
+                CreatedByPlatformAdmin = currentAdminId,
+                LastModifiedByPlatformAdmin = currentAdminId,
+                PlatformNotes = request.Notes,
                 Branding = new TenantBranding
                 {
                     CustomDomainName = request.Domain
@@ -330,7 +342,12 @@ public class PlatformAdminController : ControllerBase
             if (request.IsActive.HasValue)
                 tenant.Status = request.IsActive.Value ? TenantStatus.Active : TenantStatus.Inactive;
 
+            // Track platform admin changes
             tenant.UpdatedAt = DateTime.UtcNow;
+            tenant.LastModifiedByPlatformAdmin = GetCurrentPlatformAdminId();
+            
+            if (!string.IsNullOrEmpty(request.Notes))
+                tenant.PlatformNotes = request.Notes;
 
             await _context.SaveChangesAsync();
 
@@ -377,6 +394,234 @@ public class PlatformAdminController : ControllerBase
             _logger.LogError(ex, "Failed to update client {ClientId}", clientId);
             return StatusCode(500, new { message = "Failed to update client", error = ex.Message });
         }
+    }
+
+    /// <summary>
+    /// Get comprehensive platform analytics
+    /// Returns detailed analytics including revenue, usage, and customer metrics
+    /// </summary>
+    [HttpGet("analytics")]
+    public async Task<ActionResult<PlatformAnalytics>> GetPlatformAnalytics([FromQuery] string? timeRange = "30d")
+    {
+        try
+        {
+            var dateRange = ParseTimeRange(timeRange);
+            var analytics = await _analyticsService.GetPlatformMetricsAsync(dateRange);
+            
+            _logger.LogInformation("Retrieved platform analytics for date range {StartDate} to {EndDate}", 
+                dateRange.StartDate, dateRange.EndDate);
+            
+            return Ok(analytics);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to retrieve platform analytics");
+            return StatusCode(500, new { message = "Failed to retrieve platform analytics", error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Get detailed revenue analytics and metrics
+    /// </summary>
+    [HttpGet("analytics/revenue")]
+    public async Task<ActionResult<RevenueAnalytics>> GetRevenueAnalytics([FromQuery] string? timeRange = "30d")
+    {
+        try
+        {
+            var dateRange = ParseTimeRange(timeRange);
+            var analytics = await _analyticsService.GetRevenueMetricsAsync(dateRange);
+            
+            _logger.LogInformation("Retrieved revenue analytics for date range {StartDate} to {EndDate}", 
+                dateRange.StartDate, dateRange.EndDate);
+            
+            return Ok(analytics);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to retrieve revenue analytics");
+            return StatusCode(500, new { message = "Failed to retrieve revenue analytics", error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Get platform usage analytics
+    /// </summary>
+    [HttpGet("analytics/usage")]
+    public async Task<ActionResult<UsageAnalytics>> GetUsageAnalytics([FromQuery] string? timeRange = "30d")
+    {
+        try
+        {
+            var dateRange = ParseTimeRange(timeRange);
+            var analytics = await _analyticsService.GetUsageMetricsAsync(dateRange);
+            
+            _logger.LogInformation("Retrieved usage analytics for date range {StartDate} to {EndDate}", 
+                dateRange.StartDate, dateRange.EndDate);
+            
+            return Ok(analytics);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to retrieve usage analytics");
+            return StatusCode(500, new { message = "Failed to retrieve usage analytics", error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Get customer analytics including acquisition, retention, and churn
+    /// </summary>
+    [HttpGet("analytics/customers")]
+    public async Task<ActionResult<CustomerAnalytics>> GetCustomerAnalytics([FromQuery] string? timeRange = "30d")
+    {
+        try
+        {
+            var dateRange = ParseTimeRange(timeRange);
+            var analytics = await _analyticsService.GetCustomerMetricsAsync(dateRange);
+            
+            _logger.LogInformation("Retrieved customer analytics for date range {StartDate} to {EndDate}", 
+                dateRange.StartDate, dateRange.EndDate);
+            
+            return Ok(analytics);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to retrieve customer analytics");
+            return StatusCode(500, new { message = "Failed to retrieve customer analytics", error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Get revenue forecasting for specified months ahead
+    /// </summary>
+    [HttpGet("analytics/forecast")]
+    public async Task<ActionResult<List<RevenueForecast>>> GetRevenueForecast([FromQuery] int monthsAhead = 12)
+    {
+        try
+        {
+            if (monthsAhead < 1 || monthsAhead > 36)
+            {
+                return BadRequest(new { message = "Months ahead must be between 1 and 36" });
+            }
+
+            var forecasts = await _analyticsService.GetRevenueForecastAsync(monthsAhead);
+            
+            _logger.LogInformation("Generated revenue forecast for {MonthsAhead} months ahead", monthsAhead);
+            
+            return Ok(forecasts);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to generate revenue forecast");
+            return StatusCode(500, new { message = "Failed to generate revenue forecast", error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Get cohort analysis for customer retention tracking
+    /// </summary>
+    [HttpGet("analytics/cohorts")]
+    public async Task<ActionResult<CohortAnalysisResult>> GetCohortAnalysis([FromQuery] string? timeRange = "12m")
+    {
+        try
+        {
+            var dateRange = ParseTimeRange(timeRange);
+            var analysis = await _analyticsService.GetCohortAnalysisAsync(dateRange);
+            
+            _logger.LogInformation("Performed cohort analysis for date range {StartDate} to {EndDate}", 
+                dateRange.StartDate, dateRange.EndDate);
+            
+            return Ok(analysis);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to perform cohort analysis");
+            return StatusCode(500, new { message = "Failed to perform cohort analysis", error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Get platform health and performance metrics
+    /// </summary>
+    [HttpGet("analytics/health")]
+    public async Task<ActionResult<PlatformHealthAnalytics>> GetPlatformHealth([FromQuery] string? timeRange = "7d")
+    {
+        try
+        {
+            var dateRange = ParseTimeRange(timeRange);
+            var health = await _analyticsService.GetPlatformHealthAsync(dateRange);
+            
+            _logger.LogInformation("Retrieved platform health metrics for date range {StartDate} to {EndDate}", 
+                dateRange.StartDate, dateRange.EndDate);
+            
+            return Ok(health);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to retrieve platform health metrics");
+            return StatusCode(500, new { message = "Failed to retrieve platform health metrics", error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Get feature adoption analytics
+    /// </summary>
+    [HttpGet("analytics/features")]
+    public async Task<ActionResult<FeatureAdoptionAnalytics>> GetFeatureAdoption([FromQuery] string? timeRange = "30d")
+    {
+        try
+        {
+            var dateRange = ParseTimeRange(timeRange);
+            var adoption = await _analyticsService.GetFeatureAdoptionAsync(dateRange);
+            
+            _logger.LogInformation("Retrieved feature adoption analytics for date range {StartDate} to {EndDate}", 
+                dateRange.StartDate, dateRange.EndDate);
+            
+            return Ok(adoption);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to retrieve feature adoption analytics");
+            return StatusCode(500, new { message = "Failed to retrieve feature adoption analytics", error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Get geographic distribution analytics
+    /// </summary>
+    [HttpGet("analytics/geographic")]
+    public async Task<ActionResult<GeographicAnalytics>> GetGeographicAnalytics([FromQuery] string? timeRange = "30d")
+    {
+        try
+        {
+            var dateRange = ParseTimeRange(timeRange);
+            var geographic = await _analyticsService.GetGeographicAnalyticsAsync(dateRange);
+            
+            _logger.LogInformation("Retrieved geographic analytics for date range {StartDate} to {EndDate}", 
+                dateRange.StartDate, dateRange.EndDate);
+            
+            return Ok(geographic);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to retrieve geographic analytics");
+            return StatusCode(500, new { message = "Failed to retrieve geographic analytics", error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Parse time range string into DateRange object
+    /// </summary>
+    private static DateRange ParseTimeRange(string? timeRange)
+    {
+        return timeRange?.ToLower() switch
+        {
+            "7d" => DateRange.Last30Days(), // 7 days not implemented, using 30
+            "30d" => DateRange.Last30Days(),
+            "90d" => DateRange.Last90Days(),
+            "12m" or "1y" => DateRange.LastYear(),
+            "current" => DateRange.CurrentMonth(),
+            "last" => DateRange.LastMonth(),
+            _ => DateRange.Last30Days()
+        };
     }
 
     #region Helper Methods
@@ -477,6 +722,17 @@ public class PlatformAdminController : ControllerBase
         }
         
         return features;
+    }
+
+    private Guid? GetCurrentPlatformAdminId()
+    {
+        // Try to get the current user ID from claims
+        var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+        if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId))
+        {
+            return userId;
+        }
+        return null;
     }
 
     #endregion
@@ -590,6 +846,9 @@ public class CreateClientRequest
     
     [EmailAddress]
     public string? TechnicalContactEmail { get; set; }
+    
+    [StringLength(1000)]
+    public string? Notes { get; set; }
 }
 
 /// <summary>
@@ -606,6 +865,9 @@ public class UpdateClientRequest
     public string? Tier { get; set; }
     
     public bool? IsActive { get; set; }
+    
+    [StringLength(1000)]
+    public string? Notes { get; set; }
 }
 
 #endregion

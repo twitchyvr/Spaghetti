@@ -13,7 +13,7 @@ export class ApiError extends Error {
 }
 
 // Helper function for API calls
-async function fetchApi<T>(
+export async function fetchApi<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
@@ -441,34 +441,539 @@ export const healthApi = {
   },
 };
 
-// Generic HTTP client for services
-export const httpClient = {
-  async get<T>(endpoint: string, options?: RequestInit): Promise<{ data: T }> {
-    const response = await fetchApi<T>(endpoint, { ...options, method: 'GET' });
-    return { data: response };
+// Platform Admin API endpoints
+export const platformAdminApi = {
+  // Get platform metrics
+  async getPlatformMetrics() {
+    if (DEMO_MODE) {
+      return Promise.resolve({
+        totalClients: 47,
+        activeClients: 42,
+        totalUsers: 1247,
+        activeUsers: 892,
+        totalDocuments: 15678,
+        monthlyRecurringRevenue: 18950,
+        annualRecurringRevenue: 227400,
+        platformHealth: {
+          apiResponseTime: 145,
+          databaseHealth: true,
+          systemUptime: 99.97,
+          activeIncidents: 0
+        }
+      });
+    }
+    
+    return fetchApi<{
+      totalClients: number;
+      activeClients: number;
+      totalUsers: number;
+      activeUsers: number;
+      totalDocuments: number;
+      monthlyRecurringRevenue: number;
+      annualRecurringRevenue: number;
+      platformHealth: {
+        apiResponseTime: number;
+        databaseHealth: boolean;
+        systemUptime: number;
+        activeIncidents: number;
+      };
+    }>('/platform-admin/metrics');
   },
 
-  async post<T>(endpoint: string, data?: any, options?: RequestInit): Promise<{ data: T }> {
-    const response = await fetchApi<T>(endpoint, {
-      ...options,
+  // Get all clients
+  async getClients() {
+    if (DEMO_MODE) {
+      return Promise.resolve([
+        {
+          id: 'client-1',
+          name: 'Acme Legal Partners',
+          subdomain: 'acme-legal',
+          domain: 'acmelegal.com',
+          tier: 'Enterprise',
+          status: 'Active',
+          userCount: 156,
+          documentCount: 2847,
+          storageUsedMB: 1024,
+          storageQuotaMB: 5120,
+          monthlyRevenue: 2499,
+          annualContract: 29988,
+          createdAt: '2024-03-15T10:30:00Z',
+          lastActive: '2025-07-25T10:30:00Z',
+          healthScore: 98,
+          supportTickets: 2,
+          billingContact: {
+            name: 'Sarah Johnson',
+            email: 'billing@acmelegal.com'
+          },
+          technicalContact: {
+            name: 'Michael Chen',
+            email: 'tech@acmelegal.com'
+          },
+          features: ['SSO', 'API Access', 'Custom Branding', 'Advanced Analytics', 'Priority Support'],
+          customBranding: true,
+          ssoEnabled: true,
+          apiAccess: true
+        },
+        {
+          id: 'client-2',
+          name: 'TechStart Innovation',
+          subdomain: 'techstart',
+          tier: 'Professional',
+          status: 'Active',
+          userCount: 28,
+          documentCount: 445,
+          storageUsedMB: 256,
+          storageQuotaMB: 1024,
+          monthlyRevenue: 799,
+          createdAt: '2024-11-08T14:22:00Z',
+          lastActive: '2025-07-25T09:15:00Z',
+          healthScore: 95,
+          supportTickets: 0,
+          billingContact: {
+            name: 'Alex Thompson',
+            email: 'alex@techstart.io'
+          },
+          technicalContact: {
+            name: 'Jamie Rodriguez',
+            email: 'jamie@techstart.io'
+          },
+          features: ['Standard Support', 'Team Collaboration', 'Document Templates'],
+          customBranding: false,
+          ssoEnabled: false,
+          apiAccess: true
+        },
+        {
+          id: 'client-3',
+          name: 'Global Consulting Group',
+          subdomain: 'global-consulting',
+          domain: 'globalconsulting.com',
+          tier: 'Enterprise',
+          status: 'Trial',
+          userCount: 75,
+          documentCount: 1203,
+          storageUsedMB: 512,
+          storageQuotaMB: 5120,
+          monthlyRevenue: 0,
+          createdAt: '2025-07-10T08:45:00Z',
+          lastActive: '2025-07-25T11:45:00Z',
+          healthScore: 87,
+          supportTickets: 3,
+          billingContact: {
+            name: 'Robert Kim',
+            email: 'finance@globalconsulting.com'
+          },
+          technicalContact: {
+            name: 'Lisa Wang',
+            email: 'lisa.wang@globalconsulting.com'
+          },
+          features: ['Trial Access', 'SSO', 'Custom Branding', 'Advanced Analytics'],
+          customBranding: true,
+          ssoEnabled: true,
+          apiAccess: false
+        }
+      ]);
+    }
+    
+    return fetchApi<Array<{
+      id: string;
+      name: string;
+      subdomain: string;
+      domain?: string;
+      tier: string;
+      status: string;
+      userCount: number;
+      documentCount: number;
+      storageUsedMB: number;
+      storageQuotaMB: number;
+      monthlyRevenue: number;
+      annualContract?: number;
+      createdAt: string;
+      lastActive: string;
+      healthScore: number;
+      supportTickets: number;
+      billingContact: {
+        name: string;
+        email: string;
+      };
+      technicalContact: {
+        name: string;
+        email: string;
+      };
+      features: string[];
+      customBranding: boolean;
+      ssoEnabled: boolean;
+      apiAccess: boolean;
+    }>>('/platform-admin/clients');
+  },
+
+  // Get client details
+  async getClient(clientId: string) {
+    if (DEMO_MODE) {
+      const clients = await this.getClients();
+      const client = clients.find(c => c.id === clientId);
+      if (!client) {
+        throw new ApiError(404, 'Client not found');
+      }
+      return {
+        ...client,
+        activeUsers: Math.floor(client.userCount * 0.7),
+        adminUsers: Math.floor(client.userCount * 0.1),
+        documentsThisMonth: Math.floor(client.documentCount * 0.3),
+        publicDocuments: Math.floor(client.documentCount * 0.1)
+      };
+    }
+    
+    return fetchApi<{
+      id: string;
+      name: string;
+      subdomain: string;
+      domain?: string;
+      tier: string;
+      status: string;
+      createdAt: string;
+      lastActive: string;
+      userCount: number;
+      activeUsers: number;
+      adminUsers: number;
+      documentCount: number;
+      documentsThisMonth: number;
+      publicDocuments: number;
+      storageUsedMB: number;
+      storageQuotaMB: number;
+      monthlyRevenue: number;
+      annualContract?: number;
+      healthScore: number;
+      supportTickets: number;
+      features: string[];
+      customBranding: boolean;
+      ssoEnabled: boolean;
+      apiAccess: boolean;
+    }>(`/platform-admin/clients/${clientId}`);
+  },
+
+  // Create new client
+  async createClient(data: {
+    name: string;
+    subdomain: string;
+    domain?: string;
+    tier: string;
+    billingContactName?: string;
+    billingContactEmail?: string;
+    technicalContactName?: string;
+    technicalContactEmail?: string;
+    notes?: string;
+  }) {
+    if (DEMO_MODE) {
+      return Promise.resolve({
+        id: `client-${Date.now()}`,
+        name: data.name,
+        subdomain: data.subdomain,
+        domain: data.domain,
+        tier: data.tier,
+        status: 'Active',
+        userCount: 0,
+        documentCount: 0,
+        storageUsedMB: 0,
+        storageQuotaMB: data.tier === 'Enterprise' ? 5120 : 1024,
+        monthlyRevenue: data.tier === 'Enterprise' ? 2499 : data.tier === 'Professional' ? 799 : 0,
+        annualContract: data.tier === 'Enterprise' ? 29988 : data.tier === 'Professional' ? 9588 : null,
+        createdAt: new Date().toISOString(),
+        lastActive: new Date().toISOString(),
+        healthScore: 100,
+        supportTickets: 0,
+        billingContact: {
+          name: data.billingContactName || 'Billing Contact',
+          email: data.billingContactEmail || `billing@${data.subdomain}.com`
+        },
+        technicalContact: {
+          name: data.technicalContactName || 'Technical Contact',
+          email: data.technicalContactEmail || `tech@${data.subdomain}.com`
+        },
+        features: data.tier === 'Enterprise' ? ['SSO', 'API Access', 'Custom Branding'] : data.tier === 'Professional' ? ['API Access', 'Team Collaboration'] : ['Trial Access'],
+        customBranding: data.tier === 'Enterprise',
+        ssoEnabled: data.tier === 'Enterprise',
+        apiAccess: data.tier !== 'Trial'
+      });
+    }
+    
+    return fetchApi<{
+      id: string;
+      name: string;
+      subdomain: string;
+      domain?: string;
+      tier: string;
+      status: string;
+      userCount: number;
+      documentCount: number;
+      storageUsedMB: number;
+      storageQuotaMB: number;
+      monthlyRevenue: number;
+      annualContract?: number;
+      createdAt: string;
+      lastActive: string;
+      healthScore: number;
+      supportTickets: number;
+      billingContact: {
+        name: string;
+        email: string;
+      };
+      technicalContact: {
+        name: string;
+        email: string;
+      };
+      features: string[];
+      customBranding: boolean;
+      ssoEnabled: boolean;
+      apiAccess: boolean;
+    }>('/platform-admin/clients', {
       method: 'POST',
-      body: data ? JSON.stringify(data) : null,
+      body: JSON.stringify(data),
     });
-    return { data: response };
   },
 
-  async put<T>(endpoint: string, data?: any, options?: RequestInit): Promise<{ data: T }> {
-    const response = await fetchApi<T>(endpoint, {
-      ...options,
+  // Update client
+  async updateClient(clientId: string, data: {
+    name?: string;
+    domain?: string;
+    tier?: string;
+    isActive?: boolean;
+    notes?: string;
+  }) {
+    if (DEMO_MODE) {
+      const client = await this.getClient(clientId);
+      return {
+        ...client,
+        ...data,
+        status: data.isActive !== undefined ? (data.isActive ? 'Active' : 'Inactive') : client.status,
+      };
+    }
+    
+    return fetchApi<{
+      id: string;
+      name: string;
+      subdomain: string;
+      domain?: string;
+      tier: string;
+      status: string;
+      userCount: number;
+      documentCount: number;
+      storageUsedMB: number;
+      storageQuotaMB: number;
+      monthlyRevenue: number;
+      annualContract?: number;
+      createdAt: string;
+      lastActive: string;
+      healthScore: number;
+      supportTickets: number;
+      billingContact: {
+        name: string;
+        email: string;
+      };
+      technicalContact: {
+        name: string;
+        email: string;
+      };
+      features: string[];
+      customBranding: boolean;
+      ssoEnabled: boolean;
+      apiAccess: boolean;
+    }>(`/platform-admin/clients/${clientId}`, {
       method: 'PUT',
-      body: data ? JSON.stringify(data) : null,
+      body: JSON.stringify(data),
     });
-    return { data: response };
+  },
+};
+
+// Client Management API endpoints
+export const clientManagementApi = {
+  // Get client users
+  async getClientUsers(clientId: string) {
+    if (DEMO_MODE) {
+      return Promise.resolve([
+        {
+          id: 'user-1',
+          firstName: 'John',
+          lastName: 'Smith',
+          email: 'john.smith@example.com',
+          role: 'Client.Admin',
+          isActive: true,
+          createdAt: '2024-01-15T10:30:00Z',
+          lastLoginAt: '2025-07-25T08:45:00Z',
+          documentCount: 25,
+          storageUsedMB: 150
+        }
+      ]);
+    }
+    
+    return fetchApi<Array<{
+      id: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+      role: string;
+      isActive: boolean;
+      createdAt: string;
+      lastLoginAt?: string;
+      documentCount: number;
+      storageUsedMB: number;
+    }>>(`/client-management/${clientId}/users`);
   },
 
-  async delete<T>(endpoint: string, options?: RequestInit): Promise<{ data: T }> {
-    const response = await fetchApi<T>(endpoint, { ...options, method: 'DELETE' });
-    return { data: response };
+  // Get client documents
+  async getClientDocuments(clientId: string, page = 1, pageSize = 50) {
+    if (DEMO_MODE) {
+      return Promise.resolve({
+        items: [
+          {
+            id: 'doc-1',
+            title: 'Sample Document',
+            authorName: 'John Smith',
+            createdAt: '2025-07-20T10:30:00Z',
+            updatedAt: '2025-07-25T14:22:00Z',
+            publicAccessLevel: 'Private',
+            tags: ['legal', 'contract'],
+            sizeBytes: 2048,
+            viewCount: 45
+          }
+        ],
+        totalCount: 1,
+        page: 1,
+        pageSize: 50,
+        totalPages: 1
+      });
+    }
+    
+    return fetchApi<{
+      items: Array<{
+        id: string;
+        title: string;
+        authorName: string;
+        createdAt: string;
+        updatedAt: string;
+        publicAccessLevel: string;
+        tags: string[];
+        sizeBytes: number;
+        viewCount: number;
+      }>;
+      totalCount: number;
+      page: number;
+      pageSize: number;
+      totalPages: number;
+    }>(`/client-management/${clientId}/documents?page=${page}&pageSize=${pageSize}`);
+  },
+
+  // Suspend client
+  async suspendClient(clientId: string, reason: string) {
+    if (DEMO_MODE) {
+      return Promise.resolve({
+        message: 'Client organization suspended successfully'
+      });
+    }
+    
+    return fetchApi<{
+      message: string;
+    }>(`/client-management/${clientId}/suspend`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+    });
+  },
+
+  // Reactivate client
+  async reactivateClient(clientId: string) {
+    if (DEMO_MODE) {
+      return Promise.resolve({
+        message: 'Client organization reactivated successfully'
+      });
+    }
+    
+    return fetchApi<{
+      message: string;
+    }>(`/client-management/${clientId}/reactivate`, {
+      method: 'POST',
+    });
+  },
+
+  // Delete client (dangerous!)
+  async deleteClient(clientId: string, confirmationToken: string) {
+    if (DEMO_MODE) {
+      return Promise.resolve({
+        message: 'Client organization deleted successfully',
+        deletedData: {
+          clientName: 'Demo Client',
+          userCount: 5,
+          documentCount: 25
+        }
+      });
+    }
+    
+    return fetchApi<{
+      message: string;
+      deletedData: {
+        clientName: string;
+        userCount: number;
+        documentCount: number;
+      };
+    }>(`/client-management/${clientId}?confirmationToken=${confirmationToken}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // Create admin user for client
+  async createAdminUser(clientId: string, userData: {
+    firstName: string;
+    lastName: string;
+    email: string;
+  }) {
+    if (DEMO_MODE) {
+      return Promise.resolve({
+        id: `user-${Date.now()}`,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        email: userData.email,
+        role: 'Client.Admin',
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        lastLoginAt: null,
+        documentCount: 0,
+        storageUsedMB: 0
+      });
+    }
+    
+    return fetchApi<{
+      id: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+      role: string;
+      isActive: boolean;
+      createdAt: string;
+      lastLoginAt?: string;
+      documentCount: number;
+      storageUsedMB: number;
+    }>(`/client-management/${clientId}/admin-user`, {
+      method: 'POST',
+      body: JSON.stringify(userData),
+    });
+  },
+
+  // Update client subscription
+  async updateSubscription(clientId: string, tier: string) {
+    if (DEMO_MODE) {
+      return Promise.resolve({
+        message: 'Subscription updated successfully',
+        oldTier: 'Professional',
+        newTier: tier
+      });
+    }
+    
+    return fetchApi<{
+      message: string;
+      oldTier: string;
+      newTier: string;
+    }>(`/client-management/${clientId}/subscription`, {
+      method: 'PUT',
+      body: JSON.stringify({ tier }),
+    });
   },
 };
 
@@ -478,6 +983,8 @@ export default {
   users: userApi,
   auth: authApi,
   health: healthApi,
+  platformAdmin: platformAdminApi,
+  clientManagement: clientManagementApi,
   // Add HTTP client methods for compatibility
   get: httpClient.get,
   post: httpClient.post,
