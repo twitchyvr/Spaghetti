@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import { useAuth } from '../../contexts/AuthContext';
-import { Users, MessageCircle, Save, AlertCircle } from 'lucide-react';
+import { Users, Save, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '../ui/alert';
 
 interface CollaborativeEditorProps {
@@ -18,8 +18,8 @@ interface UserPresence {
   status: 'active' | 'idle' | 'away' | 'typing';
   cursorPosition?: {
     position: number;
-    selectionStart?: number;
-    selectionEnd?: number;
+    selectionStart: number;
+    selectionEnd: number;
   };
   color: string;
   lastSeen: string;
@@ -36,13 +36,14 @@ interface DocumentOperation {
   timestamp: string;
 }
 
-interface OperationResult {
-  success: boolean;
-  errorMessage?: string;
-  transformedOperation?: DocumentOperation;
-  documentVersion: number;
-  requiredVersion?: number;
-}
+// Operation result interface for future use
+// interface OperationResult {
+//   success: boolean;
+//   errorMessage?: string;
+//   transformedOperation?: DocumentOperation;
+//   documentVersion: number;
+//   requiredVersion?: number;
+// }
 
 export const CollaborativeEditor: React.FC<CollaborativeEditorProps> = ({
   documentId,
@@ -168,8 +169,8 @@ export const CollaborativeEditor: React.FC<CollaborativeEditorProps> = ({
               ...user, 
               cursorPosition: {
                 position: cursorData.position,
-                selectionStart: cursorData.selectionStart,
-                selectionEnd: cursorData.selectionEnd
+                selectionStart: cursorData.selectionStart ?? cursorData.position,
+                selectionEnd: cursorData.selectionEnd ?? cursorData.position
               }
             }
           : user

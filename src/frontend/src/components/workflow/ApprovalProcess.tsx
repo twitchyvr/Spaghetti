@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   Check, 
   X, 
   Clock, 
   User, 
   AlertCircle, 
-  ChevronRight, 
-  MessageSquare,
   FileText,
   Calendar,
   Send
@@ -59,15 +57,12 @@ enum ApprovalStatus {
 }
 
 export const ApprovalProcess: React.FC<ApprovalProcessProps> = ({
-  processId,
-  documentId,
   documentTitle,
   steps,
   overallStatus,
   onApprove,
   onReject,
   onRequestChanges,
-  onReassign,
   className = ''
 }) => {
   const { user } = useAuth();

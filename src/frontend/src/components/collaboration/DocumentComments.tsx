@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { MessageCircle, Send, Reply, Edit, Trash2, Check, X, MoreVertical } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { DocumentComment, UserPresence } from '../../types/collaboration';
+import { DocumentComment } from '../../types/collaboration';
 
 interface DocumentCommentsProps {
   documentId: string;
@@ -40,11 +40,11 @@ export const DocumentComments: React.FC<DocumentCommentsProps> = ({
 
   // Group comments into threads
   const commentThreads: CommentThread[] = React.useMemo(() => {
-    const parentComments = comments.filter(c => !c.parentId);
+    const parentComments = comments.filter(c => !(c as any).parentId);
     return parentComments.map(comment => ({
       comment,
       replies: comments
-        .filter(c => c.parentId === comment.id)
+        .filter(c => (c as any).parentId === comment.id)
         .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
     }));
   }, [comments]);
@@ -131,7 +131,7 @@ export const DocumentComments: React.FC<DocumentCommentsProps> = ({
   };
 
   const canDeleteComment = (comment: DocumentComment) => {
-    return user?.id === comment.userId || user?.roles?.includes('Admin');
+    return user?.id === comment.userId || (user as any)?.roles?.includes('Admin');
   };
 
   return (

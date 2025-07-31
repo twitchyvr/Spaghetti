@@ -1172,14 +1172,14 @@ const httpClient = {
     return fetchApi<T>(url, {
       ...options,
       method: 'POST',
-      ...(data && { body: JSON.stringify(data) }),
+      body: data ? JSON.stringify(data) : null,
     });
   },
   put: async <T>(url: string, data?: unknown, options?: RequestInit): Promise<T> => {
     return fetchApi<T>(url, {
       ...options,
       method: 'PUT',
-      ...(data && { body: JSON.stringify(data) }),
+      body: data ? JSON.stringify(data) : null,
     });
   },
   delete: async <T>(url: string, options?: RequestInit): Promise<T> => {

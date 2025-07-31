@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 interface PermissionGateProps {
   children: React.ReactNode;
   permissions: string | string[];
-  resource?: string;
+  resource?: string | undefined;
   requireAll?: boolean;
   fallback?: React.ReactNode;
   showFallback?: boolean;
@@ -61,7 +61,7 @@ export const PermissionGate: React.FC<PermissionGateProps> = ({
 interface PermissionBasedProps {
   children: React.ReactNode;
   permission: string;
-  resource?: string;
+  resource?: string | undefined;
   fallback?: React.ReactNode;
 }
 
@@ -74,7 +74,7 @@ export const RequirePermission: React.FC<PermissionBasedProps> = ({
   resource,
   fallback = null
 }) => (
-  <PermissionGate permissions={permission} resource={resource || undefined} fallback={fallback}>
+  <PermissionGate permissions={permission} resource={resource ?? undefined} fallback={fallback}>
     {children}
   </PermissionGate>
 );

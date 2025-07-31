@@ -18,7 +18,7 @@ interface TaskNodeProps {
     onDelete: (id: string) => void;
   };
   id: string;
-  selected?: boolean;
+  selected: boolean;
 }
 
 export const TaskNode: React.FC<TaskNodeProps> = ({ data, id, selected }) => {

@@ -1,5 +1,5 @@
 // Sprint 2 Frontend Search Service Implementation
-import { ApiResponse, AdvancedSearchRequest, SearchResponse } from '../types/collaboration';
+import { AdvancedSearchRequest, SearchResponse } from '../types/collaboration';
 import api from './api';
 
 class SearchServiceImpl {
@@ -10,16 +10,12 @@ class SearchServiceImpl {
    */
   async advancedSearch(request: AdvancedSearchRequest): Promise<SearchResponse> {
     try {
-      const response = await api.post<ApiResponse<SearchResponse>>(
+      const response = await api.post<SearchResponse>(
         `${this.baseUrl}/advanced`,
         request
       );
       
-      if (!response.data.success) {
-        throw new Error(response.data.error || 'Search failed');
-      }
-      
-      return response.data.data;
+      return response;
     } catch (error) {
       console.error('Advanced search error:', error);
       throw new Error(
@@ -41,13 +37,9 @@ class SearchServiceImpl {
       url.searchParams.append('query', query);
       url.searchParams.append('limit', limit.toString());
       
-      const response = await api.get<ApiResponse<string[]>>(url.pathname + url.search);
+      const response = await api.get<string[]>(url.pathname + url.search);
       
-      if (!response.data.success) {
-        throw new Error(response.data.error || 'Failed to get suggestions');
-      }
-      
-      return response.data.data;
+      return response;
     } catch (error) {
       console.error('Search suggestions error:', error);
       // Return empty array on error to not break the UI
@@ -69,13 +61,9 @@ class SearchServiceImpl {
       url.searchParams.append('page', page.toString());
       url.searchParams.append('pageSize', pageSize.toString());
       
-      const response = await api.get<ApiResponse<SearchResponse>>(url.pathname + url.search);
+      const response = await api.get<SearchResponse>(url.pathname + url.search);
       
-      if (!response.data.success) {
-        throw new Error(response.data.error || 'Search failed');
-      }
-      
-      return response.data.data;
+      return response;
     } catch (error) {
       console.error('Full-text search error:', error);
       throw new Error(
@@ -89,13 +77,9 @@ class SearchServiceImpl {
    */
   async indexDocument(documentId: string): Promise<void> {
     try {
-      const response = await api.post<ApiResponse<void>>(
+      await api.post<void>(
         `${this.baseUrl}/index/${documentId}`
       );
-      
-      if (!response.data.success) {
-        throw new Error(response.data.error || 'Failed to index document');
-      }
     } catch (error) {
       console.error('Document indexing error:', error);
       throw new Error(
@@ -109,13 +93,9 @@ class SearchServiceImpl {
    */
   async reindexAllDocuments(): Promise<void> {
     try {
-      const response = await api.post<ApiResponse<void>>(
+      await api.post<void>(
         `${this.baseUrl}/reindex`
       );
-      
-      if (!response.data.success) {
-        throw new Error(response.data.error || 'Failed to initiate reindex');
-      }
     } catch (error) {
       console.error('Reindex error:', error);
       throw new Error(
@@ -129,11 +109,11 @@ class SearchServiceImpl {
    */
   async checkHealth(): Promise<boolean> {
     try {
-      const response = await api.get<ApiResponse<{ status: string }>>(
+      const response = await api.get<{ status: string }>(
         `${this.baseUrl}/health`
       );
       
-      return response.data.success && response.data.data.status === 'healthy';
+      return response.status === 'healthy';
     } catch (error) {
       console.error('Search health check error:', error);
       return false;

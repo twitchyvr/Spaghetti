@@ -11,7 +11,7 @@ interface StartNodeProps {
     onDelete: (id: string) => void;
   };
   id: string;
-  selected?: boolean;
+  selected: boolean;
 }
 
 export const StartNode: React.FC<StartNodeProps> = ({ data, id, selected }) => {

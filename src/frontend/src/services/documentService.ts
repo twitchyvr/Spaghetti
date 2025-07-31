@@ -186,22 +186,22 @@ class DocumentService {
     params.append('page', request.page.toString());
     params.append('pageSize', request.pageSize.toString());
 
-    const response = await apiClient.get(`${this.baseUrl}?${params.toString()}`);
+    const response = await apiClient.get<PaginatedResponse<DocumentListResponse>>(`${this.baseUrl}?${params.toString()}`);
     return response.data;
   }
 
   async getDocument(id: string): Promise<Document> {
-    const response = await apiClient.get(`${this.baseUrl}/${id}`);
+    const response = await apiClient.get<Document>(`${this.baseUrl}/${id}`);
     return response.data;
   }
 
   async createDocument(request: CreateDocumentRequest): Promise<Document> {
-    const response = await apiClient.post(this.baseUrl, request);
+    const response = await apiClient.post<Document>(this.baseUrl, request);
     return response.data;
   }
 
   async updateDocument(id: string, request: UpdateDocumentRequest): Promise<Document> {
-    const response = await apiClient.put(`${this.baseUrl}/${id}`, request);
+    const response = await apiClient.put<Document>(`${this.baseUrl}/${id}`, request);
     return response.data;
   }
 
@@ -210,17 +210,17 @@ class DocumentService {
   }
 
   async getDocumentVersions(id: string): Promise<DocumentListResponse[]> {
-    const response = await apiClient.get(`${this.baseUrl}/${id}/versions`);
+    const response = await apiClient.get<DocumentListResponse[]>(`${this.baseUrl}/${id}/versions`);
     return response.data;
   }
 
   async createDocumentVersion(id: string, request: CreateDocumentVersionRequest): Promise<Document> {
-    const response = await apiClient.post(`${this.baseUrl}/${id}/versions`, request);
+    const response = await apiClient.post<Document>(`${this.baseUrl}/${id}/versions`, request);
     return response.data;
   }
 
   async getLatestVersion(id: string): Promise<Document> {
-    const response = await apiClient.get(`${this.baseUrl}/${id}/latest`);
+    const response = await apiClient.get<Document>(`${this.baseUrl}/${id}/latest`);
     return response.data;
   }
 

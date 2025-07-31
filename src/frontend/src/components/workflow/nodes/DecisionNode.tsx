@@ -19,7 +19,7 @@ interface DecisionNodeProps {
     onDelete: (id: string) => void;
   };
   id: string;
-  selected?: boolean;
+  selected: boolean;
 }
 
 export const DecisionNode: React.FC<DecisionNodeProps> = ({ data, id, selected }) => {
@@ -54,7 +54,12 @@ export const DecisionNode: React.FC<DecisionNodeProps> = ({ data, id, selected }
     }));
   };
 
-  const updateCondition = (conditionId: string, updates: Partial<typeof properties.conditions[0]>) => {
+  const updateCondition = (conditionId: string, updates: Partial<{
+    id: string;
+    label: string;
+    expression: string;
+    type: 'expression' | 'value' | 'script';
+  }>) => {
     setProperties(prev => ({
       ...prev,
       conditions: prev.conditions?.map(cond => 
@@ -110,7 +115,7 @@ export const DecisionNode: React.FC<DecisionNodeProps> = ({ data, id, selected }
             </div>
             
             <div className="space-y-2 max-h-40 overflow-y-auto">
-              {(properties.conditions || []).map((condition, index) => (
+              {(properties.conditions || []).map((condition) => (
                 <div key={condition.id} className="p-2 border rounded bg-gray-50">
                   <div className="flex items-center justify-between mb-2">
                     <input

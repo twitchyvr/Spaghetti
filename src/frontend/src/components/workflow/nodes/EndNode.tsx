@@ -16,7 +16,7 @@ interface EndNodeProps {
     onDelete: (id: string) => void;
   };
   id: string;
-  selected?: boolean;
+  selected: boolean;
 }
 
 export const EndNode: React.FC<EndNodeProps> = ({ data, id, selected }) => {

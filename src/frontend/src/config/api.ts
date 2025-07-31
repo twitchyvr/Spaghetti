@@ -100,7 +100,7 @@ class ApiClient {
   ): Promise<{ data: T; success: boolean; error?: string }> {
     return this.request<T>(endpoint, {
       method: 'POST',
-      ...(data && { body: JSON.stringify(data) }),
+      body: data ? JSON.stringify(data) : null,
     });
   }
 
@@ -110,7 +110,7 @@ class ApiClient {
   ): Promise<{ data: T; success: boolean; error?: string }> {
     return this.request<T>(endpoint, {
       method: 'PUT',
-      ...(data && { body: JSON.stringify(data) }),
+      body: data ? JSON.stringify(data) : null,
     });
   }
 

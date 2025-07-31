@@ -45,7 +45,7 @@ export const MFASetup: React.FC<MFASetupProps> = ({ onComplete, onCancel }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
   const [secretKey, setSecretKey] = useState('');
-  const [qrCodeUrl] = useState('');
+  const [, setQrCodeUrl] = useState('');
   const [backupCodes, setBackupCodes] = useState<string[]>([]);
   const [copiedCode, setCopiedCode] = useState('');
 

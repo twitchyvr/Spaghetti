@@ -1,6 +1,5 @@
 // Sprint 2 Frontend Collaboration Service Implementation
 import { 
-  ApiResponse, 
   UserPresence, 
   DocumentLockInfo, 
   ContentChange, 
@@ -16,15 +15,11 @@ class CollaborationServiceImpl {
    */
   async getActiveUsers(documentId: string): Promise<UserPresence[]> {
     try {
-      const response = await api.get<ApiResponse<UserPresence[]>>(
+      const response = await api.get<UserPresence[]>(
         `${this.baseUrl}/document/${documentId}/users`
       );
       
-      if (!response.data.success) {
-        throw new Error(response.data.error || 'Failed to get active users');
-      }
-      
-      return response.data.data;
+      return response;
     } catch (error) {
       console.error('Get active users error:', error);
       throw new Error(
@@ -38,15 +33,11 @@ class CollaborationServiceImpl {
    */
   async getLockStatus(documentId: string): Promise<DocumentLockInfo | null> {
     try {
-      const response = await api.get<ApiResponse<DocumentLockInfo | null>>(
+      const response = await api.get<DocumentLockInfo | null>(
         `${this.baseUrl}/document/${documentId}/lock`
       );
       
-      if (!response.data.success) {
-        throw new Error(response.data.error || 'Failed to get lock status');
-      }
-      
-      return response.data.data;
+      return response;
     } catch (error) {
       console.error('Get lock status error:', error);
       throw new Error(
@@ -60,15 +51,11 @@ class CollaborationServiceImpl {
    */
   async requestLock(documentId: string): Promise<DocumentLockInfo> {
     try {
-      const response = await api.post<ApiResponse<DocumentLockInfo>>(
+      const response = await api.post<DocumentLockInfo>(
         `${this.baseUrl}/document/${documentId}/lock`
       );
       
-      if (!response.data.success) {
-        throw new Error(response.data.error || 'Failed to acquire lock');
-      }
-      
-      return response.data.data;
+      return response;
     } catch (error) {
       console.error('Request lock error:', error);
       
@@ -93,13 +80,9 @@ class CollaborationServiceImpl {
    */
   async releaseLock(documentId: string): Promise<void> {
     try {
-      const response = await api.delete<ApiResponse<void>>(
+      await api.delete<void>(
         `${this.baseUrl}/document/${documentId}/lock`
       );
-      
-      if (!response.data.success) {
-        throw new Error(response.data.error || 'Failed to release lock');
-      }
     } catch (error) {
       console.error('Release lock error:', error);
       
@@ -127,13 +110,9 @@ class CollaborationServiceImpl {
       const url = new URL(`${this.baseUrl}/document/${documentId}/changes`, window.location.origin);
       url.searchParams.append('since', since);
       
-      const response = await api.get<ApiResponse<ContentChange[]>>(url.pathname + url.search);
+      const response = await api.get<ContentChange[]>(url.pathname + url.search);
       
-      if (!response.data.success) {
-        throw new Error(response.data.error || 'Failed to get content changes');
-      }
-      
-      return response.data.data;
+      return response;
     } catch (error) {
       console.error('Get content changes error:', error);
       throw new Error(
@@ -147,14 +126,10 @@ class CollaborationServiceImpl {
    */
   async storeContentChange(documentId: string, change: ContentChange): Promise<void> {
     try {
-      const response = await api.post<ApiResponse<void>>(
+      await api.post<void>(
         `${this.baseUrl}/document/${documentId}/changes`,
         change
       );
-      
-      if (!response.data.success) {
-        throw new Error(response.data.error || 'Failed to store content change');
-      }
     } catch (error) {
       console.error('Store content change error:', error);
       throw new Error(
@@ -168,15 +143,11 @@ class CollaborationServiceImpl {
    */
   async getDocumentComments(documentId: string): Promise<DocumentComment[]> {
     try {
-      const response = await api.get<ApiResponse<DocumentComment[]>>(
+      const response = await api.get<DocumentComment[]>(
         `${this.baseUrl}/document/${documentId}/comments`
       );
       
-      if (!response.data.success) {
-        throw new Error(response.data.error || 'Failed to get document comments');
-      }
-      
-      return response.data.data;
+      return response;
     } catch (error) {
       console.error('Get document comments error:', error);
       throw new Error(
@@ -190,14 +161,10 @@ class CollaborationServiceImpl {
    */
   async addComment(documentId: string, comment: DocumentComment): Promise<void> {
     try {
-      const response = await api.post<ApiResponse<void>>(
+      await api.post<void>(
         `${this.baseUrl}/document/${documentId}/comments`,
         comment
       );
-      
-      if (!response.data.success) {
-        throw new Error(response.data.error || 'Failed to add comment');
-      }
     } catch (error) {
       console.error('Add comment error:', error);
       throw new Error(

@@ -1,7 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react';
 import ReactFlow, {
-  Node,
-  Edge,
   Connection,
   useNodesState,
   useEdgesState,
@@ -13,7 +11,7 @@ import ReactFlow, {
   ConnectionMode,
   MarkerType,
 } from 'reactflow';
-import { Save, Play, Settings, Plus, Trash2, Copy } from 'lucide-react';
+import { Save, Play, Settings } from 'lucide-react';
 import 'reactflow/dist/style.css';
 
 // Custom node types
@@ -107,17 +105,17 @@ const defaultWorkflow: WorkflowDefinition = {
 };
 
 export const WorkflowDesigner: React.FC<WorkflowDesignerProps> = ({
-  workflowId,
+  workflowId: _workflowId,
   initialWorkflow = defaultWorkflow,
   onSave,
   onValidationError,
   readonly = false,
   className = ''
 }) => {
-  const [workflow, setWorkflow] = useState<WorkflowDefinition>(initialWorkflow);
+  const [workflow] = useState<WorkflowDefinition>(initialWorkflow);
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [selectedNode, setSelectedNode] = useState<string | null>(null);
+  const [selectedNode] = useState<string | null>(null);
   const [isValidating, setIsValidating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showSettings, setShowSettings] = useState(false);

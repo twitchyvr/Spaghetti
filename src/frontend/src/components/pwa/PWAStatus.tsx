@@ -26,6 +26,7 @@ export const PWAStatus: React.FC<PWAStatusProps> = ({ className = '' }) => {
       }, 3000);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [showInstallPrompt]);
 
   const handleUpdate = async () => {
