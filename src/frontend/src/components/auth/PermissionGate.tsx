@@ -74,7 +74,7 @@ export const RequirePermission: React.FC<PermissionBasedProps> = ({
   resource,
   fallback = null
 }) => (
-  <PermissionGate permissions={permission} resource={resource ?? undefined} fallback={fallback}>
+  <PermissionGate permissions={permission} resource={resource || undefined} fallback={fallback}>
     {children}
   </PermissionGate>
 );

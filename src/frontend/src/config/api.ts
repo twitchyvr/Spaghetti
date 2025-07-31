@@ -1,6 +1,6 @@
 // API Configuration for Enterprise Documentation Platform
 export const API_CONFIG = {
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001',
+  baseURL: import.meta.env['VITE_API_BASE_URL'] || 'http://localhost:5001',
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
@@ -11,7 +11,7 @@ export const API_CONFIG = {
 export const ENV_CONFIG = {
   isDevelopment: import.meta.env.DEV,
   isProduction: import.meta.env.PROD,
-  apiBaseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001',
+  apiBaseUrl: import.meta.env['VITE_API_BASE_URL'] || 'http://localhost:5001',
 } as const;
 
 // API Client configuration
@@ -100,7 +100,7 @@ class ApiClient {
   ): Promise<{ data: T; success: boolean; error?: string }> {
     return this.request<T>(endpoint, {
       method: 'POST',
-      body: data ? JSON.stringify(data) : undefined,
+      ...(data && { body: JSON.stringify(data) }),
     });
   }
 
@@ -110,7 +110,7 @@ class ApiClient {
   ): Promise<{ data: T; success: boolean; error?: string }> {
     return this.request<T>(endpoint, {
       method: 'PUT',
-      body: data ? JSON.stringify(data) : undefined,
+      ...(data && { body: JSON.stringify(data) }),
     });
   }
 

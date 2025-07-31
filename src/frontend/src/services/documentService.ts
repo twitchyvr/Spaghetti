@@ -225,19 +225,16 @@ class DocumentService {
   }
 
   async uploadDocument(formData: FormData): Promise<Document> {
-    const response = await apiClient.post(`${this.baseUrl}/upload`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+    const response = await fetch(`${this.baseUrl}/upload`, {
+      method: 'POST',
+      body: formData,
     });
-    return response.data;
+    return response.json();
   }
 
   async downloadDocument(id: string): Promise<Blob> {
-    const response = await apiClient.get(`${this.baseUrl}/${id}/download`, {
-      responseType: 'blob',
-    });
-    return response.data;
+    const response = await fetch(`${this.baseUrl}/${id}/download`);
+    return response.blob();
   }
 
   async getFileInfo(id: string): Promise<any> {

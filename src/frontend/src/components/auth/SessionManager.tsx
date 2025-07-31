@@ -12,6 +12,8 @@ import {
   EyeOff
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { Alert, AlertDescription } from '../ui/alert';
+import { Badge } from '../ui/badge';
 import { toast } from 'sonner';
 
 interface SessionInfo {
@@ -201,8 +203,7 @@ export const SessionManager: React.FC<SessionManagerProps> = ({ onSessionRevoked
           <AlertDescription className="text-orange-800">
             Your session will expire in {timeUntilExpiry}. 
             <button 
-              variant="link" 
-              className="p-0 h-auto text-orange-800 underline ml-1"
+              className="p-0 h-auto text-orange-800 underline ml-1 bg-transparent border-0 cursor-pointer hover:text-orange-900"
               onClick={extendCurrentSession}
             >
               Extend session
@@ -247,16 +248,14 @@ export const SessionManager: React.FC<SessionManagerProps> = ({ onSessionRevoked
                 </div>
                 <div className="flex gap-2">
                   <button 
-                    variant="outline" 
-                    size="sm"
+                    className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50"
                     onClick={extendCurrentSession}
                   >
                     <RefreshCw className="h-4 w-4 mr-1" />
                     Extend
                   </button>
                   <button 
-                    variant="destructive" 
-                    size="sm"
+                    className="px-3 py-1 text-sm bg-red-600 text-white border border-red-600 rounded hover:bg-red-700"
                     onClick={logout}
                   >
                     <LogOut className="h-4 w-4 mr-1" />
@@ -287,8 +286,7 @@ export const SessionManager: React.FC<SessionManagerProps> = ({ onSessionRevoked
             <div className="flex gap-2">
               {expiredSessions.length > 0 && (
                 <button
-                  variant="ghost"
-                  size="sm"
+                  className="px-3 py-1 text-sm bg-transparent hover:bg-gray-100 text-gray-700 border-0"
                   onClick={() => setShowAllSessions(!showAllSessions)}
                 >
                   {showAllSessions ? (
@@ -306,8 +304,7 @@ export const SessionManager: React.FC<SessionManagerProps> = ({ onSessionRevoked
               )}
               {activeSessions.length > 1 && (
                 <button 
-                  variant="destructive" 
-                  size="sm"
+                  className="px-3 py-1 text-sm bg-red-600 text-white border border-red-600 rounded hover:bg-red-700"
                   onClick={revokeAllOtherSessions}
                 >
                   Revoke All
@@ -375,8 +372,7 @@ export const SessionManager: React.FC<SessionManagerProps> = ({ onSessionRevoked
                         </div>
                         {!expired && (
                           <button 
-                            variant="outline" 
-                            size="sm"
+                            className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50"
                             onClick={() => revokeSession(session.id)}
                           >
                             <LogOut className="h-4 w-4 mr-1" />
