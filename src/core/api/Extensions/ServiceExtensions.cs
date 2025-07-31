@@ -493,170 +493,59 @@ public class DigitalOceanSpacesStorageService : Domain.Interfaces.IStorageServic
 public class LocalFileStorageService : Domain.Interfaces.IStorageService
 {
     private readonly string _basePath;
+    private readonly ILogger<LocalFileStorageService> _logger;
 
-    public LocalFileStorageService(IConfiguration configuration)
+    public LocalFileStorageService(IConfiguration configuration, ILogger<LocalFileStorageService> logger)
     {
-        _basePath = configuration.GetValue<string>("Storage:LocalPath", "wwwroot/uploads");
-        Directory.CreateDirectory(_basePath);
-    }
-
-    public async Task<string> SaveFileAsync(Stream fileStream, string fileName, CancellationToken cancellationToken = default)
-    {
-        var fileId = Guid.NewGuid().ToString("N");
-        var extension = Path.GetExtension(fileName);
-        var storagePath = Path.Combine(_basePath, $"{fileId}{extension}");
-
-        await using var fileOutput = File.Create(storagePath);
-        await fileStream.CopyToAsync(fileOutput, cancellationToken);
-
-        return storagePath;
-    }
-
-    public async Task<Stream> GetFileAsync(string storagePath, CancellationToken cancellationToken = default)
-    {
-        if (!File.Exists(storagePath))
-        {
-            throw new FileNotFoundException("File not found", storagePath);
-        }
-
-        return File.OpenRead(storagePath);
-    }
-
-    public Task<bool> DeleteFileAsync(string storagePath, CancellationToken cancellationToken = default)
-    {
-        if (File.Exists(storagePath))
-        {
-            File.Delete(storagePath);
-            return Task.FromResult(true);
-        }
-
-        return Task.FromResult(false);
-    }
-
-    public Task<string?> GetFileUrlAsync(string storagePath, TimeSpan? expiry = null, CancellationToken cancellationToken = default)
-    {
-        // For local storage, return a relative URL that can be served by the web server
-        var fileName = Path.GetFileName(storagePath);
-        var relativeUrl = $"/uploads/{fileName}";
-        return Task.FromResult<string?>(relativeUrl);
-    }
-
-    public Task<bool> FileExistsAsync(string storagePath, CancellationToken cancellationToken = default)
-    {
-        return Task.FromResult(File.Exists(storagePath));
-    }
-
-    public Task<FileMetadata?> GetFileMetadataAsync(string storagePath, CancellationToken cancellationToken = default)
-    {
-        if (!File.Exists(storagePath))
-        {
-            return Task.FromResult<FileMetadata?>(null);
-        }
-
-        var fileInfo = new System.IO.FileInfo(storagePath);
-        var metadata = new FileMetadata
-        {
-            FileName = fileInfo.Name,
-            Size = fileInfo.Length,
-            ContentType = GetContentType(fileInfo.Extension),
-            Created = fileInfo.CreationTimeUtc,
-            LastModified = fileInfo.LastWriteTimeUtc,
-            ETag = GenerateETag(fileInfo),
-            CustomMetadata = new Dictionary<string, string>()
-        };
-
-        return Task.FromResult<FileMetadata?>(metadata);
-    }
-
-    public async Task<string> CopyFileAsync(string sourceStoragePath, string destinationFileName, CancellationToken cancellationToken = default)
-    {
-        if (!File.Exists(sourceStoragePath))
-        {
-            throw new FileNotFoundException("Source file not found", sourceStoragePath);
-        }
-
-        var extension = Path.GetExtension(destinationFileName);
-        var fileId = Guid.NewGuid().ToString("N");
-        var destinationPath = Path.Combine(_basePath, $"{fileId}{extension}");
-
-        File.Copy(sourceStoragePath, destinationPath);
-        return destinationPath;
-    }
-
-    public Task<long> GetStorageUsageAsync(string tenantId, CancellationToken cancellationToken = default)
-    {
-        // For local storage, calculate total size of files in tenant subdirectory
-        var tenantPath = Path.Combine(_basePath, tenantId);
-        if (!Directory.Exists(tenantPath))
-        {
-            return Task.FromResult(0L);
-        }
-
-        var totalSize = Directory.GetFiles(tenantPath, "*", SearchOption.AllDirectories)
-            .Sum(file => new System.IO.FileInfo(file).Length);
-
-        return Task.FromResult(totalSize);
-    }
-
-    public Task<IEnumerable<EnterpriseDocsCore.Domain.Interfaces.FileInfo>> ListFilesAsync(string path = "", CancellationToken cancellationToken = default)
-    {
-        var searchPath = string.IsNullOrEmpty(path) ? _basePath : Path.Combine(_basePath, path);
+        _basePath = configuration["FileStorage:LocalPath"] ?? Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+        _logger = logger;
         
-        if (!Directory.Exists(searchPath))
+        // Ensure the directory exists
+        if (!Directory.Exists(_basePath))
         {
-            return Task.FromResult(Enumerable.Empty<EnterpriseDocsCore.Domain.Interfaces.FileInfo>());
+            Directory.CreateDirectory(_basePath);
         }
+    }
 
-        var files = Directory.GetFiles(searchPath)
-            .Select(filePath =>
+    public async Task<(bool isValid, string? errorMessage)> ValidateFileAsync(Stream fileStream, string fileName, string contentType, long maxSize = 104857600, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            // Check file size
+            if (fileStream.Length > maxSize)
             {
-                var fileInfo = new System.IO.FileInfo(filePath);
-                return new EnterpriseDocsCore.Domain.Interfaces.FileInfo
-                {
-                    Name = fileInfo.Name,
-                    FullPath = filePath,
-                    Size = fileInfo.Length,
-                    LastModified = fileInfo.LastWriteTimeUtc,
-                    IsDirectory = false,
-                    ContentType = GetContentType(fileInfo.Extension)
-                };
-            });
+                return (false, $"File size exceeds {maxSize / (1024 * 1024)}MB limit");
+            }
 
-        return Task.FromResult(files);
-    }
+            // Check allowed content types
+            var allowedTypes = new[]
+            {
+                "application/pdf",
+                "application/msword",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "application/vnd.ms-excel",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                "application/vnd.ms-powerpoint",
+                "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                "text/plain",
+                "text/markdown",
+                "image/jpeg",
+                "image/png",
+                "image/gif"
+            };
 
-    public async Task<string> UploadFileAsync(Stream fileStream, string fileName, string contentType, string? tenantId = null, CancellationToken cancellationToken = default)
-    {
-        // Create tenant subdirectory if specified
-        var uploadPath = _basePath;
-        if (!string.IsNullOrEmpty(tenantId))
-        {
-            uploadPath = Path.Combine(_basePath, tenantId);
-            Directory.CreateDirectory(uploadPath);
+            if (!allowedTypes.Contains(contentType.ToLower()))
+            {
+                return (false, $"File type '{contentType}' is not allowed");
+            }
+
+            return (true, null);
         }
-
-        var fileId = Guid.NewGuid().ToString("N");
-        var extension = Path.GetExtension(fileName);
-        var storagePath = Path.Combine(uploadPath, $"{fileId}{extension}");
-
-        await using var fileOutput = File.Create(storagePath);
-        await fileStream.CopyToAsync(fileOutput, cancellationToken);
-
-        return storagePath;
-    }
-
-    public async Task<(Stream stream, string contentType, string fileName)> DownloadFileAsync(string storagePath, CancellationToken cancellationToken = default)
-    {
-        if (!File.Exists(storagePath))
+        catch (Exception ex)
         {
-            throw new FileNotFoundException("File not found", storagePath);
+            _logger.LogError(ex, "Error validating file {FileName}", fileName);
+            return (false, "File validation failed");
         }
-
-        var fileInfo = new System.IO.FileInfo(storagePath);
-        var contentType = GetContentType(fileInfo.Extension);
-        var stream = File.OpenRead(storagePath);
-
-        return (stream, contentType, fileInfo.Name);
     }
 
     public async Task<string> CalculateFileHashAsync(Stream fileStream, CancellationToken cancellationToken = default)
@@ -668,60 +557,233 @@ public class LocalFileStorageService : Domain.Interfaces.IStorageService
         var hashBytes = await sha256.ComputeHashAsync(fileStream, cancellationToken);
         fileStream.Position = originalPosition;
         
-        return Convert.ToHexString(hashBytes);
+        return Convert.ToHexString(hashBytes).ToLower();
     }
 
-    public async Task<(bool isValid, string? errorMessage)> ValidateFileAsync(Stream fileStream, string fileName, string contentType, long maxSize = 104857600, CancellationToken cancellationToken = default)
+    public async Task<string> UploadFileAsync(Stream fileStream, string fileName, string contentType, string? tenantId = null, CancellationToken cancellationToken = default)
     {
-        // Check file size
-        if (fileStream.Length > maxSize)
+        try
         {
-            return (false, $"File size ({fileStream.Length:N0} bytes) exceeds maximum allowed size ({maxSize:N0} bytes)");
-        }
+            // Create directory structure: basePath/tenantId/year/month/
+            var uploadDate = DateTime.UtcNow;
+            var relativePath = Path.Combine(
+                tenantId ?? "shared",
+                uploadDate.Year.ToString(),
+                uploadDate.Month.ToString("D2")
+            );
 
-        // Check file extension
-        var extension = Path.GetExtension(fileName).ToLowerInvariant();
-        var allowedExtensions = new[] { ".pdf", ".docx", ".xlsx", ".pptx", ".txt", ".md", ".png", ".jpg", ".jpeg", ".gif", ".zip" };
+            var fullDirectoryPath = Path.Combine(_basePath, relativePath);
+            if (!Directory.Exists(fullDirectoryPath))
+            {
+                Directory.CreateDirectory(fullDirectoryPath);
+            }
+
+            // Generate unique filename to avoid conflicts
+            var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
+            var extension = Path.GetExtension(fileName);
+            var uniqueFileName = $"{fileNameWithoutExtension}_{Guid.NewGuid():N}{extension}";
+            
+            var fullFilePath = Path.Combine(fullDirectoryPath, uniqueFileName);
+            var relativeFilePath = Path.Combine(relativePath, uniqueFileName);
+
+            // Save the file
+            using (var fileStreamOut = new FileStream(fullFilePath, FileMode.Create))
+            {
+                fileStream.Position = 0;
+                await fileStream.CopyToAsync(fileStreamOut, cancellationToken);
+            }
+
+            _logger.LogInformation("File uploaded successfully: {FilePath}", relativeFilePath);
+            return relativeFilePath.Replace(Path.DirectorySeparatorChar, '/');
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error uploading file {FileName}", fileName);
+            throw new InvalidOperationException($"Failed to upload file: {ex.Message}", ex);
+        }
+    }
+
+    public async Task<(Stream stream, string contentType, string fileName)> DownloadFileAsync(string storagePath, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var fullPath = Path.Combine(_basePath, storagePath.Replace('/', Path.DirectorySeparatorChar));
+            
+            if (!File.Exists(fullPath))
+            {
+                throw new FileNotFoundException($"File not found: {storagePath}");
+            }
+
+            var fileStream = new FileStream(fullPath, FileMode.Open, FileAccess.Read);
+            var fileName = Path.GetFileName(fullPath);
+            var contentType = GetContentType(fileName);
+
+            return (fileStream, contentType, fileName);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error downloading file {FilePath}", storagePath);
+            throw;
+        }
+    }
+
+    public async Task<FileMetadata?> GetFileMetadataAsync(string storagePath, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var fullPath = Path.Combine(_basePath, storagePath.Replace('/', Path.DirectorySeparatorChar));
+            
+            if (!File.Exists(fullPath))
+            {
+                return null;
+            }
+
+            var fileInfo = new System.IO.FileInfo(fullPath);
+            return new FileMetadata
+            {
+                FileName = fileInfo.Name,
+                Size = fileInfo.Length,
+                ContentType = GetContentType(fileInfo.Name),
+                Created = fileInfo.CreationTimeUtc,
+                LastModified = fileInfo.LastWriteTimeUtc,
+                ETag = $"\"{fileInfo.LastWriteTimeUtc.Ticks:x}\""
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting file metadata for {FilePath}", storagePath);
+            return null;
+        }
+    }
+
+    public async Task<bool> DeleteFileAsync(string storagePath, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var fullPath = Path.Combine(_basePath, storagePath.Replace('/', Path.DirectorySeparatorChar));
+            
+            if (File.Exists(fullPath))
+            {
+                File.Delete(fullPath);
+                _logger.LogInformation("File deleted successfully: {FilePath}", storagePath);
+                return true;
+            }
+
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting file {FilePath}", storagePath);
+            return false;
+        }
+    }
+
+    public async Task<bool> FileExistsAsync(string storagePath, CancellationToken cancellationToken = default)
+    {
+        var fullPath = Path.Combine(_basePath, storagePath.Replace('/', Path.DirectorySeparatorChar));
+        return File.Exists(fullPath);
+    }
+
+    // Interface implementation methods
+    public async Task<string> SaveFileAsync(Stream fileStream, string fileName, CancellationToken cancellationToken = default)
+    {
+        var contentType = GetContentType(fileName);
+        return await UploadFileAsync(fileStream, fileName, contentType, null, cancellationToken);
+    }
+
+    public async Task<Stream> GetFileAsync(string storagePath, CancellationToken cancellationToken = default)
+    {
+        var (stream, _, _) = await DownloadFileAsync(storagePath, cancellationToken);
+        return stream;
+    }
+
+    public async Task<string?> GetFileUrlAsync(string storagePath, TimeSpan? expiry = null, CancellationToken cancellationToken = default)
+    {
+        // For local storage, return a relative URL that can be served by the API
+        if (await FileExistsAsync(storagePath, cancellationToken))
+        {
+            return $"/api/documents/files/{storagePath}";
+        }
+        return null;
+    }
+
+    public async Task<string> CopyFileAsync(string sourceStoragePath, string destinationFileName, CancellationToken cancellationToken = default)
+    {
+        var sourceFullPath = Path.Combine(_basePath, sourceStoragePath.Replace('/', Path.DirectorySeparatorChar));
+        var destFullPath = Path.Combine(_basePath, destinationFileName.Replace('/', Path.DirectorySeparatorChar));
         
-        if (!allowedExtensions.Contains(extension))
-        {
-            return (false, $"File type '{extension}' is not allowed");
-        }
-
-        // Validate content type matches extension
-        var expectedContentType = GetContentType(extension);
-        if (!string.Equals(contentType, expectedContentType, StringComparison.OrdinalIgnoreCase))
-        {
-            return (false, $"Content type '{contentType}' does not match file extension '{extension}'");
-        }
-
-        return (true, null);
+        File.Copy(sourceFullPath, destFullPath, true);
+        return destinationFileName;
     }
 
-    private static string GetContentType(string extension)
+    public async Task<long> GetStorageUsageAsync(string tenantId, CancellationToken cancellationToken = default)
     {
-        return extension.ToLowerInvariant() switch
+        var tenantPath = Path.Combine(_basePath, tenantId);
+        if (!Directory.Exists(tenantPath))
+            return 0;
+
+        var files = Directory.GetFiles(tenantPath, "*", SearchOption.AllDirectories);
+        return files.Sum(file => new System.IO.FileInfo(file).Length);
+    }
+
+    public async Task<IEnumerable<Domain.Interfaces.FileInfo>> ListFilesAsync(string path = "", CancellationToken cancellationToken = default)
+    {
+        var fullPath = Path.Combine(_basePath, path.Replace('/', Path.DirectorySeparatorChar));
+        if (!Directory.Exists(fullPath))
+            return Array.Empty<Domain.Interfaces.FileInfo>();
+
+        var files = Directory.GetFiles(fullPath)
+            .Select(file =>
+            {
+                var info = new System.IO.FileInfo(file);
+                return new Domain.Interfaces.FileInfo
+                {
+                    Name = info.Name,
+                    FullPath = Path.GetRelativePath(_basePath, file).Replace(Path.DirectorySeparatorChar, '/'),
+                    Size = info.Length,
+                    LastModified = info.LastWriteTimeUtc,
+                    IsDirectory = false,
+                    ContentType = GetContentType(info.Name)
+                };
+            });
+
+        var directories = Directory.GetDirectories(fullPath)
+            .Select(dir =>
+            {
+                var info = new DirectoryInfo(dir);
+                return new Domain.Interfaces.FileInfo
+                {
+                    Name = info.Name,
+                    FullPath = Path.GetRelativePath(_basePath, dir).Replace(Path.DirectorySeparatorChar, '/'),
+                    Size = 0,
+                    LastModified = info.LastWriteTimeUtc,
+                    IsDirectory = true,
+                    ContentType = "directory"
+                };
+            });
+
+        return files.Concat(directories);
+    }
+
+    private static string GetContentType(string fileName)
+    {
+        var extension = Path.GetExtension(fileName).ToLower();
+        return extension switch
         {
             ".pdf" => "application/pdf",
+            ".doc" => "application/msword",
             ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            ".xls" => "application/vnd.ms-excel",
             ".xlsx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            ".ppt" => "application/vnd.ms-powerpoint",
             ".pptx" => "application/vnd.openxmlformats-officedocument.presentationml.presentation",
             ".txt" => "text/plain",
-            ".md" => "text/markdown",
-            ".png" => "image/png",
+            ".md" or ".markdown" => "text/markdown",
             ".jpg" or ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
             ".gif" => "image/gif",
-            ".zip" => "application/zip",
             _ => "application/octet-stream"
         };
-    }
-
-    private static string GenerateETag(System.IO.FileInfo fileInfo)
-    {
-        var hash = $"{fileInfo.LastWriteTimeUtc.Ticks}-{fileInfo.Length}";
-        using var sha1 = System.Security.Cryptography.SHA1.Create();
-        var hashBytes = sha1.ComputeHash(System.Text.Encoding.UTF8.GetBytes(hash));
-        return Convert.ToHexString(hashBytes)[..16];
     }
 }
 
