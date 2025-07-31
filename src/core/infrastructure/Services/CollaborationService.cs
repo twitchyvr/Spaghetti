@@ -1,4 +1,5 @@
 using EnterpriseDocsCore.Domain.Interfaces;
+using EnterpriseDocsCore.API.DTOs;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
@@ -422,4 +423,238 @@ public class CollaborationService : ICollaborationService
         
         return colors[Math.Abs(hash) % colors.Length];
     }
+
+    /// <summary>
+    /// Apply operational transformation operation to document
+    /// </summary>
+    public async Task<DocumentOperationResponse> ApplyOperationAsync(Guid documentId, Guid userId, DocumentOperationRequest operation)
+    {
+        try
+        {
+            // Get current document version and operations
+            var operationsKey = GetOperationsCacheKey(documentId);
+            var cachedData = await _cache.GetStringAsync(operationsKey);
+            var operations = string.IsNullOrEmpty(cachedData) 
+                ? new List<DocumentOperationRequest>() 
+                : JsonSerializer.Deserialize<List<DocumentOperationRequest>>(cachedData) ?? new List<DocumentOperationRequest>();
+
+            // Get current document version
+            var versionKey = GetVersionCacheKey(documentId);
+            var versionData = await _cache.GetStringAsync(versionKey);
+            var currentVersion = string.IsNullOrEmpty(versionData) ? 0 : int.Parse(versionData);
+
+            // Check if operation version matches current version for concurrent editing
+            if (operation.Version < currentVersion)
+            {
+                // Need to transform the operation against newer operations
+                var transformedOperation = TransformOperation(operation, operations, operation.Version, currentVersion);
+                if (transformedOperation == null)
+                {
+                    return new DocumentOperationResponse
+                    {
+                        Success = false,
+                        ErrorMessage = "Operation could not be transformed",
+                        RequiredVersion = currentVersion
+                    };
+                }
+                operation = transformedOperation;
+            }
+
+            // Apply the operation
+            var newVersion = currentVersion + 1;
+            operation.Version = newVersion;
+
+            // Store the operation
+            operations.Add(operation);
+            
+            // Keep only recent operations (last 1000 or last day)
+            var cutoffTime = DateTime.UtcNow.Subtract(TimeSpan.FromDays(1));
+            operations = operations
+                .Where(op => op.Timestamp > cutoffTime)
+                .OrderBy(op => op.Timestamp)
+                .TakeLast(1000)
+                .ToList();
+
+            // Update cache
+            var serializedOperations = JsonSerializer.Serialize(operations);
+            var options = new DistributedCacheEntryOptions
+            {
+                SlidingExpiration = TimeSpan.FromDays(1)
+            };
+            
+            await _cache.SetStringAsync(operationsKey, serializedOperations, options);
+            await _cache.SetStringAsync(versionKey, newVersion.ToString(), options);
+
+            _logger.LogDebug("Applied operation {OperationType} for document {DocumentId} by user {UserId}, new version: {Version}", 
+                operation.OperationType, documentId, userId, newVersion);
+
+            return new DocumentOperationResponse
+            {
+                Success = true,
+                TransformedOperation = operation,
+                DocumentVersion = newVersion,
+                AppliedAt = DateTime.UtcNow
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error applying operation for document {DocumentId} by user {UserId}", documentId, userId);
+            return new DocumentOperationResponse
+            {
+                Success = false,
+                ErrorMessage = "Failed to apply operation"
+            };
+        }
+    }
+
+    /// <summary>
+    /// Update cursor position for a user
+    /// </summary>
+    public async Task UpdateCursorPositionAsync(Guid documentId, Guid userId, CursorPosition cursorPosition)
+    {
+        try
+        {
+            var cacheKey = GetPresenceCacheKey(documentId);
+            var cachedData = await _cache.GetStringAsync(cacheKey);
+            var presenceMap = string.IsNullOrEmpty(cachedData) 
+                ? new Dictionary<string, UserPresence>() 
+                : JsonSerializer.Deserialize<Dictionary<string, UserPresence>>(cachedData) ?? new Dictionary<string, UserPresence>();
+
+            if (presenceMap.ContainsKey(userId.ToString()))
+            {
+                presenceMap[userId.ToString()].CursorPosition = cursorPosition;
+                presenceMap[userId.ToString()].LastSeen = DateTime.UtcNow;
+                await UpdatePresenceMapAsync(documentId, presenceMap);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating cursor position for user {UserId} in document {DocumentId}", userId, documentId);
+        }
+    }
+
+    /// <summary>
+    /// Update typing status for a user
+    /// </summary>
+    public async Task UpdateTypingStatusAsync(Guid documentId, Guid userId, bool isTyping)
+    {
+        try
+        {
+            var cacheKey = GetPresenceCacheKey(documentId);
+            var cachedData = await _cache.GetStringAsync(cacheKey);
+            var presenceMap = string.IsNullOrEmpty(cachedData) 
+                ? new Dictionary<string, UserPresence>() 
+                : JsonSerializer.Deserialize<Dictionary<string, UserPresence>>(cachedData) ?? new Dictionary<string, UserPresence>();
+
+            if (presenceMap.ContainsKey(userId.ToString()))
+            {
+                presenceMap[userId.ToString()].Status = isTyping ? "typing" : "active";
+                presenceMap[userId.ToString()].LastSeen = DateTime.UtcNow;
+                await UpdatePresenceMapAsync(documentId, presenceMap);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating typing status for user {UserId} in document {DocumentId}", userId, documentId);
+        }
+    }
+
+    /// <summary>
+    /// Transform an operation against a list of newer operations using operational transformation
+    /// </summary>
+    private DocumentOperationRequest? TransformOperation(DocumentOperationRequest operation, List<DocumentOperationRequest> newerOperations, int fromVersion, int toVersion)
+    {
+        try
+        {
+            var transformedOp = operation;
+            
+            // Get operations that happened after this operation's version
+            var conflictingOps = newerOperations
+                .Where(op => op.Version > fromVersion && op.Version <= toVersion)
+                .OrderBy(op => op.Version)
+                .ToList();
+
+            foreach (var conflictingOp in conflictingOps)
+            {
+                transformedOp = TransformTwoOperations(transformedOp, conflictingOp);
+                if (transformedOp == null)
+                    return null; // Transformation failed
+            }
+
+            return transformedOp;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error transforming operation");
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Transform two operations using operational transformation rules
+    /// </summary>
+    private DocumentOperationRequest? TransformTwoOperations(DocumentOperationRequest op1, DocumentOperationRequest op2)
+    {
+        // Simplified OT implementation - in production, use a library like ShareJS or Yjs
+        try
+        {
+            var transformed = new DocumentOperationRequest
+            {
+                Id = op1.Id,
+                OperationType = op1.OperationType,
+                Position = op1.Position,
+                Length = op1.Length,
+                Content = op1.Content,
+                Attributes = op1.Attributes,
+                Timestamp = op1.Timestamp,
+                Version = op1.Version
+            };
+
+            // Basic transformation rules
+            if (op1.OperationType == "insert" && op2.OperationType == "insert")
+            {
+                if (op2.Position <= op1.Position)
+                {
+                    transformed.Position += op2.Content?.Length ?? 0;
+                }
+            }
+            else if (op1.OperationType == "insert" && op2.OperationType == "delete")
+            {
+                if (op2.Position < op1.Position)
+                {
+                    transformed.Position -= Math.Min(op2.Length ?? 0, op1.Position - op2.Position);
+                }
+            }
+            else if (op1.OperationType == "delete" && op2.OperationType == "insert")
+            {
+                if (op2.Position <= op1.Position)
+                {
+                    transformed.Position += op2.Content?.Length ?? 0;
+                }
+            }
+            else if (op1.OperationType == "delete" && op2.OperationType == "delete")
+            {
+                if (op2.Position < op1.Position)
+                {
+                    transformed.Position -= Math.Min(op2.Length ?? 0, op1.Position - op2.Position);
+                }
+                else if (op2.Position < op1.Position + (op1.Length ?? 0))
+                {
+                    // Overlapping deletes - adjust length
+                    var overlap = Math.Min((op1.Length ?? 0) - (op2.Position - op1.Position), op2.Length ?? 0);
+                    transformed.Length = Math.Max(0, (transformed.Length ?? 0) - overlap);
+                }
+            }
+
+            return transformed;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error transforming two operations");
+            return null;
+        }
+    }
+
+    private static string GetOperationsCacheKey(Guid documentId) => $"operations:doc:{documentId}";
+    private static string GetVersionCacheKey(Guid documentId) => $"version:doc:{documentId}";
 }

@@ -1,3 +1,5 @@
+using EnterpriseDocsCore.API.DTOs;
+
 namespace EnterpriseDocsCore.Domain.Interfaces;
 
 /// <summary>
@@ -59,6 +61,21 @@ public interface ICollaborationService
     /// Get comments for a document
     /// </summary>
     Task<List<DocumentComment>> GetDocumentCommentsAsync(Guid documentId);
+    
+    /// <summary>
+    /// Apply operational transformation operation
+    /// </summary>
+    Task<DocumentOperationResponse> ApplyOperationAsync(Guid documentId, Guid userId, DocumentOperationRequest operation);
+    
+    /// <summary>
+    /// Update cursor position for a user
+    /// </summary>
+    Task UpdateCursorPositionAsync(Guid documentId, Guid userId, CursorPosition cursorPosition);
+    
+    /// <summary>
+    /// Update typing status for a user
+    /// </summary>
+    Task UpdateTypingStatusAsync(Guid documentId, Guid userId, bool isTyping);
 }
 
 /// <summary>
@@ -69,10 +86,11 @@ public class UserPresence
     public Guid UserId { get; set; }
     public string UserName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
-    public string Status { get; set; } = "active"; // active, idle, away
-    public int CursorPosition { get; set; }
+    public string Status { get; set; } = "active"; // active, idle, away, typing
+    public CursorPosition? CursorPosition { get; set; }
     public DateTime LastSeen { get; set; } = DateTime.UtcNow;
     public string Color { get; set; } = "#000000"; // User color for UI
+    public Dictionary<string, object>? Metadata { get; set; }
 }
 
 /// <summary>
