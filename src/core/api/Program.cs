@@ -121,6 +121,10 @@ builder.Services.AddUnitOfWork();
 // builder.Services.AddScoped<IDocumentService, DocumentService>();
 builder.Services.AddScoped<DatabaseSeedingService>();
 
+// Sprint 6: Add Workflow Services
+builder.Services.AddScoped<IWorkflowService, WorkflowService>();
+builder.Services.AddScoped<ICollaborationService, CollaborationService>();
+
 // Health Monitoring Services
 builder.Services.AddScoped<IHealthMonitoringService, HealthMonitoringService>();
 builder.Services.AddScoped<IIncidentManagementService, IncidentManagementService>();

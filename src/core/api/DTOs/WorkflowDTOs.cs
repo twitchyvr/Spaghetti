@@ -332,3 +332,178 @@ public class WorkflowListResponse
     
     public bool HasPreviousPage { get; set; }
 }
+
+/// <summary>
+/// Request to update a workflow definition
+/// </summary>
+public class UpdateWorkflowDefinitionRequest
+{
+    [Required]
+    [MaxLength(255)]
+    public string Name { get; set; } = string.Empty;
+    
+    public string? Description { get; set; }
+    
+    [Required]
+    public WorkflowDefinitionSchema Definition { get; set; } = new();
+    
+    [MaxLength(100)]
+    public string Category { get; set; } = "General";
+    
+    public List<string> Tags { get; set; } = new();
+    
+    public bool IsActive { get; set; } = true;
+}
+
+/// <summary>
+/// Request to create a workflow instance
+/// </summary>
+public class CreateWorkflowInstanceRequest
+{
+    [Required]
+    public Guid WorkflowDefinitionId { get; set; }
+    
+    public Guid? DocumentId { get; set; }
+    
+    public Dictionary<string, object> Context { get; set; } = new();
+    
+    public Guid? AssignedTo { get; set; }
+    
+    public string Priority { get; set; } = "Normal";
+    
+    public DateTime? DueDate { get; set; }
+}
+
+/// <summary>
+/// Request to reassign a workflow task
+/// </summary>
+public class ReassignWorkflowTaskRequest
+{
+    [Required]
+    public Guid AssignedTo { get; set; }
+    
+    public string? Reason { get; set; }
+}
+
+/// <summary>
+/// Request to cancel a workflow instance
+/// </summary>
+public class CancelWorkflowInstanceRequest
+{
+    [Required]
+    public string Reason { get; set; } = string.Empty;
+}
+
+/// <summary>
+/// Workflow validation result
+/// </summary>
+public class WorkflowValidationResult
+{
+    public bool IsValid { get; set; }
+    
+    public List<WorkflowValidationError> Errors { get; set; } = new();
+    
+    public List<WorkflowValidationWarning> Warnings { get; set; } = new();
+    
+    public Dictionary<string, object> ValidationData { get; set; } = new();
+}
+
+/// <summary>
+/// Workflow validation error
+/// </summary>
+public class WorkflowValidationError
+{
+    public string Type { get; set; } = string.Empty;
+    
+    public string Message { get; set; } = string.Empty;
+    
+    public string? NodeId { get; set; }
+    
+    public string? ConnectionId { get; set; }
+    
+    public Dictionary<string, object> AdditionalData { get; set; } = new();
+}
+
+/// <summary>
+/// Workflow validation warning
+/// </summary>
+public class WorkflowValidationWarning
+{
+    public string Type { get; set; } = string.Empty;
+    
+    public string Message { get; set; } = string.Empty;
+    
+    public string? NodeId { get; set; }
+    
+    public string? ConnectionId { get; set; }
+    
+    public Dictionary<string, object> AdditionalData { get; set; } = new();
+}
+
+/// <summary>
+/// Workflow analytics and statistics
+/// </summary>
+public class WorkflowAnalyticsDto
+{
+    public int TotalWorkflows { get; set; }
+    
+    public int ActiveInstances { get; set; }
+    
+    public int CompletedInstances { get; set; }
+    
+    public int FailedInstances { get; set; }
+    
+    public int PendingTasks { get; set; }
+    
+    public int OverdueTasks { get; set; }
+    
+    public double AverageCompletionTime { get; set; }
+    
+    public double SuccessRate { get; set; }
+    
+    public List<WorkflowPerformanceMetric> PerformanceMetrics { get; set; } = new();
+    
+    public List<WorkflowUsageStatistic> UsageStatistics { get; set; } = new();
+    
+    public Dictionary<string, object> CustomMetrics { get; set; } = new();
+}
+
+/// <summary>
+/// Workflow performance metric
+/// </summary>
+public class WorkflowPerformanceMetric
+{
+    public string WorkflowName { get; set; } = string.Empty;
+    
+    public Guid WorkflowDefinitionId { get; set; }
+    
+    public int ExecutionCount { get; set; }
+    
+    public int SuccessfulExecutions { get; set; }
+    
+    public int FailedExecutions { get; set; }
+    
+    public double AverageCompletionTime { get; set; }
+    
+    public double SuccessRate { get; set; }
+    
+    public DateTime? LastExecuted { get; set; }
+}
+
+/// <summary>
+/// Workflow usage statistic
+/// </summary>
+public class WorkflowUsageStatistic
+{
+    public DateTime Date { get; set; }
+    
+    public int ExecutionsStarted { get; set; }
+    
+    public int ExecutionsCompleted { get; set; }
+    
+    public int ExecutionsFailed { get; set; }
+    
+    public int TasksCompleted { get; set; }
+    
+    public double AverageCompletionTime { get; set; }
+}

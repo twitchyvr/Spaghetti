@@ -57,6 +57,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<WorkflowInstance> WorkflowInstances => Set<WorkflowInstance>();
     public DbSet<WorkflowTask> WorkflowTasks => Set<WorkflowTask>();
     public DbSet<WorkflowHistoryEntry> WorkflowHistoryEntries => Set<WorkflowHistoryEntry>();
+    public DbSet<WorkflowPermission> WorkflowPermissions => Set<WorkflowPermission>();
     
     // Sprint 6 Digital Signature Entity Sets
     public DbSet<DocumentSignatureRequest> DocumentSignatureRequests => Set<DocumentSignatureRequest>();
