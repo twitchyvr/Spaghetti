@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using EnterpriseDocsCore.Domain.Interfaces;
 using EnterpriseDocsCore.Infrastructure.Services;
+using EnterpriseDocsCore.Infrastructure.Extensions;
 using EnterpriseDocsCore.API.Authorization;
 
 namespace EnterpriseDocsCore.API.Extensions;
@@ -221,24 +222,8 @@ public static class ServiceExtensions
 
     public static IServiceCollection ConfigureAIServices(this IServiceCollection services, IConfiguration configuration)
     {
-        var aiProvider = configuration.GetValue<string>("AI:Provider", "openai");
-
-        switch (aiProvider.ToLower())
-        {
-            case "azure":
-                services.AddScoped<IAIService, AzureOpenAIService>();
-                break;
-            case "openai":
-                services.AddScoped<IAIService, OpenAIService>();
-                break;
-            case "local":
-                services.AddScoped<IAIService, LocalAIService>();
-                break;
-            default:
-                services.AddScoped<IAIService, MockAIService>();
-                break;
-        }
-
+        // Use the new Enterprise AI Services with provider abstraction
+        services.AddAIServices(configuration);
         return services;
     }
 

@@ -34,6 +34,65 @@ public class RefreshTokenRepository : BaseRepository<RefreshToken, Guid>, IRefre
             .OrderByDescending(rt => rt.CreatedAt)
             .ToListAsync(cancellationToken);
     }
+    
+    public async Task<RefreshToken?> GetActiveTokenAsync(string token, CancellationToken cancellationToken = default)
+    {
+        return await DbSet
+            .Include(rt => rt.User)
+            .FirstOrDefaultAsync(rt => rt.Token == token && !rt.IsExpired && !rt.IsRevoked, cancellationToken);
+    }
+    
+    public async Task<int> DeleteByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        var userTokens = await DbSet
+            .Where(rt => rt.UserId == userId)
+            .ToListAsync(cancellationToken);
+            
+        var count = userTokens.Count;
+        if (count > 0)
+        {
+            DbSet.RemoveRange(userTokens);
+            Logger.LogInformation("Deleted {Count} refresh tokens for user {UserId}", count, userId);
+        }
+        
+        return count;
+    }
+    
+    public async Task<int> RevokeTokenAsync(string token, CancellationToken cancellationToken = default)
+    {
+        var refreshToken = await GetByTokenAsync(token, cancellationToken);
+        if (refreshToken == null || refreshToken.IsRevoked)
+        {
+            Logger.LogWarning("Attempted to revoke non-existent or already revoked refresh token");
+            return 0;
+        }
+
+        refreshToken.RevokedAt = DateTime.UtcNow;
+        refreshToken.RevokedReason = "Manual revocation";
+
+        await UpdateAsync(refreshToken, cancellationToken);
+        Logger.LogInformation("Revoked refresh token for user {UserId}", refreshToken.UserId);
+        
+        return 1;
+    }
+    
+    public async Task<int> RevokeAllUserTokensAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        var activeTokens = await GetActiveByUserIdAsync(userId, cancellationToken);
+        var revokedCount = 0;
+
+        foreach (var token in activeTokens)
+        {
+            token.RevokedAt = DateTime.UtcNow;
+            token.RevokedReason = "Bulk user token revocation";
+            
+            await UpdateAsync(token, cancellationToken);
+            revokedCount++;
+        }
+
+        Logger.LogInformation("Revoked {Count} refresh tokens for user {UserId}", revokedCount, userId);
+        return revokedCount;
+    }
 
     public async Task<bool> IsTokenValidAsync(string token, CancellationToken cancellationToken = default)
     {
@@ -41,7 +100,7 @@ public class RefreshTokenRepository : BaseRepository<RefreshToken, Guid>, IRefre
         return refreshToken?.IsActive == true;
     }
 
-    public async Task<bool> RevokeTokenAsync(string token, string? revokedByIp = null, string? reason = null, CancellationToken cancellationToken = default)
+    public async Task<bool> RevokeTokenWithDetailsAsync(string token, string? revokedByIp = null, string? reason = null, CancellationToken cancellationToken = default)
     {
         var refreshToken = await GetByTokenAsync(token, cancellationToken);
         if (refreshToken == null || refreshToken.IsRevoked)
@@ -58,25 +117,6 @@ public class RefreshTokenRepository : BaseRepository<RefreshToken, Guid>, IRefre
         Logger.LogInformation("Revoked refresh token for user {UserId} from IP {IP}", refreshToken.UserId, revokedByIp);
         
         return true;
-    }
-
-    public async Task<int> RevokeAllUserTokensAsync(Guid userId, string? revokedByIp = null, string? reason = null, CancellationToken cancellationToken = default)
-    {
-        var activeTokens = await GetActiveByUserIdAsync(userId, cancellationToken);
-        var revokedCount = 0;
-
-        foreach (var token in activeTokens)
-        {
-            token.RevokedAt = DateTime.UtcNow;
-            token.RevokedByIp = revokedByIp;
-            token.RevokedReason = reason ?? "Bulk user token revocation";
-            
-            await UpdateAsync(token, cancellationToken);
-            revokedCount++;
-        }
-
-        Logger.LogInformation("Revoked {Count} refresh tokens for user {UserId} from IP {IP}", revokedCount, userId, revokedByIp);
-        return revokedCount;
     }
 
     public async Task<int> DeleteExpiredTokensAsync(CancellationToken cancellationToken = default)

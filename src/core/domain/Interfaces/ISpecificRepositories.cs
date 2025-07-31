@@ -278,6 +278,22 @@ public interface IUserAuthenticationMethodRepository : IRepository<UserAuthentic
     Task<bool> HasMFAEnabledAsync(Guid userId, CancellationToken cancellationToken = default);
     Task<int> DeleteByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
     Task<int> DeleteExpiredMethodsAsync(CancellationToken cancellationToken = default);
+}
+
+public interface IRefreshTokenRepository : IRepository<RefreshToken, Guid>
+{
+    // RefreshToken-specific queries
+    Task<RefreshToken?> GetByTokenAsync(string token, CancellationToken cancellationToken = default);
+    Task<IEnumerable<RefreshToken>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<RefreshToken>> GetActiveByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<RefreshToken?> GetActiveTokenAsync(string token, CancellationToken cancellationToken = default);
+    
+    Task<int> DeleteExpiredTokensAsync(CancellationToken cancellationToken = default);
+    Task<int> DeleteByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<int> RevokeTokenAsync(string token, CancellationToken cancellationToken = default);
+    Task<int> RevokeAllUserTokensAsync(Guid userId, CancellationToken cancellationToken = default);
+}
+
 // Health Monitoring Repository Interfaces
 
 public interface ISystemHealthMetricRepository : IRepository<SystemHealthMetric, Guid>

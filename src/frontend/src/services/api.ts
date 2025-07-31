@@ -977,6 +977,217 @@ export const clientManagementApi = {
   },
 };
 
+// AI API endpoints
+export const aiApi = {
+  // Generate document using AI
+  async generateDocument(data: {
+    templateType: string;
+    parameters: Record<string, unknown>;
+    model?: string;
+    userId?: string;
+  }) {
+    if (DEMO_MODE) {
+      return Promise.resolve({
+        title: `Generated ${data.templateType} Document`,
+        content: `This is a demo-generated ${data.templateType} document with the following parameters: ${JSON.stringify(data.parameters, null, 2)}`,
+        metadata: {
+          templateType: data.templateType,
+          model: data.model || 'gpt-4',
+          generatedAt: new Date().toISOString(),
+          processingTime: 2.5,
+          confidenceScore: 0.92
+        }
+      });
+    }
+
+    return fetchApi<{
+      title: string;
+      content: string;
+      metadata: {
+        templateType: string;
+        model: string;
+        generatedAt: string;
+        processingTime: number;
+        confidenceScore: number;
+      };
+    }>('/AI/generate-document', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  // Analyze content with AI
+  async analyzeContent(data: {
+    content: string;
+    analysisType: string;
+    model?: string;
+  }) {
+    if (DEMO_MODE) {
+      return Promise.resolve({
+        summary: `AI-generated summary of the provided ${data.analysisType} content.`,
+        keyPoints: [
+          'Key insight 1 from the analysis',
+          'Key insight 2 from the analysis',
+          'Key insight 3 from the analysis'
+        ],
+        sentiment: 'positive',
+        confidence: 0.89,
+        suggestedTags: ['analysis', 'ai-generated', data.analysisType],
+        metadata: {
+          analysisType: data.analysisType,
+          model: data.model || 'gpt-4',
+          analyzedAt: new Date().toISOString(),
+          processingTime: 1.8
+        }
+      });
+    }
+
+    return fetchApi<{
+      summary: string;
+      keyPoints: string[];
+      sentiment: string;
+      confidence: number;
+      suggestedTags: string[];
+      metadata: {
+        analysisType: string;
+        model: string;
+        analyzedAt: string;
+        processingTime: number;
+      };
+    }>('/AI/analyze-content', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  // Get available AI models
+  async getModels() {
+    if (DEMO_MODE) {
+      return Promise.resolve([
+        {
+          id: 'gpt-4',
+          name: 'GPT-4',
+          provider: 'OpenAI',
+          description: 'Most capable model for complex document generation',
+          maxTokens: 8192,
+          isAvailable: true
+        },
+        {
+          id: 'gpt-3.5-turbo',
+          name: 'GPT-3.5 Turbo',
+          provider: 'OpenAI',
+          description: 'Fast and efficient for most document types',
+          maxTokens: 4096,
+          isAvailable: true
+        },
+        {
+          id: 'claude-3',
+          name: 'Claude 3',
+          provider: 'Anthropic',
+          description: 'Excellent for legal and technical documents',
+          maxTokens: 100000,
+          isAvailable: false
+        }
+      ]);
+    }
+
+    return fetchApi<Array<{
+      id: string;
+      name: string;
+      provider: string;
+      description: string;
+      maxTokens: number;
+      isAvailable: boolean;
+    }>>('/AI/models');
+  },
+
+  // Get AI service health status
+  async getHealth() {
+    if (DEMO_MODE) {
+      return Promise.resolve({
+        status: 'healthy',
+        providers: {
+          openai: {
+            status: 'healthy',
+            responseTime: 245,
+            modelsAvailable: 2
+          },
+          anthropic: {
+            status: 'unavailable',
+            responseTime: null,
+            modelsAvailable: 0
+          }
+        },
+        lastChecked: new Date().toISOString()
+      });
+    }
+
+    return fetchApi<{
+      status: string;
+      providers: Record<string, {
+        status: string;
+        responseTime: number | null;
+        modelsAvailable: number;
+      }>;
+      lastChecked: string;
+    }>('/AI/health');
+  },
+
+  // Get AI usage statistics
+  async getUsageStats() {
+    if (DEMO_MODE) {
+      return Promise.resolve({
+        totalRequests: 1247,
+        requestsThisMonth: 89,
+        averageResponseTime: 2.1,
+        successRate: 0.97,
+        mostUsedModel: 'gpt-4',
+        documentsGenerated: 156,
+        contentAnalyzed: 203,
+        usage: {
+          'gpt-4': { requests: 567, tokens: 234567 },
+          'gpt-3.5-turbo': { requests: 680, tokens: 145234 }
+        }
+      });
+    }
+
+    return fetchApi<{
+      totalRequests: number;
+      requestsThisMonth: number;
+      averageResponseTime: number;
+      successRate: number;
+      mostUsedModel: string;
+      documentsGenerated: number;
+      contentAnalyzed: number;
+      usage: Record<string, { requests: number; tokens: number }>;
+    }>('/AI/usage-stats');
+  },
+};
+
+// Simple HTTP client methods for compatibility with other services
+const httpClient = {
+  get: async <T>(url: string, options?: RequestInit): Promise<T> => {
+    return fetchApi<T>(url, { ...options, method: 'GET' });
+  },
+  post: async <T>(url: string, data?: unknown, options?: RequestInit): Promise<T> => {
+    return fetchApi<T>(url, {
+      ...options,
+      method: 'POST',
+      body: data ? JSON.stringify(data) : undefined,
+    });
+  },
+  put: async <T>(url: string, data?: unknown, options?: RequestInit): Promise<T> => {
+    return fetchApi<T>(url, {
+      ...options,
+      method: 'PUT',
+      body: data ? JSON.stringify(data) : undefined,
+    });
+  },
+  delete: async <T>(url: string, options?: RequestInit): Promise<T> => {
+    return fetchApi<T>(url, { ...options, method: 'DELETE' });
+  },
+};
+
 export default {
   admin: adminApi,
   documents: documentApi,
@@ -985,7 +1196,8 @@ export default {
   health: healthApi,
   platformAdmin: platformAdminApi,
   clientManagement: clientManagementApi,
-  // Add HTTP client methods for compatibility
+  ai: aiApi,
+  // HTTP client methods for compatibility
   get: httpClient.get,
   post: httpClient.post,
   put: httpClient.put,
