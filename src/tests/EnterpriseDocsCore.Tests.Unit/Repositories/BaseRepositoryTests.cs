@@ -255,7 +255,7 @@ public class BaseRepositoryTests : IDisposable
         await _context.SaveChangesAsync();
 
         // Act
-        var result = await _repository.GetPagedAsync(page: 2, pageSize: 10);
+        var result = await _repository.GetPagedAsync(page: 2, pageSize: 10, cancellationToken: CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();
@@ -276,8 +276,7 @@ public class BaseRepositoryTests : IDisposable
     {
         // Act & Assert
         var exception = await Assert.ThrowsAsync<ArgumentException>(
-            () => _repository.GetPagedAsync(page, pageSize));
-        
+            () => _repository.GetPagedAsync(page, pageSize, cancellationToken: CancellationToken.None));        
         exception.Should().NotBeNull();
     }
 
