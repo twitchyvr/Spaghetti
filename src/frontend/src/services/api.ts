@@ -3,7 +3,6 @@
 const API_BASE_URL = import.meta.env['VITE_API_BASE_URL'] || 'http://localhost:5001/api';
 const DEMO_MODE = import.meta.env['VITE_DEMO_MODE'] === 'true' || API_BASE_URL.includes('api-placeholder');
 
-
 // API Error class
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
