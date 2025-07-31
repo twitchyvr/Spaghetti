@@ -47,6 +47,22 @@ public class ApplicationDbContext : DbContext
     public DbSet<GeographicMetrics> GeographicMetrics => Set<GeographicMetrics>();
     public DbSet<CompetitiveMetrics> CompetitiveMetrics => Set<CompetitiveMetrics>();
 
+    // Sprint 6 Collaboration Entity Sets
+    public DbSet<DocumentSession> DocumentSessions => Set<DocumentSession>();
+    public DbSet<DocumentOperation> DocumentOperations => Set<DocumentOperation>();
+    public DbSet<DocumentComment> DocumentComments => Set<DocumentComment>();
+    
+    // Sprint 6 Workflow Entity Sets
+    public DbSet<WorkflowDefinition> WorkflowDefinitions => Set<WorkflowDefinition>();
+    public DbSet<WorkflowInstance> WorkflowInstances => Set<WorkflowInstance>();
+    public DbSet<WorkflowTask> WorkflowTasks => Set<WorkflowTask>();
+    public DbSet<WorkflowHistoryEntry> WorkflowHistoryEntries => Set<WorkflowHistoryEntry>();
+    
+    // Sprint 6 Digital Signature Entity Sets
+    public DbSet<DocumentSignatureRequest> DocumentSignatureRequests => Set<DocumentSignatureRequest>();
+    public DbSet<DocumentSignature> DocumentSignatures => Set<DocumentSignature>();
+    public DbSet<SignedDocument> SignedDocuments => Set<SignedDocument>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -419,6 +435,88 @@ public class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<RefreshToken>()
             .HasIndex(e => e.CreatedByIp);
+
+        // Sprint 6 Collaboration indexes
+        modelBuilder.Entity<DocumentSession>()
+            .HasIndex(e => new { e.DocumentId, e.IsActive });
+
+        modelBuilder.Entity<DocumentSession>()
+            .HasIndex(e => new { e.UserId, e.IsActive });
+
+        modelBuilder.Entity<DocumentSession>()
+            .HasIndex(e => e.ConnectionId)
+            .IsUnique();
+
+        modelBuilder.Entity<DocumentSession>()
+            .HasIndex(e => e.LastActivity);
+
+        modelBuilder.Entity<DocumentOperation>()
+            .HasIndex(e => new { e.DocumentId, e.Version });
+
+        modelBuilder.Entity<DocumentOperation>()
+            .HasIndex(e => new { e.DocumentId, e.SequenceNumber });
+
+        modelBuilder.Entity<DocumentOperation>()
+            .HasIndex(e => new { e.UserId, e.AppliedAt });
+
+        modelBuilder.Entity<DocumentComment>()
+            .HasIndex(e => new { e.DocumentId, e.CreatedAt });
+
+        modelBuilder.Entity<DocumentComment>()
+            .HasIndex(e => new { e.UserId, e.CreatedAt });
+
+        modelBuilder.Entity<DocumentComment>()
+            .HasIndex(e => e.ParentCommentId);
+
+        // Sprint 6 Workflow indexes
+        modelBuilder.Entity<WorkflowDefinition>()
+            .HasIndex(e => new { e.TenantId, e.IsActive });
+
+        modelBuilder.Entity<WorkflowDefinition>()
+            .HasIndex(e => new { e.Category, e.TenantId });
+
+        modelBuilder.Entity<WorkflowInstance>()
+            .HasIndex(e => new { e.DocumentId, e.Status });
+
+        modelBuilder.Entity<WorkflowInstance>()
+            .HasIndex(e => new { e.AssignedTo, e.Status });
+
+        modelBuilder.Entity<WorkflowInstance>()
+            .HasIndex(e => new { e.StartedBy, e.StartedAt });
+
+        modelBuilder.Entity<WorkflowTask>()
+            .HasIndex(e => new { e.AssignedTo, e.Status });
+
+        modelBuilder.Entity<WorkflowTask>()
+            .HasIndex(e => new { e.WorkflowInstanceId, e.Status });
+
+        modelBuilder.Entity<WorkflowTask>()
+            .HasIndex(e => e.DueDate);
+
+        modelBuilder.Entity<WorkflowHistoryEntry>()
+            .HasIndex(e => new { e.WorkflowInstanceId, e.Timestamp });
+
+        // Sprint 6 Digital Signature indexes
+        modelBuilder.Entity<DocumentSignatureRequest>()
+            .HasIndex(e => new { e.DocumentId, e.Status });
+
+        modelBuilder.Entity<DocumentSignatureRequest>()
+            .HasIndex(e => new { e.TenantId, e.CreatedAt });
+
+        modelBuilder.Entity<DocumentSignatureRequest>()
+            .HasIndex(e => e.ExternalRequestId);
+
+        modelBuilder.Entity<DocumentSignature>()
+            .HasIndex(e => new { e.SignatureRequestId, e.SigningOrder });
+
+        modelBuilder.Entity<DocumentSignature>()
+            .HasIndex(e => new { e.SignerEmail, e.Status });
+
+        modelBuilder.Entity<SignedDocument>()
+            .HasIndex(e => e.DocumentId);
+
+        modelBuilder.Entity<SignedDocument>()
+            .HasIndex(e => e.SignatureRequestId);
     }
 
     private static void ConfigureEntityRelationships(ModelBuilder modelBuilder)
@@ -494,6 +592,177 @@ public class ApplicationDbContext : DbContext
             .WithMany()
             .HasForeignKey(dae => dae.UserId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // Configure Sprint 6 Collaboration relationships
+        modelBuilder.Entity<DocumentSession>()
+            .HasOne(ds => ds.Document)
+            .WithMany()
+            .HasForeignKey(ds => ds.DocumentId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<DocumentSession>()
+            .HasOne(ds => ds.User)
+            .WithMany()
+            .HasForeignKey(ds => ds.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<DocumentOperation>()
+            .HasOne(do => do.Document)
+            .WithMany()
+            .HasForeignKey(do => do.DocumentId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<DocumentOperation>()
+            .HasOne(do => do.User)
+            .WithMany()
+            .HasForeignKey(do => do.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<DocumentComment>()
+            .HasOne(dc => dc.Document)
+            .WithMany()
+            .HasForeignKey(dc => dc.DocumentId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<DocumentComment>()
+            .HasOne(dc => dc.User)
+            .WithMany()
+            .HasForeignKey(dc => dc.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<DocumentComment>()
+            .HasOne(dc => dc.ParentComment)
+            .WithMany(dc => dc.Replies)
+            .HasForeignKey(dc => dc.ParentCommentId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<DocumentComment>()
+            .HasOne(dc => dc.ResolvedByUser)
+            .WithMany()
+            .HasForeignKey(dc => dc.ResolvedBy)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Configure Sprint 6 Workflow relationships
+        modelBuilder.Entity<WorkflowDefinition>()
+            .HasOne(wd => wd.Tenant)
+            .WithMany()
+            .HasForeignKey(wd => wd.TenantId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<WorkflowDefinition>()
+            .HasOne(wd => wd.CreatedByUser)
+            .WithMany()
+            .HasForeignKey(wd => wd.CreatedBy)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<WorkflowDefinition>()
+            .HasOne(wd => wd.UpdatedByUser)
+            .WithMany()
+            .HasForeignKey(wd => wd.UpdatedBy)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<WorkflowInstance>()
+            .HasOne(wi => wi.WorkflowDefinition)
+            .WithMany(wd => wd.Instances)
+            .HasForeignKey(wi => wi.WorkflowDefinitionId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<WorkflowInstance>()
+            .HasOne(wi => wi.Document)
+            .WithMany()
+            .HasForeignKey(wi => wi.DocumentId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<WorkflowInstance>()
+            .HasOne(wi => wi.StartedByUser)
+            .WithMany()
+            .HasForeignKey(wi => wi.StartedBy)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<WorkflowInstance>()
+            .HasOne(wi => wi.AssignedToUser)
+            .WithMany()
+            .HasForeignKey(wi => wi.AssignedTo)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<WorkflowTask>()
+            .HasOne(wt => wt.WorkflowInstance)
+            .WithMany(wi => wi.Tasks)
+            .HasForeignKey(wt => wt.WorkflowInstanceId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<WorkflowTask>()
+            .HasOne(wt => wt.AssignedToUser)
+            .WithMany()
+            .HasForeignKey(wt => wt.AssignedTo)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<WorkflowTask>()
+            .HasOne(wt => wt.AssignedToRoleEntity)
+            .WithMany()
+            .HasForeignKey(wt => wt.AssignedToRole)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<WorkflowTask>()
+            .HasOne(wt => wt.CompletedByUser)
+            .WithMany()
+            .HasForeignKey(wt => wt.CompletedBy)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<WorkflowHistoryEntry>()
+            .HasOne(whe => whe.WorkflowInstance)
+            .WithMany(wi => wi.History)
+            .HasForeignKey(whe => whe.WorkflowInstanceId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<WorkflowHistoryEntry>()
+            .HasOne(whe => whe.User)
+            .WithMany()
+            .HasForeignKey(whe => whe.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Configure Sprint 6 Digital Signature relationships
+        modelBuilder.Entity<DocumentSignatureRequest>()
+            .HasOne(dsr => dsr.Document)
+            .WithMany()
+            .HasForeignKey(dsr => dsr.DocumentId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<DocumentSignatureRequest>()
+            .HasOne(dsr => dsr.Tenant)
+            .WithMany()
+            .HasForeignKey(dsr => dsr.TenantId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<DocumentSignatureRequest>()
+            .HasOne(dsr => dsr.CreatedByUser)
+            .WithMany()
+            .HasForeignKey(dsr => dsr.CreatedBy)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<DocumentSignature>()
+            .HasOne(ds => ds.SignatureRequest)
+            .WithMany(dsr => dsr.Signatures)
+            .HasForeignKey(ds => ds.SignatureRequestId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<DocumentSignature>()
+            .HasOne(ds => ds.User)
+            .WithMany()
+            .HasForeignKey(ds => ds.UserId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<SignedDocument>()
+            .HasOne(sd => sd.Document)
+            .WithMany()
+            .HasForeignKey(sd => sd.DocumentId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<SignedDocument>()
+            .HasOne(sd => sd.SignatureRequest)
+            .WithMany()
+            .HasForeignKey(sd => sd.SignatureRequestId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 
     private static void SeedDefaultData(ModelBuilder modelBuilder)

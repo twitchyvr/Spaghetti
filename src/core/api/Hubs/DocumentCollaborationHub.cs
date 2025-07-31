@@ -251,11 +251,78 @@ public class DocumentCollaborationHub : Hub
     }
 
     /// <summary>
-    /// Send real-time content changes to other users
+    /// Apply operational transformation operation to document
     /// </summary>
     /// <param name="documentId">Document ID</param>
-    /// <param name="change">Content change details</param>
-    public async Task SendContentChange(string documentId, ContentChange change)
+    /// <param name="operation">OT operation to apply</param>
+    public async Task ApplyOperation(string documentId, DocumentOperationRequest operation)
+    {
+        try
+        {
+            if (!Guid.TryParse(documentId, out var docId))
+            {
+                await Clients.Caller.SendAsync("Error", "Invalid document ID");
+                return;
+            }
+
+            var userId = GetCurrentUserId();
+            var userName = GetCurrentUserName();
+            
+            _logger.LogDebug("User {UserId} applying operation to document {DocumentId}: {OperationType} at position {Position}", 
+                userId, docId, operation.OperationType, operation.Position);
+
+            // Apply operation through collaboration service (handles OT)
+            var result = await _collaborationService.ApplyOperationAsync(docId, userId, operation);
+            
+            if (result.Success)
+            {
+                // Broadcast the transformed operation to other users
+                await Clients.OthersInGroup($"document_{documentId}")
+                    .SendAsync("OperationApplied", new
+                    {
+                        UserId = userId,
+                        UserName = userName,
+                        Operation = result.TransformedOperation,
+                        Version = result.DocumentVersion,
+                        Timestamp = DateTime.UtcNow
+                    });
+
+                // Send acknowledgment to the sender
+                await Clients.Caller.SendAsync("OperationAcknowledged", new
+                {
+                    OperationId = operation.Id,
+                    Version = result.DocumentVersion,
+                    Success = true
+                });
+
+                _logger.LogDebug("Operation successfully applied and broadcasted for document {DocumentId}", docId);
+            }
+            else
+            {
+                // Operation failed - send error to sender
+                await Clients.Caller.SendAsync("OperationRejected", new
+                {
+                    OperationId = operation.Id,
+                    Error = result.ErrorMessage,
+                    RequiredVersion = result.RequiredVersion
+                });
+
+                _logger.LogWarning("Operation rejected for document {DocumentId}: {Error}", docId, result.ErrorMessage);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error applying operation to document {DocumentId}", documentId);
+            await Clients.Caller.SendAsync("Error", "Failed to apply operation");
+        }
+    }
+
+    /// <summary>
+    /// Update cursor position for real-time collaboration
+    /// </summary>
+    /// <param name="documentId">Document ID</param>
+    /// <param name="cursorPosition">Cursor position data</param>
+    public async Task UpdateCursor(string documentId, CursorPosition cursorPosition)
     {
         try
         {
@@ -267,25 +334,60 @@ public class DocumentCollaborationHub : Hub
             var userId = GetCurrentUserId();
             var userName = GetCurrentUserName();
             
-            // Set change metadata
-            change.DocumentId = docId;
-            change.UserId = userId;
-            change.UserName = userName;
-            change.Timestamp = DateTime.UtcNow;
+            // Update cursor position in collaboration service
+            await _collaborationService.UpdateCursorPositionAsync(docId, userId, cursorPosition);
 
-            // Store the change for synchronization
-            await _collaborationService.StoreContentChangeAsync(docId, change);
-
-            // Broadcast change to other users in the document
+            // Broadcast cursor position to other users
             await Clients.OthersInGroup($"document_{documentId}")
-                .SendAsync("ContentChange", change);
-
-            _logger.LogDebug("Content change broadcasted for document {DocumentId} by user {UserId}", 
-                docId, userId);
+                .SendAsync("CursorUpdate", new
+                {
+                    UserId = userId,
+                    UserName = userName,
+                    Position = cursorPosition.Position,
+                    SelectionStart = cursorPosition.SelectionStart,
+                    SelectionEnd = cursorPosition.SelectionEnd,
+                    Timestamp = DateTime.UtcNow
+                });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error broadcasting content change for document {DocumentId}", documentId);
+            _logger.LogError(ex, "Error updating cursor position for document {DocumentId}", documentId);
+        }
+    }
+
+    /// <summary>
+    /// Send typing indicator to other users
+    /// </summary>
+    /// <param name="documentId">Document ID</param>
+    /// <param name="isTyping">Whether user is currently typing</param>
+    public async Task UpdateTypingStatus(string documentId, bool isTyping)
+    {
+        try
+        {
+            if (!Guid.TryParse(documentId, out var docId))
+            {
+                return;
+            }
+
+            var userId = GetCurrentUserId();
+            var userName = GetCurrentUserName();
+            
+            // Update typing status in collaboration service
+            await _collaborationService.UpdateTypingStatusAsync(docId, userId, isTyping);
+
+            // Broadcast typing status to other users
+            await Clients.OthersInGroup($"document_{documentId}")
+                .SendAsync("TypingStatusUpdate", new
+                {
+                    UserId = userId,
+                    UserName = userName,
+                    IsTyping = isTyping,
+                    Timestamp = DateTime.UtcNow
+                });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating typing status for document {DocumentId}", documentId);
         }
     }
 
