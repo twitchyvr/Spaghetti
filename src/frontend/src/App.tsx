@@ -11,6 +11,7 @@ const PlatformMonitoringDashboard = React.lazy(() => import('./pages/PlatformMon
 const ClientManagement = React.lazy(() => import('./pages/ClientManagement'));
 const Documents = React.lazy(() => import('./pages/Documents'));
 const DatabaseAdmin = React.lazy(() => import('./pages/DatabaseAdmin'));
+const AIDocuments = React.lazy(() => import('./pages/AIDocuments'));
 const Login = React.lazy(() => import('./pages/Login'));
 const Settings = React.lazy(() => import('./pages/Settings'));
 const Profile = React.lazy(() => import('./pages/Profile'));
@@ -88,6 +89,7 @@ function App() {
                     <Route path="/clients/*" element={<ClientManagement />} />
                     <Route path="/monitoring/*" element={<PlatformMonitoringDashboard />} />
                     <Route path="/documents/*" element={<Documents />} />
+                    <Route path="/ai-documents" element={<AIDocuments />} />
                     <Route 
                       path="/database/*" 
                       element={

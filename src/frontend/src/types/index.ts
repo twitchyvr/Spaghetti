@@ -659,3 +659,122 @@ export interface AppConfig {
     allowedFileTypes: string[];
   };
 }
+
+// AI-specific types
+export interface AIModel {
+  id: string;
+  name: string;
+  provider: string;
+  description: string;
+  maxTokens: number;
+  isAvailable: boolean;
+}
+
+export interface AIDocumentGenerationRequest {
+  templateType: string;
+  parameters: Record<string, unknown>;
+  model?: string;
+  userId?: string;
+}
+
+export interface AIDocumentGenerationResponse {
+  title: string;
+  content: string;
+  metadata: {
+    templateType: string;
+    model: string;
+    generatedAt: string;
+    processingTime: number;
+    confidenceScore: number;
+  };
+}
+
+export interface AIContentAnalysisRequest {
+  content: string;
+  analysisType: string;
+  model?: string;
+}
+
+export interface AIContentAnalysisResponse {
+  summary: string;
+  keyPoints: string[];
+  sentiment: string;
+  confidence: number;
+  suggestedTags: string[];
+  metadata: {
+    analysisType: string;
+    model: string;
+    analyzedAt: string;
+    processingTime: number;
+  };
+}
+
+export interface AIProviderHealth {
+  status: string;
+  responseTime: number | null;
+  modelsAvailable: number;
+}
+
+export interface AIHealthResponse {
+  status: string;
+  providers: Record<string, AIProviderHealth>;
+  lastChecked: string;
+}
+
+export interface AIUsageStats {
+  totalRequests: number;
+  requestsThisMonth: number;
+  averageResponseTime: number;
+  successRate: number;
+  mostUsedModel: string;
+  documentsGenerated: number;
+  contentAnalyzed: number;
+  usage: Record<string, { requests: number; tokens: number }>;
+}
+
+export interface DocumentTemplate {
+  id: string;
+  name: string;
+  description: string;
+  category: 'legal' | 'business' | 'technical' | 'medical' | 'academic' | 'other';
+  templateType: string;
+  parameters: TemplateParameter[];
+  preview?: string;
+  icon?: string;
+}
+
+export interface TemplateParameter {
+  name: string;
+  label: string;
+  type: 'text' | 'textarea' | 'number' | 'select' | 'multiselect' | 'date' | 'boolean';
+  required: boolean;
+  description?: string;
+  defaultValue?: unknown;
+  options?: { label: string; value: string }[];
+  validation?: {
+    min?: number;
+    max?: number;
+    pattern?: string;
+    message?: string;
+  };
+}
+
+export interface AIGenerationProgress {
+  stage: 'initializing' | 'processing' | 'generating' | 'finalizing' | 'completed' | 'error';
+  progress: number; // 0-100
+  message: string;
+  estimatedTimeRemaining?: number; // seconds
+  error?: string;
+}
+
+export interface AIState {
+  availableModels: AIModel[];
+  selectedModel: string | null;
+  templates: DocumentTemplate[];
+  selectedTemplate: DocumentTemplate | null;
+  generationProgress: AIGenerationProgress | null;
+  isGenerating: boolean;
+  lastGeneratedDocument: AIDocumentGenerationResponse | null;
+  health: AIHealthResponse | null;
+  usageStats: AIUsageStats | null;
+}

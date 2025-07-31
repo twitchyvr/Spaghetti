@@ -19,7 +19,8 @@ import {
   LogOut,
   ChevronDown,
   UserCircle,
-  Bell
+  Bell,
+  Sparkles
 } from 'lucide-react';
 
 interface AppLayoutProps {
@@ -49,6 +50,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
       label: 'Platform Overview', 
       icon: <LayoutDashboard size={20} />, 
       path: '/dashboard' 
+    },
+    { 
+      id: 'ai-documents', 
+      label: 'AI Document Generator', 
+      icon: <Sparkles size={20} />, 
+      path: '/ai-documents',
+      badge: 'NEW'
     },
     { 
       id: 'clients', 
