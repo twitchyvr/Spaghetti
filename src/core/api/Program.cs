@@ -108,10 +108,10 @@ builder.Services.AddTenantResolution(builder.Configuration);
 // Add custom authorization handlers
 builder.Services.AddCustomAuthorization();
 
-// Temporarily disable complex services until DI issues are resolved
-// TODO: Re-enable after fixing interface implementations
-// builder.Services.ConfigureStorage(builder.Configuration);
-// builder.Services.ConfigureAIServices(builder.Configuration);
+// Configure enterprise services
+builder.Services.ConfigureStorage(builder.Configuration);
+builder.Services.ConfigureAIServices(builder.Configuration);
+// TODO: Re-enable module system after fixing remaining interface implementations
 // builder.Services.ConfigureModuleSystem(builder.Configuration);
 
 // Add core services

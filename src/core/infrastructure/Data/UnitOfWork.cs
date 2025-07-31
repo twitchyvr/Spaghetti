@@ -90,6 +90,9 @@ public class UnitOfWork : IUnitOfWork
     public ITenantAuditEntryRepository TenantAuditEntries =>
         _tenantAuditEntries ??= new TenantAuditEntryRepository(_context, _loggerFactory.CreateLogger<TenantAuditEntryRepository>());
 
+    public IRefreshTokenRepository RefreshTokens =>
+        _refreshTokens ??= new RefreshTokenRepository(_context, _loggerFactory.CreateLogger<RefreshTokenRepository>());
+
     // New authentication-related repository properties
     public IAuthenticationSessionRepository AuthenticationSessions =>
         _authenticationSessions ??= new AuthenticationSessionRepository(_context, _loggerFactory.CreateLogger<AuthenticationSessionRepository>());
