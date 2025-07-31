@@ -228,18 +228,10 @@ public class ModuleMetrics
 public class ModuleHealthCheck
 {
     public required string Name { get; set; }
-    public HealthStatus Status { get; set; }
+    public EnterpriseDocsCore.Domain.Entities.HealthStatus Status { get; set; }
     public string? Message { get; set; }
     public TimeSpan Duration { get; set; }
     public DateTime CheckedAt { get; set; }
-}
-
-public enum HealthStatus
-{
-    Healthy,
-    Degraded,
-    Unhealthy,
-    Unknown
 }
 
 public class DependencyValidationResult
