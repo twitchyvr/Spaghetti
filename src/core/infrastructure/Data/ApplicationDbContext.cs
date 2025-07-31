@@ -608,15 +608,15 @@ public class ApplicationDbContext : DbContext
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<DocumentOperation>()
-            .HasOne(do => do.Document)
+            .HasOne(docOp => docOp.Document)
             .WithMany()
-            .HasForeignKey(do => do.DocumentId)
+            .HasForeignKey(docOp => docOp.DocumentId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<DocumentOperation>()
-            .HasOne(do => do.User)
+            .HasOne(docOp => docOp.User)
             .WithMany()
-            .HasForeignKey(do => do.UserId)
+            .HasForeignKey(docOp => docOp.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<DocumentComment>()

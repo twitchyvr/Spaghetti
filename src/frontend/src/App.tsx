@@ -1,8 +1,11 @@
-import React, { Suspense, useEffect } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import { LoadingSpinner } from './components/ui/LoadingSpinner';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import { PWAStatus } from './components/pwa/PWAStatus';
+import { PWAInstallPrompt } from './components/pwa/PWAInstallPrompt';
+import { usePWA } from './utils/pwa';
 
 // Lazy load pages for better performance
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
@@ -23,6 +26,8 @@ const AuthLayout = React.lazy(() => import('./components/layout/AuthLayout'));
 
 function App() {
   const { isAuthenticated, isLoading } = useAuth();
+  const { showInstallPrompt } = usePWA();
+  const [showPWAInstallPrompt, setShowPWAInstallPrompt] = useState(false);
 
   useEffect(() => {
     // Immediately remove loading container
@@ -32,6 +37,16 @@ function App() {
       (loadingContainer as HTMLElement).style.display = 'none';
     }
   }, []);
+
+  // Show PWA install prompt after user is authenticated and settled
+  useEffect(() => {
+    if (isAuthenticated && showInstallPrompt) {
+      const timer = setTimeout(() => {
+        setShowPWAInstallPrompt(true);
+      }, 5000); // Show after 5 seconds of being authenticated
+      return () => clearTimeout(timer);
+    }
+  }, [isAuthenticated, showInstallPrompt]);
 
   // Show loading screen while checking authentication
   if (isLoading) {
@@ -48,6 +63,14 @@ function App() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      {/* PWA Status notifications */}
+      <PWAStatus />
+      
+      {/* PWA Install prompt */}
+      {showPWAInstallPrompt && (
+        <PWAInstallPrompt onClose={() => setShowPWAInstallPrompt(false)} />
+      )}
+      
       <Suspense 
         fallback={
           <div className="min-h-screen flex items-center justify-center">

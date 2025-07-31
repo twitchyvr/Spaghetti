@@ -152,67 +152,7 @@ public class ModuleSettings
     public DateTime? LastConfiguredAt { get; set; }
 }
 
-public class UserRole
-{
-    public Guid Id { get; set; } = Guid.NewGuid();
-    public Guid UserId { get; set; }
-    public User? User { get; set; }
-    
-    public Guid RoleId { get; set; }
-    public Role? Role { get; set; }
-    
-    public DateTime AssignedAt { get; set; } = DateTime.UtcNow;
-    public Guid AssignedBy { get; set; }
-    
-    public DateTime? ExpiresAt { get; set; }
-    public bool IsActive { get; set; } = true;
-}
-
-public class Role
-{
-    public Guid Id { get; set; } = Guid.NewGuid();
-    
-    [Required]
-    [MaxLength(100)]
-    public string Name { get; set; } = string.Empty;
-    
-    [MaxLength(500)]
-    public string? Description { get; set; }
-    
-    public bool IsSystemRole { get; set; } = false;
-    public bool IsActive { get; set; } = true;
-    
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    
-    // Multi-tenant support
-    public Guid? TenantId { get; set; }
-    public Tenant? Tenant { get; set; }
-    
-    // Permissions
-    public List<RolePermission> RolePermissions { get; set; } = new();
-    
-    // Users with this role
-    public List<UserRole> UserRoles { get; set; } = new();
-    
-    // Document permissions
-    public List<DocumentPermission> DocumentPermissions { get; set; } = new();
-}
-
-public class RolePermission
-{
-    public Guid Id { get; set; } = Guid.NewGuid();
-    public Guid RoleId { get; set; }
-    public Role? Role { get; set; }
-    
-    [Required]
-    [MaxLength(100)]
-    public string Permission { get; set; } = string.Empty;
-    
-    [MaxLength(100)]
-    public string? Resource { get; set; }
-    
-    public bool IsGranted { get; set; } = true;
-}
+// UserRole, Role, and RolePermission classes are defined in separate files to avoid duplication
 
 public class UserAuditEntry
 {

@@ -1,26 +1,162 @@
 {
   "name": "Enterprise Docs Platform",
   "short_name": "EnterpriseDocs",
-  "description": "AI-powered enterprise documentation platform for legal professionals",
+  "description": "AI-powered enterprise documentation platform for legal professionals with real-time collaboration",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "background_color": "#0f172a",
   "theme_color": "#3b82f6",
+  "lang": "en-US",
+  "dir": "ltr",
   "icons": [
     {
       "src": "favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ],
-  "categories": ["productivity", "business"],
+  "categories": ["productivity", "business", "collaboration"],
   "screenshots": [
     {
-      "src": "/assets/screenshot-dashboard.png",
+      "src": "/screenshots/desktop-dashboard.png",
       "sizes": "1280x800",
       "type": "image/png",
-      "label": "Enterprise Dashboard with stats and activity feed"
+      "form_factor": "wide",
+      "label": "Enterprise Dashboard with real-time collaboration and analytics"
+    },
+    {
+      "src": "/screenshots/mobile-documents.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Mobile document editing with collaboration features"
     }
-  ]
+  ],
+  "shortcuts": [
+    {
+      "name": "Create Document",
+      "short_name": "New Doc",
+      "description": "Create a new document with AI assistance",
+      "url": "/documents/new",
+      "icons": [
+        {
+          "src": "/icons/shortcut-new.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View your enterprise dashboard",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "/icons/shortcut-dashboard.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Collaborate",
+      "short_name": "Collaborate",
+      "description": "Access collaboration tools",
+      "url": "/collaboration",
+      "icons": [
+        {
+          "src": "/icons/shortcut-collaborate.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "protocol_handlers": [
+    {
+      "protocol": "web+enterprisedocs",
+      "url": "/handle?url=%s"
+    }
+  ],
+  "file_handlers": [
+    {
+      "action": "/documents/import",
+      "accept": {
+        "application/pdf": [".pdf"],
+        "application/msword": [".doc"],
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
+        "text/plain": [".txt"],
+        "text/markdown": [".md"]
+      }
+    }
+  ],
+  "share_target": {
+    "action": "/documents/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "documents",
+          "accept": ["application/pdf", ".doc", ".docx", ".txt", ".md"]
+        }
+      ]
+    }
+  }
 }

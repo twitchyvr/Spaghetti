@@ -1,5 +1,4 @@
-using EnterpriseDocsCore.API.DTOs;
-using EnterpriseDocsCore.Core.Domain.Entities;
+// DTOs will be referenced as object types to avoid circular dependencies
 
 namespace EnterpriseDocsCore.Domain.Interfaces;
 
@@ -8,211 +7,93 @@ namespace EnterpriseDocsCore.Domain.Interfaces;
 /// </summary>
 public interface IWorkflowService
 {
-    #region Workflow Definitions
-    
-    /// <summary>
-    /// Get all workflow definitions for a tenant
-    /// </summary>
-    Task<IEnumerable<WorkflowDefinitionDto>> GetWorkflowDefinitionsAsync(
-        Guid tenantId,
-        Guid userId,
-        string? category = null,
-        string? search = null,
-        bool includeInactive = false,
-        int page = 1,
-        int pageSize = 20);
-    
-    /// <summary>
-    /// Get a specific workflow definition by ID
-    /// </summary>
-    Task<WorkflowDefinitionDto?> GetWorkflowDefinitionAsync(Guid id, Guid userId);
-    
     /// <summary>
     /// Create a new workflow definition
     /// </summary>
-    Task<WorkflowDefinitionDto> CreateWorkflowDefinitionAsync(
-        Guid tenantId,
-        Guid userId,
-        CreateWorkflowDefinitionRequest request);
-    
+    Task<object> CreateWorkflowDefinitionAsync(object workflowDefinition);
+
     /// <summary>
     /// Update an existing workflow definition
     /// </summary>
-    Task<WorkflowDefinitionDto?> UpdateWorkflowDefinitionAsync(
-        Guid id,
-        Guid userId,
-        UpdateWorkflowDefinitionRequest request);
-    
+    Task<object?> UpdateWorkflowDefinitionAsync(Guid workflowDefinitionId, object workflowDefinition);
+
+    /// <summary>
+    /// Get a workflow definition by ID
+    /// </summary>
+    Task<object?> GetWorkflowDefinitionAsync(Guid workflowDefinitionId);
+
+    /// <summary>
+    /// Get all workflow definitions for a tenant
+    /// </summary>
+    Task<List<object>> GetWorkflowDefinitionsAsync(Guid tenantId);
+
     /// <summary>
     /// Delete a workflow definition
     /// </summary>
-    Task<bool> DeleteWorkflowDefinitionAsync(Guid id, Guid userId);
-    
+    Task<bool> DeleteWorkflowDefinitionAsync(Guid workflowDefinitionId);
+
     /// <summary>
-    /// Validate a workflow definition
+    /// Start a workflow instance for a document
     /// </summary>
-    Task<WorkflowValidationResult?> ValidateWorkflowDefinitionAsync(Guid id, Guid userId);
-    
-    #endregion
-    
-    #region Workflow Instances
-    
+    Task<object> StartWorkflowAsync(Guid documentId, Guid workflowDefinitionId, Guid initiatedBy);
+
     /// <summary>
-    /// Create a new workflow instance from a definition
+    /// Get workflow instance by ID
     /// </summary>
-    Task<WorkflowInstanceDto> CreateWorkflowInstanceAsync(
-        Guid workflowDefinitionId,
-        Guid userId,
-        CreateWorkflowInstanceRequest request);
-    
+    Task<object?> GetWorkflowInstanceAsync(Guid workflowInstanceId);
+
     /// <summary>
-    /// Get all workflow instances for a tenant/user
+    /// Get workflow instances for a document
     /// </summary>
-    Task<IEnumerable<WorkflowInstanceDto>> GetWorkflowInstancesAsync(
-        Guid tenantId,
-        Guid userId,
-        Guid? workflowDefinitionId = null,
-        WorkflowStatus? status = null,
-        bool assignedToMe = false,
-        int page = 1,
-        int pageSize = 20);
-    
+    Task<List<object>> GetDocumentWorkflowInstancesAsync(Guid documentId);
+
     /// <summary>
-    /// Get a specific workflow instance by ID
+    /// Get active workflow instances for a user
     /// </summary>
-    Task<WorkflowInstanceDto?> GetWorkflowInstanceAsync(Guid id, Guid userId);
-    
-    /// <summary>
-    /// Cancel a workflow instance
-    /// </summary>
-    Task<WorkflowInstanceDto?> CancelWorkflowInstanceAsync(
-        Guid id,
-        Guid userId,
-        string reason);
-    
-    /// <summary>
-    /// Pause a workflow instance
-    /// </summary>
-    Task<WorkflowInstanceDto?> PauseWorkflowInstanceAsync(Guid id, Guid userId);
-    
-    /// <summary>
-    /// Resume a paused workflow instance
-    /// </summary>
-    Task<WorkflowInstanceDto?> ResumeWorkflowInstanceAsync(Guid id, Guid userId);
-    
-    #endregion
-    
-    #region Workflow Tasks
-    
+    Task<List<object>> GetUserActiveWorkflowsAsync(Guid userId);
+
     /// <summary>
     /// Complete a workflow task
     /// </summary>
-    Task<WorkflowInstanceDto?> CompleteWorkflowTaskAsync(
-        Guid taskId,
-        Guid userId,
-        CompleteWorkflowTaskRequest request);
-    
+    Task<object> CompleteWorkflowTaskAsync(Guid workflowInstanceId, Guid taskId, Guid userId, object request);
+
     /// <summary>
     /// Reassign a workflow task to another user
     /// </summary>
-    Task<WorkflowTaskDto?> ReassignWorkflowTaskAsync(
-        Guid taskId,
-        Guid userId,
-        ReassignWorkflowTaskRequest request);
-    
+    Task<object> ReassignWorkflowTaskAsync(Guid workflowInstanceId, Guid taskId, object request);
+
     /// <summary>
     /// Get pending tasks for a user
     /// </summary>
-    Task<IEnumerable<WorkflowTaskDto>> GetPendingTasksAsync(
-        Guid userId,
-        Guid tenantId,
-        int page = 1,
-        int pageSize = 20);
-    
+    Task<List<object>> GetUserTasksAsync(Guid userId);
+
     /// <summary>
-    /// Get overdue tasks for a tenant
+    /// Get all tasks for a workflow instance
     /// </summary>
-    Task<IEnumerable<WorkflowTaskDto>> GetOverdueTasksAsync(
-        Guid tenantId,
-        int page = 1,
-        int pageSize = 20);
-    
-    #endregion
-    
-    #region Workflow Analytics
-    
+    Task<List<object>> GetWorkflowTasksAsync(Guid workflowInstanceId);
+
     /// <summary>
-    /// Get workflow analytics and statistics
+    /// Cancel a workflow instance
     /// </summary>
-    Task<WorkflowAnalyticsDto> GetWorkflowAnalyticsAsync(
-        Guid tenantId,
-        Guid userId,
-        DateTime? fromDate = null,
-        DateTime? toDate = null,
-        Guid? workflowDefinitionId = null);
-    
+    Task<bool> CancelWorkflowAsync(Guid workflowInstanceId, Guid cancelledBy, string reason);
+
+    /// <summary>
+    /// Get workflow analytics
+    /// </summary>
+    Task<object> GetWorkflowAnalyticsAsync(Guid tenantId, DateTime? fromDate = null, DateTime? toDate = null);
+
     /// <summary>
     /// Get workflow performance metrics
     /// </summary>
-    Task<IEnumerable<WorkflowPerformanceMetric>> GetWorkflowPerformanceMetricsAsync(
-        Guid tenantId,
-        DateTime? fromDate = null,
-        DateTime? toDate = null);
-    
-    #endregion
-    
-    #region Workflow Permissions
-    
+    Task<List<object>> GetWorkflowPerformanceMetricsAsync(Guid workflowDefinitionId, DateTime? fromDate = null, DateTime? toDate = null);
+
     /// <summary>
-    /// Check if user has permission to perform action on workflow
+    /// Execute workflow step
     /// </summary>
-    Task<bool> HasWorkflowPermissionAsync(
-        Guid userId,
-        Guid workflowDefinitionId,
-        WorkflowPermissionType permissionType);
-    
-    /// <summary>
-    /// Grant workflow permission to user or role
-    /// </summary>
-    Task<bool> GrantWorkflowPermissionAsync(
-        Guid workflowDefinitionId,
-        Guid grantedBy,
-        Guid? userId = null,
-        Guid? roleId = null,
-        WorkflowPermissionType permissionType = WorkflowPermissionType.View,
-        string[]? actions = null,
-        string? conditions = null,
-        DateTime? expiresAt = null);
-    
-    /// <summary>
-    /// Revoke workflow permission
-    /// </summary>
-    Task<bool> RevokeWorkflowPermissionAsync(Guid permissionId, Guid revokedBy);
-    
-    #endregion
-    
-    #region Workflow Execution Engine
-    
-    /// <summary>
-    /// Execute workflow step/transition
-    /// </summary>
-    Task<WorkflowInstanceDto?> ExecuteWorkflowStepAsync(
-        Guid instanceId,
-        string stepId,
-        Guid userId,
-        Dictionary<string, object>? data = null);
-    
-    /// <summary>
-    /// Process pending workflow steps (background task)
-    /// </summary>
-    Task ProcessPendingWorkflowStepsAsync();
-    
+    Task<object> ExecuteWorkflowStepAsync(Guid workflowInstanceId, Guid stepId, object stepData);
+
     /// <summary>
     /// Evaluate workflow conditions
     /// </summary>
-    Task<bool> EvaluateWorkflowConditionAsync(
-        WorkflowCondition condition,
-        Dictionary<string, object> context);
-    
-    #endregion
+    Task<bool> EvaluateWorkflowConditionAsync(Guid workflowInstanceId, object condition);
 }
