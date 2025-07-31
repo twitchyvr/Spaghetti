@@ -7,6 +7,7 @@ using EnterpriseDocsCore.Domain.Interfaces;
 using EnterpriseDocsCore.API.Extensions;
 using EnterpriseDocsCore.API.Middleware;
 using EnterpriseDocsCore.API.Authorization;
+using EnterpriseDocsCore.API.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -139,17 +140,32 @@ builder.Services.AddSignalR(options =>
     options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
 });
 
-// Add Redis backplane for SignalR if configured
+// Add Redis backplane for SignalR if configured and available
 if (!string.IsNullOrEmpty(redisConnection))
 {
-    builder.Services.AddSignalR().AddStackExchangeRedis(redisConnection);
-}
-if (!string.IsNullOrEmpty(redisConnection))
-{
-    builder.Services.AddStackExchangeRedisCache(options =>
+    try 
     {
-        options.Configuration = redisConnection;
-    });
+        builder.Services.AddSignalR().AddStackExchangeRedis(redisConnection);
+        builder.Services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = redisConnection;
+        });
+    }
+    catch (Exception ex)
+    {
+        // Log the error but continue without Redis
+        Console.WriteLine($"Warning: Could not connect to Redis: {ex.Message}. Continuing without Redis.");
+    }
+}
+else
+{
+    // Use in-memory cache if Redis is not configured
+    builder.Services.AddMemoryCache();
+}
+else
+{
+    // Fallback to in-memory cache when Redis is not available
+    builder.Services.AddDistributedMemoryCache();
 }
 
 // Configure CORS for frontend
@@ -219,7 +235,7 @@ app.MapGet("/health/detailed", async (ApplicationDbContext context) =>
 }).AllowAnonymous();
 
 // Sprint 2: Map SignalR hubs for real-time collaboration
-app.MapHub<EnterpriseDocsCore.API.Hubs.DocumentCollaborationHub>("/hubs/collaboration");
+app.MapHub<DocumentHub>("/hubs/collaboration");
 
 // Temporarily disable module initialization
 // TODO: Re-enable after fixing module system
