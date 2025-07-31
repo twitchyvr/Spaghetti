@@ -29,7 +29,23 @@ public class ApplicationDbContext : DbContext
     public DbSet<TenantAuditEntry> TenantAuditEntries => Set<TenantAuditEntry>();
     public DbSet<ImpersonationSession> ImpersonationSessions => Set<ImpersonationSession>();
     public DbSet<PlatformAdminAuditLog> PlatformAdminAuditLogs => Set<PlatformAdminAuditLog>();
-    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    
+    // Health Monitoring Entity Sets
+    public DbSet<SystemHealthMetric> SystemHealthMetrics => Set<SystemHealthMetric>();
+    public DbSet<Incident> Incidents => Set<Incident>();
+    public DbSet<IncidentUpdate> IncidentUpdates => Set<IncidentUpdate>();
+    public DbSet<MaintenanceWindow> MaintenanceWindows => Set<MaintenanceWindow>();
+
+    // Analytics Entity Sets
+    public DbSet<PlatformMetricsDaily> PlatformMetricsDaily => Set<PlatformMetricsDaily>();
+    public DbSet<RevenueMetricsMonthly> RevenueMetricsMonthly => Set<RevenueMetricsMonthly>();
+    public DbSet<CustomerCohort> CustomerCohorts => Set<CustomerCohort>();
+    public DbSet<TenantUsageMetrics> TenantUsageMetrics => Set<TenantUsageMetrics>();
+    public DbSet<RevenueForecast> RevenueForecasts => Set<RevenueForecast>();
+    public DbSet<PlatformHealthMetrics> PlatformHealthMetrics => Set<PlatformHealthMetrics>();
+    public DbSet<FeatureAdoptionMetrics> FeatureAdoptionMetrics => Set<FeatureAdoptionMetrics>();
+    public DbSet<GeographicMetrics> GeographicMetrics => Set<GeographicMetrics>();
+    public DbSet<CompetitiveMetrics> CompetitiveMetrics => Set<CompetitiveMetrics>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -386,6 +402,23 @@ public class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<PlatformAdminAuditLog>()
             .HasIndex(e => new { e.TargetEntityType, e.TargetEntityId });
+
+        // Refresh token indexes
+        modelBuilder.Entity<RefreshToken>()
+            .HasIndex(e => e.Token)
+            .IsUnique();
+
+        modelBuilder.Entity<RefreshToken>()
+            .HasIndex(e => new { e.UserId, e.CreatedAt });
+
+        modelBuilder.Entity<RefreshToken>()
+            .HasIndex(e => e.ExpiresAt);
+
+        modelBuilder.Entity<RefreshToken>()
+            .HasIndex(e => new { e.RevokedAt, e.RevokedByIp });
+
+        modelBuilder.Entity<RefreshToken>()
+            .HasIndex(e => e.CreatedByIp);
     }
 
     private static void ConfigureEntityRelationships(ModelBuilder modelBuilder)
