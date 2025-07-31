@@ -140,17 +140,27 @@ builder.Services.AddSignalR(options =>
     options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
 });
 
-// Add Redis backplane for SignalR if configured
+// Add Redis backplane for SignalR if configured and available
 if (!string.IsNullOrEmpty(redisConnection))
 {
-    builder.Services.AddSignalR().AddStackExchangeRedis(redisConnection);
-}
-if (!string.IsNullOrEmpty(redisConnection))
-{
-    builder.Services.AddStackExchangeRedisCache(options =>
+    try 
     {
-        options.Configuration = redisConnection;
-    });
+        builder.Services.AddSignalR().AddStackExchangeRedis(redisConnection);
+        builder.Services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = redisConnection;
+        });
+    }
+    catch (Exception ex)
+    {
+        // Log the error but continue without Redis
+        Console.WriteLine($"Warning: Could not connect to Redis: {ex.Message}. Continuing without Redis.");
+    }
+}
+else
+{
+    // Use in-memory cache if Redis is not configured
+    builder.Services.AddMemoryCache();
 }
 else
 {
