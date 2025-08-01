@@ -13,8 +13,6 @@ import {
   User,
   Building2,
   Users,
-  BarChart3,
-  Shield,
   Activity,
   LogOut,
   ChevronDown,
@@ -42,12 +40,11 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
-  // Platform Admin Navigation Items
-  // TODO: Make this dynamic based on user role (Platform Admin vs Client User)
+  // Navigation Items - Updated to match existing pages
   const navigationItems: NavItem[] = [
     { 
       id: 'dashboard', 
-      label: 'Platform Overview', 
+      label: 'Platform Dashboard', 
       icon: <LayoutDashboard size={20} />, 
       path: '/dashboard' 
     },
@@ -59,48 +56,39 @@ export default function AppLayout({ children }: AppLayoutProps) {
       badge: 'NEW'
     },
     { 
+      id: 'client-dashboard', 
+      label: 'Client Dashboard', 
+      icon: <Building2 size={20} />, 
+      path: '/client-dashboard'
+    },
+    { 
       id: 'clients', 
       label: 'Client Management', 
-      icon: <Building2 size={20} />, 
-      path: '/clients',
-      badge: 'ADMIN'
-    },
-    { 
-      id: 'users', 
-      label: 'User Administration', 
       icon: <Users size={20} />, 
-      path: '/users',
-      badge: 'ADMIN'
-    },
-    { 
-      id: 'analytics', 
-      label: 'Platform Analytics', 
-      icon: <BarChart3 size={20} />, 
-      path: '/analytics'
-    },
-    { 
-      id: 'impersonation', 
-      label: 'User Impersonation', 
-      icon: <Shield size={20} />, 
-      path: '/impersonation',
-      badge: 'SUPPORT'
+      path: '/clients'
     },
     { 
       id: 'monitoring', 
-      label: 'System Health', 
+      label: 'System Monitoring', 
       icon: <Activity size={20} />, 
       path: '/monitoring'
+    },
+    { 
+      id: 'documents', 
+      label: 'Documents', 
+      icon: <FileText size={20} />, 
+      path: '/documents'
     },
     { 
       id: 'database', 
       label: 'Database Admin', 
       icon: <Database size={20} />, 
       path: '/database', 
-      badge: 'DEV' 
+      badge: 'ADMIN' 
     },
     { 
       id: 'settings', 
-      label: 'Platform Settings', 
+      label: 'Settings', 
       icon: <Settings size={20} />, 
       path: '/settings' 
     }
