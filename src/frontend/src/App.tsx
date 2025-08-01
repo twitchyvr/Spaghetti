@@ -5,6 +5,7 @@ import { LoadingSpinner } from './components/ui/LoadingSpinner';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { PWAStatus } from './components/pwa/PWAStatus';
 import { PWAInstallPrompt } from './components/pwa/PWAInstallPrompt';
+import { PWANotificationBar } from './components/pwa/PWANotificationBar';
 import { usePWA } from './utils/pwa';
 
 // Lazy load pages for better performance
@@ -28,6 +29,10 @@ function App() {
   const { isAuthenticated, isLoading } = useAuth();
   const { showInstallPrompt } = usePWA();
   const [showPWAInstallPrompt, setShowPWAInstallPrompt] = useState(false);
+  const [showPWANotificationBar, setShowPWANotificationBar] = useState(false);
+  const [pwaPromptDismissed, setPwaPromptDismissed] = useState(() => {
+    return localStorage.getItem('pwaPromptDismissed') === 'true';
+  });
 
   useEffect(() => {
     // Immediately remove loading container
@@ -38,16 +43,28 @@ function App() {
     }
   }, []);
 
-  // Show PWA install prompt after user is authenticated and settled
+  // Show PWA notification bar after user is authenticated and settled (only if not dismissed)
   useEffect(() => {
-    if (isAuthenticated && showInstallPrompt) {
+    if (isAuthenticated && showInstallPrompt && !pwaPromptDismissed) {
       const timer = setTimeout(() => {
-        setShowPWAInstallPrompt(true);
-      }, 5000); // Show after 5 seconds of being authenticated
+        setShowPWANotificationBar(true);
+      }, 30000); // Show after 30 seconds of being authenticated
       return () => clearTimeout(timer);
     }
     return undefined;
-  }, [isAuthenticated, showInstallPrompt]);
+  }, [isAuthenticated, showInstallPrompt, pwaPromptDismissed]);
+
+  const handlePWAPromptClose = () => {
+    setShowPWAInstallPrompt(false);
+    setPwaPromptDismissed(true);
+    localStorage.setItem('pwaPromptDismissed', 'true');
+  };
+
+  const handlePWANotificationClose = () => {
+    setShowPWANotificationBar(false);
+    setPwaPromptDismissed(true);
+    localStorage.setItem('pwaPromptDismissed', 'true');
+  };
 
   // Show loading screen while checking authentication
   if (isLoading) {
@@ -63,13 +80,18 @@ function App() {
 
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className={`min-h-screen bg-background text-foreground ${showPWANotificationBar ? 'pwa-notification-active' : ''}`}>
       {/* PWA Status notifications */}
       <PWAStatus />
       
+      {/* PWA Notification Bar */}
+      {showPWANotificationBar && (
+        <PWANotificationBar onClose={handlePWANotificationClose} />
+      )}
+      
       {/* PWA Install prompt */}
       {showPWAInstallPrompt && (
-        <PWAInstallPrompt onClose={() => setShowPWAInstallPrompt(false)} />
+        <PWAInstallPrompt onClose={handlePWAPromptClose} />
       )}
       
       <Suspense 

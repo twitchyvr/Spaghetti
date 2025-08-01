@@ -52,6 +52,23 @@
   color: var(--color-text-primary);
 }
 
+.sidebar-collapse {
+  padding: var(--space-sm);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  transition: all var(--transition-base);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-collapse:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
 /* Navigation Styles */
 .sidebar-nav {
   padding: var(--space-lg);
@@ -73,6 +90,8 @@
   transition: all var(--transition-base);
   position: relative;
   text-decoration: none;
+  min-height: 48px;
+  white-space: nowrap;
 }
 
 .nav-item:hover {
@@ -161,6 +180,30 @@
 
 .header-menu-btn:hover {
   background: var(--color-bg-tertiary);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.header-action-btn {
+  padding: var(--space-sm);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  transition: all var(--transition-base);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-action-btn:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
 }
 
 .page-title {

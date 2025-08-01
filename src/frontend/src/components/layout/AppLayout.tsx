@@ -36,7 +36,16 @@ interface NavItem {
 export default function AppLayout({ children }: AppLayoutProps) {
   const { user, logout } = useAuth();
   const location = useLocation();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    // Initialize sidebar state from localStorage, default to true for desktop
+    const saved = localStorage.getItem('sidebarOpen');
+    if (saved !== null) {
+      return JSON.parse(saved);
+    }
+    // Default to closed on mobile, open on desktop
+    return window.innerWidth >= 1024;
+  });
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
@@ -122,10 +131,36 @@ export default function AppLayout({ children }: AppLayoutProps) {
     };
   }, []);
 
+  // Save sidebar state to localStorage
+  useEffect(() => {
+    localStorage.setItem('sidebarOpen', JSON.stringify(sidebarOpen));
+  }, [sidebarOpen]);
+
+  // Handle responsive sidebar behavior
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        // On mobile, always start closed
+        setSidebarOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
+  const collapseSidebar = () => {
+    setSidebarCollapsed(!sidebarCollapsed);
+  };
+
   return (
     <div className="app-layout">
       {/* Sidebar */}
-      <aside className={`app-sidebar ${sidebarOpen ? 'open' : ''}`}>
+      <aside className={`app-sidebar ${sidebarOpen ? 'open' : ''} ${sidebarCollapsed ? 'collapsed' : ''}`}>
         {/* Logo Section */}
         <div className="sidebar-header">
           <div className="sidebar-logo">
@@ -142,6 +177,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
             onClick={() => setSidebarOpen(false)}
           >
             <X size={20} />
+          </button>
+          <button 
+            className="sidebar-collapse hidden lg:flex"
+            onClick={collapseSidebar}
+            title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            <ChevronRight size={20} className={`transition-transform ${sidebarCollapsed ? 'rotate-180' : ''}`} />
           </button>
         </div>
 
@@ -195,12 +237,21 @@ export default function AppLayout({ children }: AppLayoutProps) {
           <div className="header-content">
             <button
               className="header-menu-btn lg:hidden"
-              onClick={() => setSidebarOpen(true)}
+              onClick={toggleSidebar}
+              aria-label="Toggle navigation menu"
+            >
+              <Menu size={24} />
+            </button>
+            <button
+              className="header-menu-btn hidden lg:flex"
+              onClick={toggleSidebar}
+              title={sidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
+              aria-label={sidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
             >
               <Menu size={24} />
             </button>
             
-            <div className="header-title">
+            <div className="header-title flex-1">
               <h1 className="page-title">
                 {navigationItems.find(item => isActiveRoute(item.path))?.label || 'Page'}
               </h1>
@@ -208,8 +259,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
             <div className="header-actions">
               {/* Notifications */}
-              <button className="header-action-btn">
+              <button className="header-action-btn" title="Notifications">
                 <Bell className="icon-sm" />
+                <span className="sr-only">Notifications</span>
               </button>
 
               {/* User Menu */}
@@ -289,7 +341,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 )}
               </div>
 
-              <span className="connection-status">
+              <span className="connection-status hidden md:flex">
                 <span className="status-dot"></span>
                 Connected
               </span>

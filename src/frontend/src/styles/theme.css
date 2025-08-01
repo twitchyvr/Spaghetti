@@ -3,7 +3,9 @@
 :root {
   /* Layout System */
   --sidebar-width: 280px;
+  --sidebar-collapsed-width: 80px;
   --header-height: 80px;
+  --pwa-notification-height: 52px;
   --content-max-width: 1440px;
   --content-padding-x: 24px;
   --content-padding-y: 32px;
@@ -81,6 +83,7 @@
   --z-modal: 1050;
   --z-popover: 1060;
   --z-tooltip: 1070;
+  --z-notification: 1080;
 }
 
 /* Dark Theme */
@@ -124,7 +127,35 @@
   background-color: var(--color-bg-primary);
   border-right: 1px solid var(--color-border-primary);
   z-index: var(--z-fixed);
-  transition: transform var(--transition-slow);
+  transition: all var(--transition-slow);
+  overflow: hidden;
+}
+
+.pwa-notification-active .app-sidebar {
+  top: var(--pwa-notification-height);
+}
+
+.app-sidebar.collapsed {
+  width: var(--sidebar-collapsed-width);
+}
+
+.app-sidebar.collapsed .logo-text,
+.app-sidebar.collapsed .nav-label,
+.app-sidebar.collapsed .nav-badge,
+.app-sidebar.collapsed .user-info {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+  transition: opacity var(--transition-fast);
+}
+
+.app-sidebar.collapsed .nav-item {
+  justify-content: center;
+  padding: var(--space-md);
+}
+
+.app-sidebar.collapsed .user-section {
+  justify-content: center;
 }
 
 .app-main {
@@ -132,6 +163,22 @@
   margin-left: var(--sidebar-width);
   min-height: 100vh;
   background-color: var(--color-bg-secondary);
+  transition: margin-left var(--transition-slow);
+}
+
+/* Desktop sidebar states */
+@media (min-width: 1025px) {
+  .app-sidebar:not(.open) + .app-main {
+    margin-left: 0;
+  }
+  
+  .app-sidebar.collapsed + .app-main {
+    margin-left: var(--sidebar-collapsed-width);
+  }
+  
+  .app-sidebar.open:not(.collapsed) + .app-main {
+    margin-left: var(--sidebar-width);
+  }
 }
 
 .app-header {
@@ -144,6 +191,10 @@
   display: flex;
   align-items: center;
   padding: 0 var(--content-padding-x);
+}
+
+.pwa-notification-active .app-header {
+  top: var(--pwa-notification-height);
 }
 
 .app-content {
@@ -167,7 +218,7 @@
   }
   
   .app-main {
-    margin-left: 0;
+    margin-left: 0 !important;
   }
   
   .sidebar-overlay {
@@ -176,12 +227,33 @@
     background-color: rgba(0, 0, 0, 0.5);
     z-index: calc(var(--z-fixed) - 1);
   }
+
+  /* Disable collapsed state on mobile */
+  .app-sidebar.collapsed {
+    width: var(--sidebar-width);
+  }
+
+  .app-sidebar.collapsed .logo-text,
+  .app-sidebar.collapsed .nav-label,
+  .app-sidebar.collapsed .nav-badge,
+  .app-sidebar.collapsed .user-info {
+    opacity: 1;
+    width: auto;
+  }
 }
 
 @media (max-width: 640px) {
   :root {
     --content-padding-x: 16px;
     --content-padding-y: 24px;
+  }
+
+  .page-title {
+    font-size: var(--font-xl);
+  }
+
+  .header-actions {
+    gap: var(--space-sm);
   }
 }
 
@@ -202,6 +274,32 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
+}
+
+/* Icon Utilities */
+.icon-xs {
+  width: 12px;
+  height: 12px;
+}
+
+.icon-sm {
+  width: 16px;
+  height: 16px;
+}
+
+.icon-md {
+  width: 20px;
+  height: 20px;
+}
+
+.icon-lg {
+  width: 24px;
+  height: 24px;
+}
+
+.icon-xl {
+  width: 32px;
+  height: 32px;
 }
 
 /* Card Components */
@@ -351,8 +449,34 @@
   }
 }
 
+@keyframes slideInFromLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse-gentle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
 .animate-fadeIn {
   animation: fadeIn var(--transition-slow) ease-out;
+}
+
+.animate-slideIn {
+  animation: slideInFromLeft var(--transition-slow) ease-out;
+}
+
+.pulse-gentle {
+  animation: pulse-gentle 2s ease-in-out infinite;
 }
 
 /* Status Indicators */
@@ -378,4 +502,54 @@
 .status-error {
   background-color: var(--color-error-light);
   color: var(--color-error);
+}
+
+/* Accessibility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Focus styles */
+.btn:focus-visible,
+.header-menu-btn:focus-visible,
+.header-action-btn:focus-visible,
+.sidebar-toggle:focus-visible,
+.sidebar-collapse:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
+}
+
+/* Professional polish */
+.app-layout {
+  background: var(--color-bg-secondary);
+}
+
+.app-content {
+  min-height: calc(100vh - var(--header-height));
+}
+
+/* Better scrollbars */
+.app-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.app-sidebar::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+}
+
+.app-sidebar::-webkit-scrollbar-thumb {
+  background: var(--color-border-secondary);
+  border-radius: 3px;
+}
+
+.app-sidebar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-tertiary);
 }
