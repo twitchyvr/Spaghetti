@@ -44,7 +44,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const navigationItems: NavItem[] = [
     { 
       id: 'dashboard', 
-      label: 'Platform Dashboard', 
+      label: 'Dashboard', 
       icon: <LayoutDashboard size={20} />, 
       path: '/dashboard' 
     },
@@ -56,16 +56,23 @@ export default function AppLayout({ children }: AppLayoutProps) {
       badge: 'NEW'
     },
     { 
-      id: 'client-dashboard', 
-      label: 'Client Dashboard', 
-      icon: <Building2 size={20} />, 
-      path: '/client-dashboard'
+      id: 'documents', 
+      label: 'Documents', 
+      icon: <FileText size={20} />, 
+      path: '/documents'
     },
     { 
       id: 'clients', 
       label: 'Client Management', 
-      icon: <Users size={20} />, 
+      icon: <Building2 size={20} />, 
       path: '/clients'
+    },
+    { 
+      id: 'platform-admin', 
+      label: 'Platform Admin', 
+      icon: <Users size={20} />, 
+      path: '/platform-admin',
+      badge: 'ADMIN'
     },
     { 
       id: 'monitoring', 
@@ -74,17 +81,11 @@ export default function AppLayout({ children }: AppLayoutProps) {
       path: '/monitoring'
     },
     { 
-      id: 'documents', 
-      label: 'Documents', 
-      icon: <FileText size={20} />, 
-      path: '/documents'
-    },
-    { 
       id: 'database', 
       label: 'Database Admin', 
       icon: <Database size={20} />, 
       path: '/database', 
-      badge: 'ADMIN' 
+      badge: 'DEV' 
     },
     { 
       id: 'settings', 

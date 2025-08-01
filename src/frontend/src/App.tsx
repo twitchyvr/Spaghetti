@@ -102,12 +102,11 @@ function App() {
                     <Route path="/" element={<Navigate to="/dashboard" replace />} />
                     <Route 
                       path="/dashboard" 
-                      element={
-                        // Determine dashboard based on user type
-                        // For now, showing Platform Admin dashboard
-                        // TODO: Add user role detection logic
-                        <PlatformAdminDashboard />
-                      } 
+                      element={<Dashboard />}
+                    />
+                    <Route 
+                      path="/platform-admin" 
+                      element={<PlatformAdminDashboard />}
                     />
                     <Route path="/client-dashboard" element={<Dashboard />} />
                     <Route path="/clients/*" element={<ClientManagement />} />
