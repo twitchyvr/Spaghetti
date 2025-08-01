@@ -13,7 +13,8 @@ const Dashboard = React.lazy(() => import('./pages/Dashboard'));
 const PlatformAdminDashboard = React.lazy(() => import('./pages/PlatformAdminDashboard'));
 const PlatformMonitoringDashboard = React.lazy(() => import('./pages/PlatformMonitoringDashboard'));
 const ClientManagement = React.lazy(() => import('./pages/ClientManagement'));
-const Documents = React.lazy(() => import('./pages/Documents'));
+const Noodles = React.lazy(() => import('./pages/Noodles'));
+const Collections = React.lazy(() => import('./pages/Collections'));
 const DatabaseAdmin = React.lazy(() => import('./pages/DatabaseAdmin'));
 const AIDocuments = React.lazy(() => import('./pages/AIDocuments'));
 const Login = React.lazy(() => import('./pages/Login'));
@@ -134,7 +135,8 @@ function App() {
                     <Route path="/client-dashboard" element={<Dashboard />} />
                     <Route path="/clients/*" element={<ClientManagement />} />
                     <Route path="/monitoring/*" element={<PlatformMonitoringDashboard />} />
-                    <Route path="/documents/*" element={<Documents />} />
+                    <Route path="/documents/*" element={<Noodles />} />
+                    <Route path="/collections/*" element={<Collections />} />
                     <Route path="/ai-documents" element={<AIDocuments />} />
                     <Route 
                       path="/database/*" 

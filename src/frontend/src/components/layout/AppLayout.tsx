@@ -18,7 +18,10 @@ import {
   ChevronDown,
   UserCircle,
   Bell,
-  Sparkles
+  Sparkles,
+  Utensils,
+  ChefHat,
+  Layers
 } from 'lucide-react';
 
 interface AppLayoutProps {
@@ -59,16 +62,22 @@ export default function AppLayout({ children }: AppLayoutProps) {
     },
     { 
       id: 'ai-documents', 
-      label: 'AI Document Generator', 
+      label: 'Al Dente Editor', 
       icon: <Sparkles size={20} />, 
       path: '/ai-documents',
       badge: 'NEW'
     },
     { 
       id: 'documents', 
-      label: 'Documents', 
-      icon: <FileText size={20} />, 
+      label: 'Noodles', 
+      icon: <Utensils size={20} />, 
       path: '/documents'
+    },
+    { 
+      id: 'collections', 
+      label: 'Plates', 
+      icon: <Layers size={20} />, 
+      path: '/collections'
     },
     { 
       id: 'clients', 
@@ -78,8 +87,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
     },
     { 
       id: 'platform-admin', 
-      label: 'Platform Admin', 
-      icon: <Users size={20} />, 
+      label: 'The Kitchen', 
+      icon: <ChefHat size={20} />, 
       path: '/platform-admin',
       badge: 'ADMIN'
     },
@@ -165,11 +174,11 @@ export default function AppLayout({ children }: AppLayoutProps) {
         <div className="sidebar-header">
           <div className="sidebar-logo">
             <div className="logo-icon">
-              <FileText size={24} />
+              <ChefHat size={24} className="text-orange-600" />
             </div>
             <div className="logo-text">
-              <h2 className="logo-title">Enterprise Docs</h2>
-              <p className="logo-subtitle">AI-Powered Platform</p>
+              <h2 className="logo-title">Spaghetti Platform</h2>
+              <p className="logo-subtitle">The Pantry Enterprise Suite</p>
             </div>
           </div>
           <button 
@@ -300,8 +309,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
                           <p className="text-sm text-gray-500">
                             {user?.email || 'demo@enterprise-docs.com'}
                           </p>
-                          <p className="text-xs text-blue-600 font-medium">
-                            Professional Plan
+                          <p className="text-xs text-orange-600 font-medium">
+                            Chef Professional
                           </p>
                         </div>
                       </div>
