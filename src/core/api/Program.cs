@@ -177,8 +177,13 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        // Allow multiple frontend origins for development
-        policy.WithOrigins("http://localhost:3000", "http://localhost:3001", "https://localhost:3001")
+        // Allow multiple frontend origins for development and production
+        policy.WithOrigins(
+                "http://localhost:3000", 
+                "http://localhost:3001", 
+                "https://localhost:3001",
+                "https://spaghetti-platform-drgev.ondigitalocean.app"
+              )
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();

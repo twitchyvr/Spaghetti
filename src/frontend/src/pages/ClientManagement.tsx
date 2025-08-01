@@ -680,7 +680,7 @@ export default function ClientManagement() {
                         onChange={(e) => setCreateClientForm(prev => ({ ...prev, subdomain: e.target.value.toLowerCase() }))}
                         className="flex-1 px-3 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="acme-legal"
-                        pattern="^[a-z0-9-]+$"
+                        pattern="[a-z0-9-]+"
                         required
                       />
                       <span className="px-3 py-2 bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg text-gray-600">

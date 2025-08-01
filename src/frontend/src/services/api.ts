@@ -1,6 +1,6 @@
 // API Service Layer for Enterprise Docs Platform
 
-const API_BASE_URL = import.meta.env['VITE_API_BASE_URL'] || 'http://localhost:5001/api';
+const API_BASE_URL = import.meta.env['VITE_API_BASE_URL'] || 'http://localhost:5001';
 const DEMO_MODE = import.meta.env['VITE_DEMO_MODE'] === 'true' || API_BASE_URL.includes('api-placeholder');
 
 // API Error class
@@ -16,7 +16,7 @@ export async function fetchApi<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const url = `${API_BASE_URL}${endpoint}`;
+  const url = `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
   
   const defaultHeaders: Record<string, string> = {
     'Content-Type': 'application/json',
