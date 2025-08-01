@@ -23,7 +23,6 @@ export const PantryTagFilter: React.FC<PantryTagFilterProps> = ({
   availableTags,
   selectedTags,
   onTagsChange,
-  placeholder = "Filter by tags...",
   maxVisibleTags = 6,
   allowCustomTags = false,
   onCreateTag,

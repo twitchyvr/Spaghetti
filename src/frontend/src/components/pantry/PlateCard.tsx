@@ -3,7 +3,7 @@
  * Professional card component for displaying plate collections with drag-and-drop support
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   FolderOpen,
   Plus,
@@ -50,7 +50,6 @@ export const PlateCard: React.FC<PlateCardProps> = ({
   onToggleExpanded,
   className = ''
 }) => {
-  const [isHovered, setIsHovered] = useState(false);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -97,8 +96,6 @@ export const PlateCard: React.FC<PlateCardProps> = ({
     return (
       <div 
         className={baseClasses}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
       >
         <div className="p-4">
           <div className="flex items-center justify-between">
@@ -129,8 +126,8 @@ export const PlateCard: React.FC<PlateCardProps> = ({
                   </h3>
                   <div className="flex items-center space-x-1">
                     {plate.isPublic ? 
-                      <Globe size={14} className="text-green-600" title="Public plate" /> :
-                      <Lock size={14} className="text-gray-500" title="Private plate" />
+                      <Globe size={14} className="text-green-600" /> :
+                      <Lock size={14} className="text-gray-500" />
                     }
                   </div>
                 </div>
@@ -230,8 +227,6 @@ export const PlateCard: React.FC<PlateCardProps> = ({
   return (
     <div 
       className={baseClasses}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
       <div className="p-6">
         {/* Header */}
@@ -246,8 +241,8 @@ export const PlateCard: React.FC<PlateCardProps> = ({
                   {plate.name}
                 </h3>
                 {plate.isPublic ? 
-                  <Globe size={16} className="text-green-600 flex-shrink-0" title="Public plate" /> :
-                  <Lock size={16} className="text-gray-500 flex-shrink-0" title="Private plate" />
+                  <Globe size={16} className="text-green-600 flex-shrink-0" /> :
+                  <Lock size={16} className="text-gray-500 flex-shrink-0" />
                 }
               </div>
             </div>

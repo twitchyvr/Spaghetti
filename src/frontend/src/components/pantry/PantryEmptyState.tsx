@@ -10,9 +10,6 @@ import {
   Search, 
   Plus, 
   Upload,
-  ChefHat,
-  Utensils,
-  BookOpen,
   Filter,
   AlertCircle,
   RefreshCw
@@ -225,67 +222,60 @@ export const NoNoodlesState: React.FC<{
   onCreateNoodle?: () => void;
   onUploadNoodle?: () => void;
   className?: string;
-}> = ({ onCreateNoodle, onUploadNoodle, className }) => (
-  <PantryEmptyState
-    type="no-noodles"
-    onAction={onCreateNoodle}
-    onSecondaryAction={onUploadNoodle}
-    className={className}
-  />
-);
+}> = ({ onCreateNoodle, onUploadNoodle, className }) => {
+  const props: PantryEmptyStateProps = { type: "no-noodles" };
+  if (onCreateNoodle) props.onAction = onCreateNoodle;
+  if (onUploadNoodle) props.onSecondaryAction = onUploadNoodle;
+  if (className) props.className = className;
+  return <PantryEmptyState {...props} />;
+};
 
 export const NoPlatesState: React.FC<{
   onCreatePlate?: () => void;
   className?: string;
-}> = ({ onCreatePlate, className }) => (
-  <PantryEmptyState
-    type="no-plates"
-    onAction={onCreatePlate}
-    className={className}
-  />
-);
+}> = ({ onCreatePlate, className }) => {
+  const props: PantryEmptyStateProps = { type: "no-plates" };
+  if (onCreatePlate) props.onAction = onCreatePlate;
+  if (className) props.className = className;
+  return <PantryEmptyState {...props} />;
+};
 
 export const NoSearchResultsState: React.FC<{
   searchTerm: string;
   onClearSearch?: () => void;
   onBrowseAll?: () => void;
   className?: string;
-}> = ({ searchTerm, onClearSearch, onBrowseAll, className }) => (
-  <PantryEmptyState
-    type="no-search-results"
-    searchTerm={searchTerm}
-    onAction={onClearSearch}
-    onSecondaryAction={onBrowseAll}
-    className={className}
-  />
-);
+}> = ({ searchTerm, onClearSearch, onBrowseAll, className }) => {
+  const props: PantryEmptyStateProps = { type: "no-search-results", searchTerm };
+  if (onClearSearch) props.onAction = onClearSearch;
+  if (onBrowseAll) props.onSecondaryAction = onBrowseAll;
+  if (className) props.className = className;
+  return <PantryEmptyState {...props} />;
+};
 
 export const NoFilteredResultsState: React.FC<{
   filterCount: number;
   onClearFilters?: () => void;
   onResetAll?: () => void;
   className?: string;
-}> = ({ filterCount, onClearFilters, onResetAll, className }) => (
-  <PantryEmptyState
-    type="no-filtered-results"
-    filterCount={filterCount}
-    onAction={onClearFilters}
-    onSecondaryAction={onResetAll}
-    className={className}
-  />
-);
+}> = ({ filterCount, onClearFilters, onResetAll, className }) => {
+  const props: PantryEmptyStateProps = { type: "no-filtered-results", filterCount };
+  if (onClearFilters) props.onAction = onClearFilters;
+  if (onResetAll) props.onSecondaryAction = onResetAll;
+  if (className) props.className = className;
+  return <PantryEmptyState {...props} />;
+};
 
 export const ErrorState: React.FC<{
   onRetry?: () => void;
   onRefresh?: () => void;
   className?: string;
-}> = ({ onRetry, onRefresh, className }) => (
-  <PantryEmptyState
-    type="error"
-    onAction={onRetry}
-    onSecondaryAction={onRefresh}
-    className={className}
-  />
-);
+}> = ({ onRetry, onRefresh, className }) => {
+  const props: PantryEmptyStateProps = { type: "error" };
+  if (onRetry) props.onAction = onRetry;
+  if (onRefresh) props.onSecondaryAction = onRefresh;
+  if (className) props.className = className;
+  return <PantryEmptyState {...props} />;
+};
 
 export default PantryEmptyState;

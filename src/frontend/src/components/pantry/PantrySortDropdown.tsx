@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { SortAsc, SortDesc, ChevronDown } from 'lucide-react';
+import { SortAsc, SortDesc } from 'lucide-react';
 import { SortBy } from './types';
 
 interface SortOption {
@@ -47,7 +47,6 @@ export const PantrySortDropdown: React.FC<PantrySortDropdownProps> = ({
     lg: 'px-4 py-3 text-base'
   };
 
-  const currentOption = options.find(opt => opt.value === currentSort);
   const SortIcon = sortDirection === 'asc' ? SortAsc : SortDesc;
 
   return (

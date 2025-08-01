@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { Loader2, ChefHat, FileText, FolderOpen } from 'lucide-react';
+import { Loader2, ChefHat, FileText } from 'lucide-react';
 
 interface PantryLoadingStateProps {
   variant?: 'spinner' | 'skeleton' | 'cards' | 'table';

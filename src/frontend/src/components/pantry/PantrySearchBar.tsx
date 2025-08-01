@@ -3,7 +3,7 @@
  * Professional search bar with advanced filtering capabilities
  */
 
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { Search, X, Filter, SortAsc, Grid3X3, List, Table } from 'lucide-react';
 import { PantrySearchFilters, ViewMode, SortBy, FilterBy } from './types';
 
@@ -29,21 +29,8 @@ export const PantrySearchBar: React.FC<PantrySearchBarProps> = ({
   className = ''
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [showTagDropdown, setShowTagDropdown] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
-  const tagDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close tag dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (tagDropdownRef.current && !tagDropdownRef.current.contains(event.target as Node)) {
-        setShowTagDropdown(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const handleSearchChange = useCallback((searchTerm: string) => {
     onFiltersChange({

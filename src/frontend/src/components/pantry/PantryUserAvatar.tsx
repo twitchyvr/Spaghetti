@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { User, Crown, ChefHat, Utensils, Coffee } from 'lucide-react';
+import { Crown, ChefHat, Utensils, Coffee } from 'lucide-react';
 import { PantryUser } from './types';
 
 interface PantryUserAvatarProps {
@@ -119,7 +119,7 @@ export const PantryUserAvatar: React.FC<PantryUserAvatarProps> = ({
       'bg-purple-500', 'bg-pink-500', 'bg-indigo-500', 'bg-teal-500'
     ];
     const index = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    return colors[index % colors.length];
+    return colors[index % colors.length] || 'bg-blue-500';
   };
 
   const avatarContent = avatar ? (
@@ -131,9 +131,9 @@ export const PantryUserAvatar: React.FC<PantryUserAvatarProps> = ({
   ) : (
     <div className={`
       ${sizes.container} ${shapeClass} flex items-center justify-center text-white font-medium
-      ${getColorFromName(name)} ${sizes.text}
+      ${getColorFromName(name || '')} ${sizes.text}
     `}>
-      {getInitials(name)}
+      {getInitials(name || '')}
     </div>
   );
 

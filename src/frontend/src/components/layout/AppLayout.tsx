@@ -4,7 +4,6 @@ import { useLocation, Link } from 'react-router-dom';
 import '../../styles/layout.css';
 import { 
   LayoutDashboard, 
-  FileText, 
   Database, 
   Settings, 
   Menu, 
@@ -12,7 +11,6 @@ import {
   ChevronRight,
   User,
   Building2,
-  Users,
   Activity,
   LogOut,
   ChevronDown,

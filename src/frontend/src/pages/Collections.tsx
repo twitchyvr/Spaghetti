@@ -96,35 +96,53 @@ export default function Collections() {
       const legacyPlates = Array.isArray(response) ? response : sampleLegacyPlates;
       
       // Convert to PantryPlate format
-      const pantryPlates: PantryPlate[] = legacyPlates.map(plate => ({
-        id: plate.id,
-        name: plate.name,
-        description: plate.description || undefined,
-        noodleIds: Array.from({ length: plate.noodleCount }, (_, i) => `noodle-${plate.id}-${i}`),
-        tags: plate.tags,
-        createdBy: plate.createdBy,
-        createdAt: plate.createdAt,
-        updatedAt: plate.updatedAt || undefined,
-        isPublic: plate.status === 'active',
-        color: 'orange'
-      }));
+      const pantryPlates: PantryPlate[] = legacyPlates.map(plate => {
+        const plateData: any = {
+          id: plate.id,
+          name: plate.name,
+          noodleIds: Array.from({ length: plate.noodleCount }, (_, i) => `noodle-${plate.id}-${i}`),
+          tags: plate.tags,
+          createdBy: plate.createdBy,
+          createdAt: plate.createdAt,
+          isPublic: plate.status === 'active',
+          color: 'orange'
+        };
+        
+        if (plate.description) {
+          plateData.description = plate.description;
+        }
+        if (plate.updatedAt) {
+          plateData.updatedAt = plate.updatedAt;
+        }
+        
+        return plateData as PantryPlate;
+      });
       
       setPlates(pantryPlates);
     } catch (err) {
       console.error('Failed to fetch plates:', err);
       // Use sample data as fallback
-      const pantryPlates: PantryPlate[] = sampleLegacyPlates.map(plate => ({
-        id: plate.id,
-        name: plate.name,
-        description: plate.description || undefined,
-        noodleIds: Array.from({ length: plate.noodleCount }, (_, i) => `noodle-${plate.id}-${i}`),
-        tags: plate.tags,
-        createdBy: plate.createdBy,
-        createdAt: plate.createdAt,
-        updatedAt: plate.updatedAt || undefined,
-        isPublic: plate.status === 'active',
-        color: 'orange'
-      }));
+      const pantryPlates: PantryPlate[] = sampleLegacyPlates.map(plate => {
+        const plateData: any = {
+          id: plate.id,
+          name: plate.name,
+          noodleIds: Array.from({ length: plate.noodleCount }, (_, i) => `noodle-${plate.id}-${i}`),
+          tags: plate.tags,
+          createdBy: plate.createdBy,
+          createdAt: plate.createdAt,
+          isPublic: plate.status === 'active',
+          color: 'orange'
+        };
+        
+        if (plate.description) {
+          plateData.description = plate.description;
+        }
+        if (plate.updatedAt) {
+          plateData.updatedAt = plate.updatedAt;
+        }
+        
+        return plateData as PantryPlate;
+      });
       setPlates(pantryPlates);
     } finally {
       setIsLoading(false);
