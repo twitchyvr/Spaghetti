@@ -1,0 +1,535 @@
+version: '3.8'
+
+# Sprint 9: Global Multi-Region Deployment Configuration
+# Supports US (East/West), EU (West), APAC (South) deployment with CDN optimization
+
+services:
+  # Global Load Balancer
+  global-lb:
+    image: traefik:v3.0
+    container_name: spaghetti-global-lb
+    command:
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
+      - --certificatesresolvers.letsencrypt.acme.email=admin@spaghetti-platform.com
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+      - --global.checknewversion=false
+      - --global.sendanonymoususage=false
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./letsencrypt:/letsencrypt
+    environment:
+      - TRAEFIK_LOG_LEVEL=INFO
+    networks:
+      - global-network
+    deploy:
+      replicas: 2
+      placement:
+        constraints:
+          - node.role == manager
+
+  # US East Region (Primary)
+  api-us-east:
+    image: spaghetti-platform/api:sprint9-global
+    container_name: spaghetti-api-us-east
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - REGION=us-east-1
+      - DATABASE_HOST=postgres-us-east
+      - REDIS_HOST=redis-us-east
+      - ELASTICSEARCH_HOST=elasticsearch-us-east
+      - CDN_ENDPOINT=https://us-east.cdn.spaghetti-platform.com
+      - DATA_SOVEREIGNTY=CCPA,HIPAA
+      - AZURE_REGION=eastus
+      - ZERO_TRUST_ENABLED=true
+      - AI_SERVICES_ENDPOINT=https://ai-us-east.spaghetti-platform.com
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.api-us-east.rule=Host(`us-east.spaghetti-platform.com`)
+      - traefik.http.routers.api-us-east.tls.certresolver=letsencrypt
+      - traefik.http.services.api-us-east.loadbalancer.server.port=80
+      - traefik.http.routers.api-us-east.middlewares=global-headers,rate-limit
+    networks:
+      - global-network
+      - us-east-network
+    depends_on:
+      - postgres-us-east
+      - redis-us-east
+      - elasticsearch-us-east
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # US West Region (Secondary)
+  api-us-west:
+    image: spaghetti-platform/api:sprint9-global
+    container_name: spaghetti-api-us-west
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - REGION=us-west-2
+      - DATABASE_HOST=postgres-us-west
+      - REDIS_HOST=redis-us-west
+      - ELASTICSEARCH_HOST=elasticsearch-us-west
+      - CDN_ENDPOINT=https://us-west.cdn.spaghetti-platform.com
+      - DATA_SOVEREIGNTY=CCPA,HIPAA
+      - AZURE_REGION=westus2
+      - ZERO_TRUST_ENABLED=true
+      - AI_SERVICES_ENDPOINT=https://ai-us-west.spaghetti-platform.com
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.api-us-west.rule=Host(`us-west.spaghetti-platform.com`)
+      - traefik.http.routers.api-us-west.tls.certresolver=letsencrypt
+      - traefik.http.services.api-us-west.loadbalancer.server.port=80
+    networks:
+      - global-network
+      - us-west-network
+    depends_on:
+      - postgres-us-west
+      - redis-us-west
+      - elasticsearch-us-west
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.8'
+          memory: 1G
+        reservations:
+          cpus: '0.4'
+          memory: 512M
+
+  # EU West Region (GDPR Compliant)
+  api-eu-west:
+    image: spaghetti-platform/api:sprint9-global
+    container_name: spaghetti-api-eu-west
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - REGION=eu-west-1
+      - DATABASE_HOST=postgres-eu-west
+      - REDIS_HOST=redis-eu-west
+      - ELASTICSEARCH_HOST=elasticsearch-eu-west
+      - CDN_ENDPOINT=https://eu-west.cdn.spaghetti-platform.com
+      - DATA_SOVEREIGNTY=GDPR
+      - AZURE_REGION=westeurope
+      - ZERO_TRUST_ENABLED=true
+      - AI_SERVICES_ENDPOINT=https://ai-eu-west.spaghetti-platform.com
+      - GDPR_COMPLIANCE=true
+      - DATA_RESIDENCY_ENFORCEMENT=true
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.api-eu-west.rule=Host(`eu-west.spaghetti-platform.com`)
+      - traefik.http.routers.api-eu-west.tls.certresolver=letsencrypt
+      - traefik.http.services.api-eu-west.loadbalancer.server.port=80
+    networks:
+      - global-network
+      - eu-west-network
+    depends_on:
+      - postgres-eu-west
+      - redis-eu-west
+      - elasticsearch-eu-west
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.8'
+          memory: 1G
+        reservations:
+          cpus: '0.4'
+          memory: 512M
+
+  # APAC South Region
+  api-ap-south:
+    image: spaghetti-platform/api:sprint9-global
+    container_name: spaghetti-api-ap-south
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - REGION=ap-south-1
+      - DATABASE_HOST=postgres-ap-south
+      - REDIS_HOST=redis-ap-south
+      - ELASTICSEARCH_HOST=elasticsearch-ap-south
+      - CDN_ENDPOINT=https://ap-south.cdn.spaghetti-platform.com
+      - DATA_SOVEREIGNTY=PDPA
+      - AZURE_REGION=southindia
+      - ZERO_TRUST_ENABLED=true
+      - AI_SERVICES_ENDPOINT=https://ai-ap-south.spaghetti-platform.com
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.api-ap-south.rule=Host(`ap-south.spaghetti-platform.com`)
+      - traefik.http.routers.api-ap-south.tls.certresolver=letsencrypt
+      - traefik.http.services.api-ap-south.loadbalancer.server.port=80
+    networks:
+      - global-network
+      - ap-south-network
+    depends_on:
+      - postgres-ap-south
+      - redis-ap-south
+      - elasticsearch-ap-south
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.6'
+          memory: 1G
+        reservations:
+          cpus: '0.3'
+          memory: 512M
+
+  # PostgreSQL Databases (Regional)
+  postgres-us-east:
+    image: postgres:15-alpine
+    container_name: spaghetti-postgres-us-east
+    environment:
+      - POSTGRES_DB=spaghetti_platform
+      - POSTGRES_USER=spaghetti_user
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256
+    volumes:
+      - postgres-us-east-data:/var/lib/postgresql/data
+      - ./scripts/db-init:/docker-entrypoint-initdb.d
+    networks:
+      - us-east-network
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.region == us-east
+
+  postgres-us-west:
+    image: postgres:15-alpine
+    container_name: spaghetti-postgres-us-west
+    environment:
+      - POSTGRES_DB=spaghetti_platform
+      - POSTGRES_USER=spaghetti_user
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256
+    volumes:
+      - postgres-us-west-data:/var/lib/postgresql/data
+    networks:
+      - us-west-network
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.region == us-west
+
+  postgres-eu-west:
+    image: postgres:15-alpine
+    container_name: spaghetti-postgres-eu-west
+    environment:
+      - POSTGRES_DB=spaghetti_platform
+      - POSTGRES_USER=spaghetti_user
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256
+      - GDPR_COMPLIANCE=true
+    volumes:
+      - postgres-eu-west-data:/var/lib/postgresql/data
+    networks:
+      - eu-west-network
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.region == eu-west
+
+  postgres-ap-south:
+    image: postgres:15-alpine
+    container_name: spaghetti-postgres-ap-south
+    environment:
+      - POSTGRES_DB=spaghetti_platform
+      - POSTGRES_USER=spaghetti_user
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256
+    volumes:
+      - postgres-ap-south-data:/var/lib/postgresql/data
+    networks:
+      - ap-south-network
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.region == ap-south
+
+  # Redis Cache (Regional)
+  redis-us-east:
+    image: redis:7-alpine
+    container_name: spaghetti-redis-us-east
+    command: redis-server --requirepass ${REDIS_PASSWORD} --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-us-east-data:/data
+    networks:
+      - us-east-network
+    deploy:
+      replicas: 1
+
+  redis-us-west:
+    image: redis:7-alpine
+    container_name: spaghetti-redis-us-west
+    command: redis-server --requirepass ${REDIS_PASSWORD} --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-us-west-data:/data
+    networks:
+      - us-west-network
+    deploy:
+      replicas: 1
+
+  redis-eu-west:
+    image: redis:7-alpine
+    container_name: spaghetti-redis-eu-west
+    command: redis-server --requirepass ${REDIS_PASSWORD} --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-eu-west-data:/data
+    networks:
+      - eu-west-network
+    deploy:
+      replicas: 1
+
+  redis-ap-south:
+    image: redis:7-alpine
+    container_name: spaghetti-redis-ap-south
+    command: redis-server --requirepass ${REDIS_PASSWORD} --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-ap-south-data:/data
+    networks:
+      - ap-south-network
+    deploy:
+      replicas: 1
+
+  # Elasticsearch (Regional)
+  elasticsearch-us-east:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.0
+    container_name: spaghetti-elasticsearch-us-east
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - elasticsearch-us-east-data:/usr/share/elasticsearch/data
+    networks:
+      - us-east-network
+    deploy:
+      replicas: 1
+
+  elasticsearch-us-west:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.0
+    container_name: spaghetti-elasticsearch-us-west
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - elasticsearch-us-west-data:/usr/share/elasticsearch/data
+    networks:
+      - us-west-network
+    deploy:
+      replicas: 1
+
+  elasticsearch-eu-west:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.0
+    container_name: spaghetti-elasticsearch-eu-west
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - elasticsearch-eu-west-data:/usr/share/elasticsearch/data
+    networks:
+      - eu-west-network
+    deploy:
+      replicas: 1
+
+  elasticsearch-ap-south:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.0
+    container_name: spaghetti-elasticsearch-ap-south
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - elasticsearch-ap-south-data:/usr/share/elasticsearch/data
+    networks:
+      - ap-south-network
+    deploy:
+      replicas: 1
+
+  # Global CDN Edge Servers
+  cdn-us-east:
+    image: nginx:alpine
+    container_name: spaghetti-cdn-us-east
+    volumes:
+      - ./cdn/nginx-us-east.conf:/etc/nginx/nginx.conf:ro
+      - ./cdn/static:/usr/share/nginx/html/static:ro
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.cdn-us-east.rule=Host(`us-east.cdn.spaghetti-platform.com`)
+      - traefik.http.routers.cdn-us-east.tls.certresolver=letsencrypt
+    networks:
+      - global-network
+    deploy:
+      replicas: 2
+
+  cdn-us-west:
+    image: nginx:alpine
+    container_name: spaghetti-cdn-us-west
+    volumes:
+      - ./cdn/nginx-us-west.conf:/etc/nginx/nginx.conf:ro
+      - ./cdn/static:/usr/share/nginx/html/static:ro
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.cdn-us-west.rule=Host(`us-west.cdn.spaghetti-platform.com`)
+      - traefik.http.routers.cdn-us-west.tls.certresolver=letsencrypt
+    networks:
+      - global-network
+    deploy:
+      replicas: 2
+
+  cdn-eu-west:
+    image: nginx:alpine
+    container_name: spaghetti-cdn-eu-west
+    volumes:
+      - ./cdn/nginx-eu-west.conf:/etc/nginx/nginx.conf:ro
+      - ./cdn/static:/usr/share/nginx/html/static:ro
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.cdn-eu-west.rule=Host(`eu-west.cdn.spaghetti-platform.com`)
+      - traefik.http.routers.cdn-eu-west.tls.certresolver=letsencrypt
+    networks:
+      - global-network
+    deploy:
+      replicas: 2
+
+  cdn-ap-south:
+    image: nginx:alpine
+    container_name: spaghetti-cdn-ap-south
+    volumes:
+      - ./cdn/nginx-ap-south.conf:/etc/nginx/nginx.conf:ro
+      - ./cdn/static:/usr/share/nginx/html/static:ro
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.cdn-ap-south.rule=Host(`ap-south.cdn.spaghetti-platform.com`)
+      - traefik.http.routers.cdn-ap-south.tls.certresolver=letsencrypt
+    networks:
+      - global-network
+    deploy:
+      replicas: 2
+
+  # Global Monitoring and Observability
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: spaghetti-prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    networks:
+      - global-network
+    deploy:
+      replicas: 1
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: spaghetti-grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_INSTALL_PLUGINS=grafana-worldmap-panel,grafana-piechart-panel
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.grafana.rule=Host(`monitoring.spaghetti-platform.com`)
+      - traefik.http.routers.grafana.tls.certresolver=letsencrypt
+    networks:
+      - global-network
+    deploy:
+      replicas: 1
+
+  # Zero-Trust Security Gateway
+  zero-trust-gateway:
+    image: spaghetti-platform/zero-trust-gateway:sprint9
+    container_name: spaghetti-zero-trust-gateway
+    environment:
+      - ENVIRONMENT=production
+      - AUTH_PROVIDER=auth0
+      - POLICY_ENGINE_ENABLED=true
+      - THREAT_DETECTION_ENABLED=true
+      - SOC_INTEGRATION_ENABLED=true
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.zero-trust.rule=Host(`security.spaghetti-platform.com`)
+      - traefik.http.routers.zero-trust.tls.certresolver=letsencrypt
+      - traefik.http.middlewares.zero-trust-auth.forwardauth.address=http://zero-trust-gateway:8080/auth
+    networks:
+      - global-network
+    deploy:
+      replicas: 2
+
+networks:
+  global-network:
+    driver: overlay
+    attachable: true
+  us-east-network:
+    driver: overlay
+    internal: true
+  us-west-network:
+    driver: overlay
+    internal: true
+  eu-west-network:
+    driver: overlay
+    internal: true
+  ap-south-network:
+    driver: overlay
+    internal: true
+
+volumes:
+  postgres-us-east-data:
+    driver: local
+  postgres-us-west-data:
+    driver: local
+  postgres-eu-west-data:
+    driver: local
+  postgres-ap-south-data:
+    driver: local
+  redis-us-east-data:
+    driver: local
+  redis-us-west-data:
+    driver: local
+  redis-eu-west-data:
+    driver: local
+  redis-ap-south-data:
+    driver: local
+  elasticsearch-us-east-data:
+    driver: local
+  elasticsearch-us-west-data:
+    driver: local
+  elasticsearch-eu-west-data:
+    driver: local
+  elasticsearch-ap-south-data:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
