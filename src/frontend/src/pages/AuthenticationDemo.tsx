@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { RoleGuard, RequirePlatformAdmin, RequireClientAdmin, useRoles } from '../components/auth/RoleGuard';
-import { PermissionGate, RequirePermission, RequireDocumentPermission, usePermissions } from '../components/auth/PermissionGate';
+import { RequirePermission, RequireDocumentPermission, usePermissions } from '../components/auth/PermissionGate';
 import { MFASetup } from '../components/auth/MFASetup';
 import { SessionManager } from '../components/auth/SessionManager';
 import { useAuth } from '../contexts/AuthContext';
@@ -16,7 +16,7 @@ import {
 
 export const AuthenticationDemo: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
-  const { hasRole, hasAnyRole, isPlatformAdmin, isClientAdmin } = useRoles();
+  const { hasAnyRole, isPlatformAdmin, isClientAdmin } = useRoles();
   const { 
     hasPermission, 
     canCreateDocuments, 
@@ -61,7 +61,7 @@ export const AuthenticationDemo: React.FC = () => {
                 Welcome, <span className="font-medium">{user?.fullName}</span>
               </div>
               <div className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
-                {user?.userType}
+                {user?.tenant?.tier || 'Standard'}
               </div>
             </div>
           </div>

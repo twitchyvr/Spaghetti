@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/dashboard.css';
 import { 
@@ -13,9 +13,6 @@ import {
   Settings,
   BarChart3,
   Shield,
-  PieChart,
-  Target,
-  Zap,
   Filter,
   FileText,
   HardDrive,
@@ -129,7 +126,7 @@ export default function PlatformAdminDashboard() {
         value: platformData.totalClients.toLocaleString(),
         icon: <Building2 size={24} />,
         change: 12,
-        changeType: 'increase' as const
+        changeType: 'positive' as const
       },
       {
         id: 'active-users',
@@ -137,7 +134,7 @@ export default function PlatformAdminDashboard() {
         value: platformData.activeUsers.toLocaleString(),
         icon: <Users size={24} />,
         change: 8,
-        changeType: 'increase' as const
+        changeType: 'positive' as const
       },
       {
         id: 'mrr',
@@ -145,7 +142,7 @@ export default function PlatformAdminDashboard() {
         value: `$${platformData.monthlyRecurringRevenue.toLocaleString()}`,
         icon: <DollarSign size={24} />,
         change: 15,
-        changeType: 'increase' as const
+        changeType: 'positive' as const
       },
       {
         id: 'system-health',
@@ -153,7 +150,7 @@ export default function PlatformAdminDashboard() {
         value: `${platformData.platformHealth.systemUptime}%`,
         icon: <Activity size={24} />,
         change: 0.03,
-        changeType: 'increase' as const
+        changeType: 'positive' as const
       }
     ];
   };
@@ -371,9 +368,17 @@ export default function PlatformAdminDashboard() {
       { name: 'Error Rate', value: 0.03, unit: '%', status: 'good' }
     ];
 
+    const mockHealthChartData = [
+      { date: '2025-07-01', uptime: 99.95, responseTime: 152 },
+      { date: '2025-07-02', uptime: 99.98, responseTime: 143 },
+      { date: '2025-07-03', uptime: 99.97, responseTime: 145 },
+      { date: '2025-07-04', uptime: 99.99, responseTime: 138 },
+      { date: '2025-07-05', uptime: 99.97, responseTime: 145 }
+    ];
+
     return (
       <div className="space-y-6">
-        <HealthMetricsChart data={mockHealthData} />
+        <HealthMetricsChart data={mockHealthChartData} />
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {mockHealthData.map((metric) => (

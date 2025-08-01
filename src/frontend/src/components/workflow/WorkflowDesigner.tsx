@@ -115,10 +115,7 @@ export const WorkflowDesigner: React.FC<WorkflowDesignerProps> = ({
   const [workflow] = useState<WorkflowDefinition>(initialWorkflow);
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [selectedNode] = useState<string | null>(null);
-  const [isValidating, setIsValidating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
   
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
@@ -332,7 +329,6 @@ export const WorkflowDesigner: React.FC<WorkflowDesignerProps> = ({
     if (readonly || isSaving) return;
 
     setIsSaving(true);
-    setIsValidating(true);
 
     try {
       // Validate workflow
@@ -377,7 +373,6 @@ export const WorkflowDesigner: React.FC<WorkflowDesignerProps> = ({
       await onSave(workflowDefinition);
     } finally {
       setIsSaving(false);
-      setIsValidating(false);
     }
   }, [readonly, isSaving, workflow, nodes, edges, validateWorkflow, onValidationError, onSave]);
 
@@ -450,7 +445,7 @@ export const WorkflowDesigner: React.FC<WorkflowDesignerProps> = ({
           )}
           
           <button
-            onClick={() => setShowSettings(true)}
+            onClick={() => console.log('Settings clicked')}
             className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded"
           >
             <Settings className="w-4 h-4" />
