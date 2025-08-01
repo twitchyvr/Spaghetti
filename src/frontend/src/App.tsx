@@ -29,6 +29,15 @@ const AdvancedAnalytics = React.lazy(() => import('./pages/AdvancedAnalytics'));
 const EnterpriseIntegrations = React.lazy(() => import('./pages/EnterpriseIntegrations'));
 const SecurityCompliance = React.lazy(() => import('./pages/SecurityCompliance'));
 
+// Sprint 8: Advanced Enterprise AI Platform Features
+const MLDocumentClassification = React.lazy(() => import('./pages/MLDocumentClassification'));
+const PredictiveAnalytics = React.lazy(() => import('./pages/PredictiveAnalytics'));
+const AdvancedWorkflows = React.lazy(() => import('./pages/AdvancedWorkflows'));
+const CollaborativeEditor = React.lazy(() => import('./pages/CollaborativeEditor'));
+const KnowledgeGraph = React.lazy(() => import('./pages/KnowledgeGraph'));
+const MobileApp = React.lazy(() => import('./pages/MobileApp'));
+const PerformanceMonitoring = React.lazy(() => import('./pages/PerformanceMonitoring'));
+
 // Layout components
 const AppLayout = React.lazy(() => import('./components/layout/AppLayout'));
 const AuthLayout = React.lazy(() => import('./components/layout/AuthLayout'));
@@ -159,6 +168,15 @@ function App() {
                     <Route path="/advanced-analytics" element={<AdvancedAnalytics />} />
                     <Route path="/enterprise-integrations" element={<EnterpriseIntegrations />} />
                     <Route path="/security-compliance" element={<SecurityCompliance />} />
+                    
+                    {/* Sprint 8: Advanced Enterprise AI Platform Features */}
+                    <Route path="/ml-classification" element={<MLDocumentClassification />} />
+                    <Route path="/predictive-analytics" element={<PredictiveAnalytics />} />
+                    <Route path="/advanced-workflows" element={<AdvancedWorkflows />} />
+                    <Route path="/collaborative-editor" element={<CollaborativeEditor />} />
+                    <Route path="/knowledge-graph" element={<KnowledgeGraph />} />
+                    <Route path="/mobile-app" element={<MobileApp />} />
+                    <Route path="/performance-monitoring" element={<PerformanceMonitoring />} />
                     <Route path="/settings/*" element={<Settings />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="*" element={<NotFound />} />

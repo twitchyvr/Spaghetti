@@ -23,7 +23,13 @@ import {
   BrainCircuit,
   BarChart3,
   Plug,
-  Shield
+  Shield,
+  Brain,
+  TrendingUp,
+  Zap,
+  Users,
+  GitBranch,
+  Monitor
 } from 'lucide-react';
 
 interface AppLayoutProps {
@@ -142,6 +148,49 @@ export default function AppLayout({ children }: AppLayoutProps) {
       icon: <Shield size={20} />, 
       path: '/security-compliance',
       badge: 'SPRINT 7'
+    },
+    // Sprint 8: Advanced Enterprise AI Platform Features
+    { 
+      id: 'ml-classification', 
+      label: 'ML Document Classification', 
+      icon: <Brain size={20} />, 
+      path: '/ml-classification',
+      badge: 'SPRINT 8'
+    },
+    { 
+      id: 'predictive-analytics', 
+      label: 'Predictive Analytics', 
+      icon: <TrendingUp size={20} />, 
+      path: '/predictive-analytics',
+      badge: 'SPRINT 8'
+    },
+    { 
+      id: 'advanced-workflows', 
+      label: 'Advanced Workflows', 
+      icon: <Zap size={20} />, 
+      path: '/advanced-workflows',
+      badge: 'SPRINT 8'
+    },
+    { 
+      id: 'collaborative-editor', 
+      label: 'Real-time Collaboration', 
+      icon: <Users size={20} />, 
+      path: '/collaborative-editor',
+      badge: 'SPRINT 8'
+    },
+    { 
+      id: 'knowledge-graph', 
+      label: 'Knowledge Graph', 
+      icon: <GitBranch size={20} />, 
+      path: '/knowledge-graph',
+      badge: 'SPRINT 8'
+    },
+    { 
+      id: 'performance-monitoring', 
+      label: 'Performance Monitoring', 
+      icon: <Monitor size={20} />, 
+      path: '/performance-monitoring',
+      badge: 'SPRINT 8'
     },
     { 
       id: 'settings', 

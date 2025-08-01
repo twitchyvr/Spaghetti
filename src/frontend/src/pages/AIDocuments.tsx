@@ -52,7 +52,6 @@ const AIDocuments: React.FC = () => {
           <div className="lg:col-span-2">
             <AIDocumentGenerator 
               onDocumentGenerated={handleDocumentGenerated}
-              className="w-full"
             />
           </div>
 
