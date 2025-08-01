@@ -19,7 +19,11 @@ import {
   Sparkles,
   Utensils,
   ChefHat,
-  Layers
+  Layers,
+  BrainCircuit,
+  BarChart3,
+  Plug,
+  Shield
 } from 'lucide-react';
 
 interface AppLayoutProps {
@@ -102,6 +106,42 @@ export default function AppLayout({ children }: AppLayoutProps) {
       icon: <Database size={20} />, 
       path: '/database', 
       badge: 'DEV' 
+    },
+    // Sprint 7: Advanced Enterprise Features
+    { 
+      id: 'ai-analytics', 
+      label: 'AI Document Intelligence', 
+      icon: <BrainCircuit size={20} />, 
+      path: '/ai-analytics',
+      badge: 'SPRINT 7'
+    },
+    { 
+      id: 'tenant-management', 
+      label: 'Enterprise Tenants', 
+      icon: <Building2 size={20} />, 
+      path: '/tenant-management',
+      badge: 'SPRINT 7'
+    },
+    { 
+      id: 'advanced-analytics', 
+      label: 'Advanced Analytics', 
+      icon: <BarChart3 size={20} />, 
+      path: '/advanced-analytics',
+      badge: 'SPRINT 7'
+    },
+    { 
+      id: 'enterprise-integrations', 
+      label: 'Enterprise Integrations', 
+      icon: <Plug size={20} />, 
+      path: '/enterprise-integrations',
+      badge: 'SPRINT 7'
+    },
+    { 
+      id: 'security-compliance', 
+      label: 'Security & Compliance', 
+      icon: <Shield size={20} />, 
+      path: '/security-compliance',
+      badge: 'SPRINT 7'
     },
     { 
       id: 'settings', 

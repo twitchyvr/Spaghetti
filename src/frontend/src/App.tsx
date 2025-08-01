@@ -22,6 +22,13 @@ const Settings = React.lazy(() => import('./pages/Settings'));
 const Profile = React.lazy(() => import('./pages/Profile'));
 const NotFound = React.lazy(() => import('./pages/NotFound'));
 
+// Sprint 7: Advanced Enterprise Features
+const AIAnalytics = React.lazy(() => import('./pages/AIAnalytics'));
+const TenantManagement = React.lazy(() => import('./pages/TenantManagement'));
+const AdvancedAnalytics = React.lazy(() => import('./pages/AdvancedAnalytics'));
+const EnterpriseIntegrations = React.lazy(() => import('./pages/EnterpriseIntegrations'));
+const SecurityCompliance = React.lazy(() => import('./pages/SecurityCompliance'));
+
 // Layout components
 const AppLayout = React.lazy(() => import('./components/layout/AppLayout'));
 const AuthLayout = React.lazy(() => import('./components/layout/AuthLayout'));
@@ -146,6 +153,12 @@ function App() {
                         </ProtectedRoute>
                       } 
                     />
+                    {/* Sprint 7: Advanced Enterprise Features */}
+                    <Route path="/ai-analytics" element={<AIAnalytics />} />
+                    <Route path="/tenant-management" element={<TenantManagement />} />
+                    <Route path="/advanced-analytics" element={<AdvancedAnalytics />} />
+                    <Route path="/enterprise-integrations" element={<EnterpriseIntegrations />} />
+                    <Route path="/security-compliance" element={<SecurityCompliance />} />
                     <Route path="/settings/*" element={<Settings />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="*" element={<NotFound />} />
