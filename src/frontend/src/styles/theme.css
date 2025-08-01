@@ -129,6 +129,13 @@
   z-index: var(--z-fixed);
   transition: all var(--transition-slow);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-100%);
+}
+
+.app-sidebar.open {
+  transform: translateX(0);
 }
 
 .pwa-notification-active .app-sidebar {
@@ -160,24 +167,24 @@
 
 .app-main {
   flex: 1;
-  margin-left: var(--sidebar-width);
+  margin-left: 0;
   min-height: 100vh;
-  background-color: var(--color-bg-secondary);
   transition: margin-left var(--transition-slow);
+  background-color: var(--color-bg-secondary);
 }
 
 /* Desktop sidebar states */
-@media (min-width: 1025px) {
-  .app-sidebar:not(.open) + .app-main {
-    margin-left: 0;
+@media (min-width: 1024px) {
+  .app-sidebar {
+    transform: translateX(0);
+  }
+  
+  .app-sidebar.open + .app-main {
+    margin-left: var(--sidebar-width);
   }
   
   .app-sidebar.collapsed + .app-main {
     margin-left: var(--sidebar-collapsed-width);
-  }
-  
-  .app-sidebar.open:not(.collapsed) + .app-main {
-    margin-left: var(--sidebar-width);
   }
 }
 

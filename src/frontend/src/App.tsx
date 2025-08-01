@@ -46,9 +46,10 @@ function App() {
   // Show PWA notification bar after user is authenticated and settled (only if not dismissed)
   useEffect(() => {
     if (isAuthenticated && showInstallPrompt && !pwaPromptDismissed) {
+      // Only show PWA prompt once per session after 2 minutes
       const timer = setTimeout(() => {
         setShowPWANotificationBar(true);
-      }, 30000); // Show after 30 seconds of being authenticated
+      }, 120000); // Show after 2 minutes of being authenticated
       return () => clearTimeout(timer);
     }
     return undefined;
