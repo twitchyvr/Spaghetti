@@ -111,7 +111,8 @@ builder.Services.AddCustomAuthorization();
 
 // Configure enterprise services
 builder.Services.ConfigureStorage(builder.Configuration);
-builder.Services.ConfigureAIServices(builder.Configuration);
+// TODO: Temporarily disable AI services due to compilation errors
+// builder.Services.ConfigureAIServices(builder.Configuration);
 // TODO: Re-enable module system after fixing remaining interface implementations
 // builder.Services.ConfigureModuleSystem(builder.Configuration);
 
@@ -122,13 +123,15 @@ builder.Services.AddUnitOfWork();
 builder.Services.AddScoped<DatabaseSeedingService>();
 
 // Sprint 6: Add Workflow Services
-builder.Services.AddScoped<IWorkflowService, WorkflowService>();
-builder.Services.AddScoped<ICollaborationService, CollaborationService>();
+// TODO: Temporarily disable problematic services until infrastructure is fixed
+// builder.Services.AddScoped<IWorkflowService, WorkflowService>();
+// builder.Services.AddScoped<ICollaborationService, CollaborationService>();
 
 // Health Monitoring Services
 builder.Services.AddScoped<IHealthMonitoringService, HealthMonitoringService>();
-builder.Services.AddScoped<IIncidentManagementService, IncidentManagementService>();
-builder.Services.AddScoped<IMaintenanceService, MaintenanceService>();
+// TODO: Temporarily disable these services until implementation is fixed
+// builder.Services.AddScoped<IIncidentManagementService, IncidentManagementService>();
+// builder.Services.AddScoped<IMaintenanceService, MaintenanceService>();
 
 // Add memory cache (always needed for local caching)
 builder.Services.AddMemoryCache();
@@ -251,12 +254,25 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        await context.Database.MigrateAsync();
+        
+        // Check if database exists and is accessible
+        var canConnect = await context.Database.CanConnectAsync();
+        if (canConnect)
+        {
+            await context.Database.MigrateAsync();
+            Console.WriteLine("Database migrations completed successfully.");
+        }
+        else
+        {
+            Console.WriteLine("Warning: Cannot connect to database. Check connection string and database availability.");
+        }
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"Warning: Database migration failed: {ex.Message}");
-        // Continue startup even if migrations fail to allow debugging
+        Console.WriteLine($"Warning: Database initialization failed: {ex.Message}");
+        Console.WriteLine($"Stack trace: {ex.StackTrace}");
+        // Continue startup even if migrations fail to allow debugging in development
+        // In production, this might need to fail the startup depending on requirements
     }
 }
 
