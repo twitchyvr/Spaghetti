@@ -3,25 +3,16 @@
  * Provides offline capability, caching, and push notifications
  */
 
-const CACHE_NAME = 'enterprise-docs-v1.0.2';
-const STATIC_CACHE = 'static-assets-v3';
-const DYNAMIC_CACHE = 'dynamic-content-v3';
+const CACHE_NAME = 'enterprise-docs-v1.0.3';
+const STATIC_CACHE = 'static-assets-v4';
+const DYNAMIC_CACHE = 'dynamic-content-v4';
 
 // Resources to cache immediately
 const PRECACHE_ASSETS = [
   '/',
   '/index.html',
-  '/assets/index.css',
-  '/assets/index.js',
   '/favicon.svg',
-  '/manifest.json',
-  // Core app routes
-  '/dashboard',
-  '/documents',
-  '/login',
-  '/profile',
-  // Offline page
-  '/offline.html'
+  '/manifest.json'
 ];
 
 // API endpoints to cache with different strategies
@@ -80,6 +71,14 @@ self.addEventListener('activate', (event) => {
       .then(() => {
         // Take control of all clients immediately
         return self.clients.claim();
+      })
+      .then(() => {
+        // Notify all clients to refresh
+        return self.clients.matchAll().then(clients => {
+          clients.forEach(client => {
+            client.postMessage({ type: 'CACHE_UPDATED', message: 'New version available' });
+          });
+        });
       })
   );
 });
