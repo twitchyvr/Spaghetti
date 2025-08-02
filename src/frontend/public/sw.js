@@ -3,9 +3,9 @@
  * Provides offline capability, caching, and push notifications
  */
 
-const CACHE_NAME = 'enterprise-docs-v1.0.1';
-const STATIC_CACHE = 'static-assets-v2';
-const DYNAMIC_CACHE = 'dynamic-content-v2';
+const CACHE_NAME = 'enterprise-docs-v1.0.2';
+const STATIC_CACHE = 'static-assets-v3';
+const DYNAMIC_CACHE = 'dynamic-content-v3';
 
 // Resources to cache immediately
 const PRECACHE_ASSETS = [
@@ -71,10 +71,9 @@ self.addEventListener('activate', (event) => {
       .then((cacheNames) => {
         return Promise.all(
           cacheNames.map((cacheName) => {
-            if (cacheName !== STATIC_CACHE && cacheName !== DYNAMIC_CACHE) {
-              console.log('[SW] Deleting old cache:', cacheName);
-              return caches.delete(cacheName);
-            }
+            // Force delete ALL caches to ensure fresh assets
+            console.log('[SW] Deleting cache:', cacheName);
+            return caches.delete(cacheName);
           })
         );
       })
