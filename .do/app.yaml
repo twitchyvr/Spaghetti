@@ -14,10 +14,10 @@ services:
   instance_size_slug: professional-xs
   http_port: 5000
   routes:
-  - path: /api/*
-  - path: /health*
-  - path: /swagger*
-  - path: /hubs/*
+  - path: /api
+  - path: /health
+  - path: /swagger
+  - path: /hubs
   health_check:
     http_path: /health
   envs:
@@ -63,9 +63,7 @@ services:
   instance_count: 1
   instance_size_slug: basic-xxs
   http_port: 8080
-  routes:
-  - path: /
-    # This catch-all route must be last to avoid intercepting API routes
+  catch_all: true
   envs:
   - key: VITE_API_BASE_URL
     value: https://spaghetti-platform-drgev.ondigitalocean.app
