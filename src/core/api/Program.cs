@@ -163,11 +163,6 @@ if (!string.IsNullOrEmpty(redisConnection))
 }
 else
 {
-    // Use in-memory cache if Redis is not configured
-    builder.Services.AddMemoryCache();
-}
-else
-{
     // Fallback to in-memory cache when Redis is not available
     builder.Services.AddDistributedMemoryCache();
 }
@@ -250,12 +245,19 @@ app.MapHub<DocumentHub>("/hubs/collaboration");
 // TODO: Re-enable after fixing module system
 // await app.Services.InitializeModulesAsync();
 
-// Temporarily disable automatic migrations to test API startup
-// TODO: Re-enable after fixing EF configuration issues
-// using (var scope = app.Services.CreateScope())
-// {
-//     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-//     await context.Database.MigrateAsync();
-// }
+// Enable automatic migrations for production deployment
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        await context.Database.MigrateAsync();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Warning: Database migration failed: {ex.Message}");
+        // Continue startup even if migrations fail to allow debugging
+    }
+}
 
 app.Run();

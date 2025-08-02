@@ -1,86 +1,81 @@
 name: spaghetti-platform
 services:
-# Frontend React Application
-- name: react-frontend
-  dockerfile_path: Dockerfile
-  source_dir: /
-  github:
-    branch: master
-    deploy_on_push: true
-    repo: twitchyvr/Spaghetti
-  http_port: 8080
-  instance_count: 1
-  instance_size_slug: basic-xxs
-  routes:
-  - path: /
-  health_check:
-    http_path: /health
-    initial_delay_seconds: 60
-  envs:
-  - key: NODE_ENV
-    value: production
-  - key: VITE_API_BASE_URL
-    value: /api
-  - key: VITE_ENVIRONMENT
-    value: production
-
-# Backend API Service
 - name: api
-  dockerfile_path: src/core/api/Dockerfile
-  source_dir: /
+  source_dir: src/core/api
   github:
-    branch: master
+    repo: mattrogers1990/Spaghetti
+    branch: main
     deploy_on_push: true
-    repo: twitchyvr/Spaghetti
-  http_port: 5000
+  build_command: dotnet publish -c Release -o out
+  run_command: dotnet out/EnterpriseDocsCore.API.dll
+  environment_slug: dotnet
   instance_count: 1
-  instance_size_slug: basic-xxs
-  routes:
-  - path: /api
+  instance_size_slug: professional-xs
+  http_port: 5000
   health_check:
     http_path: /health
-    initial_delay_seconds: 60
-    timeout_seconds: 10
-    success_threshold: 1
-    failure_threshold: 3
   envs:
-  # Application Settings
   - key: ASPNETCORE_ENVIRONMENT
     value: DigitalOcean
   - key: ASPNETCORE_URLS
-    value: http://+:5000
-  
-  # Database Configuration
-  - key: ConnectionStrings__DefaultConnection
-    value: "Host=${db.HOSTNAME};Port=${db.PORT};Database=${db.DATABASE};Username=${db.USERNAME};Password=${db.PASSWORD};SSL Mode=Require;Trust Server Certificate=true"
-  
-  # JWT Configuration
-  - key: Jwt__Key
-    value: "ThisIsAVerySecureKeyThatShouldBeChangedInProduction123!"
-  - key: Jwt__Issuer
-    value: "https://spaghetti-platform-drgev.ondigitalocean.app"
-  - key: Jwt__Audience
-    value: "https://spaghetti-platform-drgev.ondigitalocean.app"
-  - key: Jwt__ExpireMinutes
-    value: "60"
-  
-  # CORS Configuration
-  - key: Cors__AllowedOrigins
-    value: "https://spaghetti-platform-drgev.ondigitalocean.app"
-  
-  # Logging
-  - key: Logging__LogLevel__Default
-    value: Information
-  - key: Logging__LogLevel__Microsoft
-    value: Warning
-  - key: Logging__LogLevel__Microsoft.Hosting.Lifetime
-    value: Information
+    value: http://0.0.0.0:5000
+  - key: DATABASE_URL
+    type: SECRET
+    value: "$(databaseConnectionString)"
+  - key: REDIS_URL
+    type: SECRET
+    value: "$(redisConnectionString)"
+  - key: JWT_SECRET_KEY
+    type: SECRET
+    value: ThisIsAVerySecureKeyThatShouldBeChangedInProduction123456789!
+  - key: ENCRYPTION_KEY
+    type: SECRET
+    value: change-this-32-character-key-prod
+  - key: STORAGE_PROVIDER
+    value: Local
+  - key: AI_PROVIDER
+    value: Mock
+  - key: OPENAI_API_KEY
+    type: SECRET
+    value: ""
+  - key: CLAUDE_API_KEY
+    type: SECRET
+    value: ""
+  - key: ELASTICSEARCH_URL
+    value: ""
 
-# PostgreSQL Database
+- name: frontend
+  source_dir: src/frontend
+  github:
+    repo: mattrogers1990/Spaghetti
+    branch: main
+    deploy_on_push: true
+  build_command: npm ci --omit=dev && npm run build
+  run_command: npm run preview -- --host 0.0.0.0 --port $PORT
+  environment_slug: node-js
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  http_port: 8080
+  routes:
+  - path: /
+  envs:
+  - key: VITE_API_BASE_URL
+    value: https://spaghetti-platform-drgev.ondigitalocean.app
+  - key: VITE_ENVIRONMENT
+    value: production
+  - key: NODE_ENV
+    value: production
+  - key: PORT
+    value: "8080"
+
 databases:
-- name: db
+- name: postgres-db
   engine: PG
-  version: "15"
-  production: true
-  cluster_name: spaghetti-platform-db
+  version: "14"
+  size: db-s-1vcpu-1gb
+  num_nodes: 1
+
+- name: redis-cache
+  engine: REDIS
+  version: "7"
   size: db-s-1vcpu-1gb
