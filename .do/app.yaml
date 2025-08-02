@@ -12,6 +12,10 @@ services:
   instance_count: 1
   instance_size_slug: professional-xs
   http_port: 5000
+  routes:
+  - path: /api
+  - path: /health
+  - path: /swagger
   health_check:
     http_path: /health
   envs:
