@@ -1,6 +1,18 @@
 name: spaghetti-platform
+
+# Global routing configuration
+routes:
+- path: /api
+  component_name: api
+- path: /health
+  component_name: api
+- path: /swagger
+  component_name: api
+- path: /hubs
+  component_name: api
+
 services:
-# API service MUST be listed first to ensure /api routes are matched before the frontend catch-all
+# API service
 - name: api
   source_dir: src/core/api
   github:
@@ -13,11 +25,6 @@ services:
   instance_count: 1
   instance_size_slug: professional-xs
   http_port: 5000
-  routes:
-  - path: /api
-  - path: /health
-  - path: /swagger
-  - path: /hubs
   health_check:
     http_path: /health
   envs:
