@@ -1,5 +1,6 @@
 name: spaghetti-platform
 services:
+# Frontend React Application
 - name: react-frontend
   dockerfile_path: Dockerfile
   source_dir: /
@@ -22,3 +23,64 @@ services:
     value: /api
   - key: VITE_ENVIRONMENT
     value: production
+
+# Backend API Service
+- name: api
+  dockerfile_path: src/core/api/Dockerfile
+  source_dir: /
+  github:
+    branch: master
+    deploy_on_push: true
+    repo: twitchyvr/Spaghetti
+  http_port: 5000
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  routes:
+  - path: /api
+  health_check:
+    http_path: /health
+    initial_delay_seconds: 60
+    timeout_seconds: 10
+    success_threshold: 1
+    failure_threshold: 3
+  envs:
+  # Application Settings
+  - key: ASPNETCORE_ENVIRONMENT
+    value: DigitalOcean
+  - key: ASPNETCORE_URLS
+    value: http://+:5000
+  
+  # Database Configuration
+  - key: ConnectionStrings__DefaultConnection
+    value: "Host=${db.HOSTNAME};Port=${db.PORT};Database=${db.DATABASE};Username=${db.USERNAME};Password=${db.PASSWORD};SSL Mode=Require;Trust Server Certificate=true"
+  
+  # JWT Configuration
+  - key: Jwt__Key
+    value: "ThisIsAVerySecureKeyThatShouldBeChangedInProduction123!"
+  - key: Jwt__Issuer
+    value: "https://spaghetti-platform-drgev.ondigitalocean.app"
+  - key: Jwt__Audience
+    value: "https://spaghetti-platform-drgev.ondigitalocean.app"
+  - key: Jwt__ExpireMinutes
+    value: "60"
+  
+  # CORS Configuration
+  - key: Cors__AllowedOrigins
+    value: "https://spaghetti-platform-drgev.ondigitalocean.app"
+  
+  # Logging
+  - key: Logging__LogLevel__Default
+    value: Information
+  - key: Logging__LogLevel__Microsoft
+    value: Warning
+  - key: Logging__LogLevel__Microsoft.Hosting.Lifetime
+    value: Information
+
+# PostgreSQL Database
+databases:
+- name: db
+  engine: PG
+  version: "15"
+  production: true
+  cluster_name: spaghetti-platform-db
+  size: db-s-1vcpu-1gb
