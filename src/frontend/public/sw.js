@@ -3,9 +3,9 @@
  * Provides offline capability, caching, and push notifications
  */
 
-const CACHE_NAME = 'enterprise-docs-v1.0.0';
-const STATIC_CACHE = 'static-assets-v1';
-const DYNAMIC_CACHE = 'dynamic-content-v1';
+const CACHE_NAME = 'enterprise-docs-v1.0.1';
+const STATIC_CACHE = 'static-assets-v2';
+const DYNAMIC_CACHE = 'dynamic-content-v2';
 
 // Resources to cache immediately
 const PRECACHE_ASSETS = [
