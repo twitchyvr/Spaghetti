@@ -19,7 +19,7 @@ services:
     repo: mattrogers1990/Spaghetti
     branch: main
     deploy_on_push: true
-  build_command: dotnet publish -c Release -o out
+  build_command: dotnet publish src/core/api/EnterpriseDocsCore.API.csproj -c Release -o out
   run_command: dotnet out/EnterpriseDocsCore.API.dll
   environment_slug: dotnet
   instance_count: 1
@@ -29,7 +29,7 @@ services:
     http_path: /health
   envs:
   - key: ASPNETCORE_ENVIRONMENT
-    value: DigitalOcean
+    value: Production
   - key: ASPNETCORE_URLS
     value: http://0.0.0.0:5000
   - key: DATABASE_URL

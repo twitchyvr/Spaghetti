@@ -61,7 +61,7 @@ public class ApplicationDbContext : DbContext
     
     // Sprint 6 Digital Signature Entity Sets
     public DbSet<DocumentSignatureRequest> DocumentSignatureRequests => Set<DocumentSignatureRequest>();
-    public DbSet<DocumentSignature> DocumentSignatures => Set<DocumentSignature>();
+    public DbSet<EnterpriseDocsCore.Domain.Entities.DocumentSignature> DocumentSignatures => Set<EnterpriseDocsCore.Domain.Entities.DocumentSignature>();
     public DbSet<SignedDocument> SignedDocuments => Set<SignedDocument>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
