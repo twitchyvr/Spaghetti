@@ -1,5 +1,6 @@
 name: spaghetti-platform
 services:
+# API service MUST be listed first to ensure /api routes are matched before the frontend catch-all
 - name: api
   source_dir: src/core/api
   github:
@@ -16,6 +17,7 @@ services:
   - path: /api
   - path: /health
   - path: /swagger
+  - path: /hubs
   health_check:
     http_path: /health
   envs:
@@ -48,6 +50,7 @@ services:
   - key: ELASTICSEARCH_URL
     value: ""
 
+# Frontend service with catch-all route MUST be listed last
 - name: frontend
   source_dir: src/frontend
   github:
@@ -62,6 +65,7 @@ services:
   http_port: 8080
   routes:
   - path: /
+    # This catch-all route must be last to avoid intercepting API routes
   envs:
   - key: VITE_API_BASE_URL
     value: https://spaghetti-platform-drgev.ondigitalocean.app
