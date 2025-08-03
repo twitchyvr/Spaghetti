@@ -226,14 +226,38 @@ app.MapPost("/api/features/rollout/phase3", () => {
     });
 }).AllowAnonymous();
 
-Console.WriteLine("Starting Enterprise Docs API - Sprint 7 Deployment Architecture Optimization...");
-Console.WriteLine($"Environment: {app.Environment.EnvironmentName}");
-Console.WriteLine($"Listening URLs: {string.Join(", ", app.Urls)}");
-Console.WriteLine("Available endpoints:");
-Console.WriteLine("- GET /health");
-Console.WriteLine("- GET /api/health");
-Console.WriteLine("- GET /api/status");
-Console.WriteLine("- GET /api/features");
-Console.WriteLine("- GET /api/admin/database-stats");
-
-app.Run();
+try
+{
+    Console.WriteLine("=== Enterprise Docs API - Sprint 7 Deployment Architecture Optimization ===");
+    Console.WriteLine($"Environment: {app.Environment.EnvironmentName}");
+    Console.WriteLine($"Startup Time: {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC");
+    Console.WriteLine($"Process ID: {Environment.ProcessId}");
+    Console.WriteLine($"Working Directory: {Environment.CurrentDirectory}");
+    
+    // Log the configured URLs
+    var urls = builder.Configuration["ASPNETCORE_URLS"] ?? "http://0.0.0.0:8080";
+    Console.WriteLine($"Configured URLs: {urls}");
+    
+    Console.WriteLine("Available endpoints:");
+    Console.WriteLine("- GET /health (Health check endpoint)");
+    Console.WriteLine("- GET /api/health (API Health check endpoint)");
+    Console.WriteLine("- GET /api/status (API Status endpoint)");
+    Console.WriteLine("- GET /api/features (Feature flags endpoint)");
+    Console.WriteLine("- GET /api/admin/database-stats (Database stats endpoint)");
+    Console.WriteLine("- GET /api/clients (Client management endpoint)");
+    Console.WriteLine("- GET /api/documents (Documents endpoint)");
+    Console.WriteLine("=== API STARTUP COMPLETE ===");
+    
+    app.Run();
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"=== CRITICAL STARTUP FAILURE ===");
+    Console.WriteLine($"Error: {ex.Message}");
+    Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+    Console.WriteLine($"Inner Exception: {ex.InnerException?.Message}");
+    Console.WriteLine("=== END CRITICAL FAILURE ===");
+    
+    // Re-throw to ensure the process exits with non-zero code
+    throw;
+}

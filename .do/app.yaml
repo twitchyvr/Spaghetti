@@ -1,6 +1,6 @@
 name: spaghetti-platform
 
-# Global routing configuration
+# Global routing configuration - API routes must be first to override catch_all
 routes:
 - path: /api
   component_name: api
@@ -12,7 +12,7 @@ routes:
   component_name: api
 
 services:
-# Minimal .NET Core API service for emergency restoration
+# Minimal .NET Core API service for Sprint 7 deployment optimization
 - name: api
   source_dir: src/core/api
   github:
@@ -25,6 +25,11 @@ services:
   http_port: 8080
   health_check:
     http_path: /api/health
+    initial_delay_seconds: 30
+    period_seconds: 10
+    timeout_seconds: 5
+    success_threshold: 1
+    failure_threshold: 3
   build_command: dotnet restore && dotnet publish -c Release -o out
   run_command: dotnet out/EnterpriseDocsCore.API.dll
   envs:
