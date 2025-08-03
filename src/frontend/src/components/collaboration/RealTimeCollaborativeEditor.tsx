@@ -93,24 +93,17 @@ const RealTimeCollaborativeEditor: React.FC = () => {
 
     const initializeSignalR = async () => {
       try {
-        await signalRService.initialize(token, {
-          onUserJoined: handleUserJoined,
-          onUserLeft: handleUserLeft,
-          onActiveUsers: handleActiveUsers,
-          onLockStatus: handleLockStatus,
-          onDocumentLocked: handleDocumentLocked,
-          onDocumentUnlocked: handleDocumentUnlocked,
-          onPresenceUpdate: handlePresenceUpdate,
-          onOperationApplied: handleOperationApplied,
-          onOperationAcknowledged: handleOperationAcknowledged,
-          onOperationRejected: handleOperationRejected,
-          onCursorUpdate: handleCursorUpdate,
-          onTypingStatusUpdate: handleTypingStatusUpdate,
-          onNewComment: handleNewComment,
-          onError: handleSignalRError,
-          onConnectionStateChanged: setConnectionState,
-        });
-
+        await signalRService.connectToHub();
+        
+        // Setup event handlers
+        signalRService.onContentChanged(handleOperationApplied);
+        signalRService.onUserJoined(handleUserJoined);
+        signalRService.onUserLeft(handleUserLeft);
+        signalRService.onCursorUpdated(handleCursorUpdate);
+        signalRService.onDocumentLocked(handleDocumentLocked);
+        signalRService.onDocumentUnlocked(handleDocumentUnlocked);
+        
+        // Join the document room
         await signalRService.joinDocument(documentId);
         setIsConnected(true);
       } catch (error) {
@@ -277,7 +270,13 @@ const RealTimeCollaborativeEditor: React.FC = () => {
 
     // Send typing indicator
     if (documentId && isConnected) {
-      signalRService.updateTypingStatus(documentId, true);
+      signalRService.sendCursorUpdate(documentId, {
+        userId: user?.id || '',
+        userName: user?.email || '',
+        position: 0,
+        timestamp: new Date(),
+        isTyping: true
+      });
       
       // Clear previous timeout
       if (typingTimeout) {
@@ -286,7 +285,13 @@ const RealTimeCollaborativeEditor: React.FC = () => {
       
       // Set new timeout to stop typing indicator
       const timeout = setTimeout(() => {
-        signalRService.updateTypingStatus(documentId, false);
+        signalRService.sendCursorUpdate(documentId, {
+          userId: user?.id || '',
+          userName: user?.email || '',
+          position: 0,
+          timestamp: new Date(),
+          isTyping: false
+        });
       }, 1000);
       
       setTypingTimeout(timeout);
@@ -354,7 +359,16 @@ const RealTimeCollaborativeEditor: React.FC = () => {
 
     try {
       setPendingOperations(prev => [...prev, operation]);
-      await signalRService.applyOperation(documentId, operation);
+      await signalRService.sendContentChange(documentId, {
+        operation: 'replace' as const,
+        startPosition: operation.position,
+        endPosition: operation.position + (operation.content?.length || 0),
+        content: operation.content || '',
+        timestamp: new Date(),
+        userId: user?.id || '',
+        userName: user?.email || '',
+        version: 1
+      });
     } catch (error) {
       console.error('Failed to send operation:', error);
       setPendingOperations(prev => prev.filter(op => op.id !== operation.id));
@@ -396,7 +410,7 @@ const RealTimeCollaborativeEditor: React.FC = () => {
     if (!documentId) return;
     
     try {
-      await signalRService.requestLock(documentId);
+      await signalRService.lockDocument(documentId);
     } catch (error) {
       console.error('Failed to request lock:', error);
     }
@@ -406,7 +420,7 @@ const RealTimeCollaborativeEditor: React.FC = () => {
     if (!documentId) return;
     
     try {
-      await signalRService.releaseLock(documentId);
+      await signalRService.releaseDocumentLock(documentId);
     } catch (error) {
       console.error('Failed to release lock:', error);
     }
@@ -441,7 +455,9 @@ const RealTimeCollaborativeEditor: React.FC = () => {
     };
 
     try {
-      await signalRService.sendComment(documentId, comment);
+      // TODO: Implement sendComment in signalRService
+      // await signalRService.sendComment(documentId, comment);
+      console.log('Comment feature not yet implemented:', comment);
       setNewCommentContent('');
       setSelectedText(null);
     } catch (error) {

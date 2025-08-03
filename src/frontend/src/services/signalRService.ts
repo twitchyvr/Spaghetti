@@ -262,3 +262,23 @@ export async function disconnect(): Promise<void> {
     connection = null;
   }
 }
+
+// Export as named object for compatibility
+export const signalRService = {
+  connectToHub,
+  disconnect,
+  joinDocument,
+  leaveDocument,
+  sendContentChange,
+  sendCursorUpdate,
+  lockDocument,
+  releaseDocumentLock,
+  onContentChanged,
+  onUserJoined,
+  onUserLeft,
+  onCursorUpdated,
+  onDocumentLocked,
+  onDocumentUnlocked,
+  getConnectionId,
+  getConnectionState
+};
