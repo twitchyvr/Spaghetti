@@ -1,10 +1,20 @@
 using EnterpriseDocsCore.API;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add minimal services for a working API
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
+// Configure forwarded headers for reverse proxy support (DigitalOcean)
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor | 
+                               Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 // Configure CORS for frontend
 builder.Services.AddCors(options =>
@@ -26,7 +36,16 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // Configure minimal pipeline
-app.UseHttpsRedirection();
+if (app.Environment.IsProduction())
+{
+    // In production (DigitalOcean), trust the proxy for HTTPS
+    app.UseForwardedHeaders();
+}
+else
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseCors("AllowFrontend");
 app.MapControllers();
 
@@ -208,4 +227,13 @@ app.MapPost("/api/features/rollout/phase3", () => {
 }).AllowAnonymous();
 
 Console.WriteLine("Starting Enterprise Docs API - Sprint 7 Deployment Architecture Optimization...");
+Console.WriteLine($"Environment: {app.Environment.EnvironmentName}");
+Console.WriteLine($"Listening URLs: {string.Join(", ", app.Urls)}");
+Console.WriteLine("Available endpoints:");
+Console.WriteLine("- GET /health");
+Console.WriteLine("- GET /api/health");
+Console.WriteLine("- GET /api/status");
+Console.WriteLine("- GET /api/features");
+Console.WriteLine("- GET /api/admin/database-stats");
+
 app.Run();
