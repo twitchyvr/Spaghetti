@@ -199,7 +199,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const refreshToken = localStorage.getItem('refresh_token') || sessionStorage.getItem('refresh_token');
     
     if (!token) {
-      dispatch({ type: 'SET_LOADING', payload: false });
+      dispatch({ type: 'LOGIN_FAILURE' });
       return;
     }
     
