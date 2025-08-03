@@ -36,7 +36,9 @@ function calculateItemPositions<T>(
   let currentTop = 0;
 
   for (let i = 0; i < items.length; i++) {
-    const height = typeof itemHeight === 'function' ? itemHeight(i, items[i]) : itemHeight;
+    const item = items[i];
+    if (!item) continue;
+    const height = typeof itemHeight === 'function' ? itemHeight(i, item) : itemHeight;
     
     positions.push({
       index: i,
@@ -78,8 +80,9 @@ export function VirtualList<T>({
     [items, itemHeight]
   );
 
-  const totalHeight = itemPositions.length > 0 
-    ? itemPositions[itemPositions.length - 1].top + itemPositions[itemPositions.length - 1].height 
+  const lastPosition = itemPositions[itemPositions.length - 1];
+  const totalHeight = itemPositions.length > 0 && lastPosition
+    ? lastPosition.top + lastPosition.height 
     : 0;
 
   // Find visible range
@@ -96,10 +99,10 @@ export function VirtualList<T>({
       const mid = Math.floor((start + end) / 2);
       const position = itemPositions[mid];
       
-      if (position.top <= scrollTop && position.top + position.height > scrollTop) {
+      if (position && position.top <= scrollTop && position.top + position.height > scrollTop) {
         start = mid;
         break;
-      } else if (position.top > scrollTop) {
+      } else if (position && position.top > scrollTop) {
         end = mid - 1;
       } else {
         start = mid + 1;
@@ -112,7 +115,7 @@ export function VirtualList<T>({
     
     while (endIdx < itemPositions.length - 1) {
       const position = itemPositions[endIdx + 1];
-      if (position.top >= visibleEnd) break;
+      if (position && position.top >= visibleEnd) break;
       endIdx++;
     }
 
@@ -122,11 +125,15 @@ export function VirtualList<T>({
 
     const visible = [];
     for (let i = startWithOverscan; i <= endWithOverscan; i++) {
-      visible.push({
-        item: items[i],
-        index: i,
-        position: itemPositions[i],
-      });
+      const item = items[i];
+      const position = itemPositions[i];
+      if (item && position) {
+        visible.push({
+          item,
+          index: i,
+          position,
+        });
+      }
     }
 
     return {
@@ -279,9 +286,10 @@ export function VirtualGrid<T>({
     for (let row = startWithOverscan; row <= endWithOverscan; row++) {
       for (let col = 0; col < columnsPerRow; col++) {
         const index = row * columnsPerRow + col;
-        if (index < items.length) {
+        const item = items[index];
+        if (index < items.length && item) {
           visible.push({
-            item: items[index],
+            item,
             index,
             row,
             col,

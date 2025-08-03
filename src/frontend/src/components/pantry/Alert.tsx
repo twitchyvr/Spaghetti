@@ -135,6 +135,7 @@ export const Alert: React.FC<AlertProps> = ({
 export interface ToastAlertProps extends Omit<AlertProps, 'size'> {
   duration?: number;
   position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
+  onDismiss: () => void;
 }
 
 export const ToastAlert: React.FC<ToastAlertProps> = ({
@@ -148,6 +149,7 @@ export const ToastAlert: React.FC<ToastAlertProps> = ({
       const timer = setTimeout(onDismiss, duration);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [duration, onDismiss]);
 
   const positionClasses = {

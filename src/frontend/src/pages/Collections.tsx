@@ -1,30 +1,46 @@
 import { useState, useEffect } from 'react';
-import { Plus, AlertCircle } from 'lucide-react';
 import { 
-  PlateCard, 
-  PantrySearchBar, 
-  PantryLoadingState, 
-  PantryEmptyState,
-  type Plate as PantryPlate,
-  type PlateCardActions,
-  type PantrySearchFilters
-} from '../components/pantry';
+  Plus, 
+  Layers, 
+  Search, 
+  Grid3X3, 
+  List, 
+  Eye, 
+  Edit3, 
+  Trash2, 
+  FileText,
+  User,
+  Calendar,
+  Tag,
+  Filter,
+  AlertCircle
+} from 'lucide-react';
 
-// Convert legacy Plate to PantryPlate format
-interface LegacyPlate {
-  id: string;
-  name: string;
-  description?: string;
-  noodleCount: number;
-  tags: string[];
-  createdBy: string;
-  createdAt: string;
-  updatedAt?: string;
-  status: 'active' | 'archived';
-}
+// Import Pantry Design System components
+import { 
+  Card, 
+  CardHeader, 
+  CardContent 
+} from '../components/pantry/Card';
+import { Button } from '../components/pantry/Button';
+import { Alert } from '../components/pantry/Alert';
+import { Badge } from '../components/pantry/Badge';
+import { Input } from '../components/pantry/Input';
+import { PantryLoadingState } from '../components/pantry/PantryLoadingState';
+import { PantrySearchBar } from '../components/pantry/PantrySearchBar';
+import { PantryEmptyState } from '../components/pantry/PantryEmptyState';
+import { PlateCard } from '../components/pantry/PlateCard';
+import { 
+  Plate, 
+  PantrySearchFilters, 
+  PlateCardActions 
+} from '../components/pantry/types';
+
+// Using Pantry types
+type SearchFilters = PantrySearchFilters;
 
 export default function Collections() {
-  const [plates, setPlates] = useState<PantryPlate[]>([]);
+  const [plates, setPlates] = useState<Plate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<PantrySearchFilters>({
@@ -36,49 +52,76 @@ export default function Collections() {
   });
 
   // Sample plate data
-  const sampleLegacyPlates: LegacyPlate[] = [
+  const samplePlates: Plate[] = [
     {
       id: '1',
       name: 'Legal Contract Suite',
       description: 'Collection of various legal contracts and agreements for enterprise clients.',
-      noodleCount: 12,
+      noodleIds: ['n1', 'n2', 'n3', 'n4', 'n5', 'n6', 'n7', 'n8', 'n9', 'n10', 'n11', 'n12'],
       tags: ['legal', 'contracts', 'enterprise'],
       createdBy: 'John Smith',
       createdAt: '2025-07-25T10:00:00Z',
       updatedAt: '2025-07-25T14:30:00Z',
-      status: 'active'
+      color: 'orange',
+      isPublic: false
     },
     {
       id: '2',
       name: 'Product Documentation',
       description: 'Comprehensive product requirements and technical documentation collection.',
-      noodleCount: 8,
+      noodleIds: ['n13', 'n14', 'n15', 'n16', 'n17', 'n18', 'n19', 'n20'],
       tags: ['product', 'technical', 'documentation'],
       createdBy: 'Sarah Johnson',
       createdAt: '2025-07-24T09:15:00Z',
       updatedAt: '2025-07-24T16:45:00Z',
-      status: 'active'
+      color: 'blue',
+      isPublic: false
     },
     {
       id: '3',
       name: 'Marketing Materials',
       description: 'Strategic marketing documents, campaigns, and brand guidelines.',
-      noodleCount: 15,
+      noodleIds: ['n21', 'n22', 'n23', 'n24', 'n25', 'n26', 'n27', 'n28', 'n29', 'n30', 'n31', 'n32', 'n33', 'n34', 'n35'],
       tags: ['marketing', 'branding', 'strategy'],
       createdBy: 'Mike Chen',
       createdAt: '2025-07-23T11:30:00Z',
-      status: 'active'
+      color: 'green',
+      isPublic: true
     },
     {
       id: '4',
       name: 'HR Policies Archive',
       description: 'Employee handbooks, policies, and HR-related documentation.',
-      noodleCount: 6,
+      noodleIds: ['n36', 'n37', 'n38', 'n39', 'n40', 'n41'],
       tags: ['hr', 'policies', 'employees'],
       createdBy: 'Lisa Brown',
       createdAt: '2025-07-22T08:00:00Z',
       updatedAt: '2025-07-23T12:00:00Z',
-      status: 'archived'
+      color: 'neutral',
+      isPublic: false
+    },
+    {
+      id: '5',
+      name: 'Client Onboarding Kit',
+      description: 'Complete set of documents for onboarding new enterprise clients.',
+      noodleIds: ['n42', 'n43', 'n44', 'n45', 'n46', 'n47', 'n48', 'n49', 'n50'],
+      tags: ['onboarding', 'process', 'clients', 'enterprise'],
+      createdBy: 'Emma Davis',
+      createdAt: '2025-07-21T15:40:00Z',
+      color: 'purple',
+      isPublic: false
+    },
+    {
+      id: '6',
+      name: 'API Documentation Hub',
+      description: 'Technical documentation, guides, and examples for platform APIs.',
+      noodleIds: ['n51', 'n52', 'n53', 'n54', 'n55', 'n56', 'n57', 'n58', 'n59', 'n60', 'n61', 'n62', 'n63', 'n64', 'n65', 'n66', 'n67', 'n68'],
+      tags: ['api', 'technical', 'development', 'guides'],
+      createdBy: 'David Wilson',
+      createdAt: '2025-07-20T13:20:00Z',
+      updatedAt: '2025-07-21T09:15:00Z',
+      color: 'indigo',
+      isPublic: true
     }
   ];
 
@@ -92,58 +135,11 @@ export default function Collections() {
     
     try {
       // Try to fetch from API, fallback to sample data  
-      const response = sampleLegacyPlates; // TODO: Implement collections API
-      const legacyPlates = Array.isArray(response) ? response : sampleLegacyPlates;
-      
-      // Convert to PantryPlate format
-      const pantryPlates: PantryPlate[] = legacyPlates.map(plate => {
-        const plateData: any = {
-          id: plate.id,
-          name: plate.name,
-          noodleIds: Array.from({ length: plate.noodleCount }, (_, i) => `noodle-${plate.id}-${i}`),
-          tags: plate.tags,
-          createdBy: plate.createdBy,
-          createdAt: plate.createdAt,
-          isPublic: plate.status === 'active',
-          color: 'orange'
-        };
-        
-        if (plate.description) {
-          plateData.description = plate.description;
-        }
-        if (plate.updatedAt) {
-          plateData.updatedAt = plate.updatedAt;
-        }
-        
-        return plateData as PantryPlate;
-      });
-      
-      setPlates(pantryPlates);
+      const response = samplePlates; // TODO: Implement plates API
+      setPlates(Array.isArray(response) ? response : samplePlates);
     } catch (err) {
       console.error('Failed to fetch plates:', err);
-      // Use sample data as fallback
-      const pantryPlates: PantryPlate[] = sampleLegacyPlates.map(plate => {
-        const plateData: any = {
-          id: plate.id,
-          name: plate.name,
-          noodleIds: Array.from({ length: plate.noodleCount }, (_, i) => `noodle-${plate.id}-${i}`),
-          tags: plate.tags,
-          createdBy: plate.createdBy,
-          createdAt: plate.createdAt,
-          isPublic: plate.status === 'active',
-          color: 'orange'
-        };
-        
-        if (plate.description) {
-          plateData.description = plate.description;
-        }
-        if (plate.updatedAt) {
-          plateData.updatedAt = plate.updatedAt;
-        }
-        
-        return plateData as PantryPlate;
-      });
-      setPlates(pantryPlates);
+      setPlates(samplePlates);
     } finally {
       setIsLoading(false);
     }
@@ -156,18 +152,22 @@ export default function Collections() {
 
   const handleCreatePlate = () => {
     console.log('Create new plate');
+    // TODO: Navigate to plate editor
   };
 
   const handleEditPlate = (plateId: string) => {
     console.log('Edit plate:', plateId);
+    // TODO: Navigate to plate editor
   };
 
   const handleViewPlate = (plateId: string) => {
     console.log('View plate:', plateId);
+    // TODO: Navigate to plate viewer
   };
 
   const handleDeletePlate = (plateId: string) => {
     console.log('Delete plate:', plateId);
+    // TODO: Show confirmation dialog and delete
   };
 
   // Filter and sort plates
@@ -181,8 +181,8 @@ export default function Collections() {
                          filters.selectedTags.some(tag => plate.tags.includes(tag));
       
       const matchesFilter = filters.filterBy === 'all' || 
-                           (filters.filterBy === 'published' && plate.isPublic) ||
-                           (filters.filterBy === 'draft' && !plate.isPublic);
+        (filters.filterBy === 'published' && plate.isPublic) ||
+        (filters.filterBy === 'draft' && !plate.isPublic);
       
       return matchesSearch && matchesTags && matchesFilter;
     })
@@ -201,8 +201,18 @@ export default function Collections() {
   // Get all unique tags
   const allTags = Array.from(new Set(plates.flatMap(plate => plate.tags)));
 
-  // Plate card actions
-  const plateActions: PlateCardActions = {
+  // Format date helper
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  // Plate actions configuration
+  const plateActions = {
     onView: handleViewPlate,
     onEdit: handleEditPlate,
     onDelete: handleDeletePlate,
@@ -213,7 +223,6 @@ export default function Collections() {
     return (
       <div className="p-6">
         <PantryLoadingState 
-          variant="skeleton" 
           message="Loading your delicious plates..." 
           count={4}
         />
@@ -235,23 +244,22 @@ export default function Collections() {
           </p>
         </div>
         
-        <button 
+        <Button 
           onClick={handleCreatePlate}
-          className="btn btn-primary flex items-center space-x-2"
+          variant="primary"
+          className="flex items-center space-x-2 bg-orange-500 hover:bg-orange-600 text-white"
         >
           <Plus size={16} />
           <span>New Plate</span>
-        </button>
+        </Button>
       </div>
 
       {/* Error Alert */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <div className="flex">
-            <AlertCircle className="w-5 h-5 text-red-400 mr-2 mt-0.5" />
-            <span className="text-sm text-red-800">{error}</span>
-          </div>
-        </div>
+        <Alert variant="error" className="mb-4">
+          <AlertCircle className="w-5 h-5" />
+          <span>{error}</span>
+        </Alert>
       )}
 
       {/* Search and Filters */}
@@ -266,9 +274,8 @@ export default function Collections() {
       {filteredPlates.length === 0 ? (
         filters.searchTerm || filters.selectedTags.length > 0 || filters.filterBy !== 'all' ? (
           <PantryEmptyState
-            type={filters.searchTerm ? "no-search-results" : "no-filtered-results"}
+            type="no-search-results"
             searchTerm={filters.searchTerm}
-            filterCount={filters.selectedTags.length + (filters.filterBy !== 'all' ? 1 : 0)}
             onAction={() => setFilters({ searchTerm: '', selectedTags: [], sortBy: 'date', filterBy: 'all', viewMode: filters.viewMode })}
             onSecondaryAction={handleCreatePlate}
             secondaryActionLabel="Create New Plate"
@@ -292,7 +299,7 @@ export default function Collections() {
               actions={plateActions}
               noodleCount={plate.noodleIds?.length || 0}
               viewMode={filters.viewMode}
-              className="hover:shadow-md transition-shadow"
+              className="hover:shadow-md transition-shadow border-orange-200 hover:border-orange-300"
             />
           ))}
         </div>

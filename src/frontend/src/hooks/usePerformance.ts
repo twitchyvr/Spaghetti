@@ -27,16 +27,16 @@ export function useDebounce<T>(value: T, delay: number): T {
 export function useThrottle<T extends (...args: any[]) => any>(
   callback: T,
   delay: number
-): T {
-  return useMemo(() => throttle(callback, delay), [callback, delay]);
+): (...args: Parameters<T>) => void {
+  return useMemo(() => throttle(callback, delay), [callback, delay]) as (...args: Parameters<T>) => void;
 }
 
 // Debounced callback hook
 export function useDebounceCallback<T extends (...args: any[]) => any>(
   callback: T,
   delay: number
-): T {
-  return useMemo(() => debounce(callback, delay), [callback, delay]);
+): (...args: Parameters<T>) => void {
+  return useMemo(() => debounce(callback, delay), [callback, delay]) as (...args: Parameters<T>) => void;
 }
 
 // Intersection Observer hook for lazy loading
@@ -52,7 +52,9 @@ export function useIntersectionObserver(
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setIsIntersecting(entry.isIntersecting);
+        if (entry) {
+          setIsIntersecting(entry.isIntersecting);
+        }
       },
       {
         threshold: 0.1,

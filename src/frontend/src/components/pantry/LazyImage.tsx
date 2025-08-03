@@ -152,7 +152,7 @@ export const LazyImageGallery: React.FC<LazyImageGalleryProps> = ({
           <LazyImage
             src={image.src}
             alt={image.alt}
-            placeholder={image.placeholder}
+            {...(image.placeholder ? { placeholder: image.placeholder } : {})}
             aspectRatio={aspectRatio}
             className="w-full h-full group-hover:brightness-110 transition-all duration-200"
             containerClassName="rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200"

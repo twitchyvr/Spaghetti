@@ -200,6 +200,7 @@ export const ButtonGroup: React.FC<ButtonGroupProps> = ({
       }
 
       return React.cloneElement(child, {
+        ...child.props,
         size: child.props.size || size,
         variant: child.props.variant || variant,
         className: cn(child.props.className, roundedClass),

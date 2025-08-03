@@ -225,7 +225,7 @@ export const Pagination: React.FC<PaginationProps> = ({
   return (
     <nav className={`flex items-center justify-center gap-1 ${className}`.trim()} aria-label="Pagination">
       {/* First Page */}
-      {showFirstLast && !isFirstPage && visiblePages[0] > 1 && (
+      {showFirstLast && !isFirstPage && visiblePages[0] && visiblePages[0] > 1 && (
         <>
           <button
             type="button"
@@ -235,7 +235,7 @@ export const Pagination: React.FC<PaginationProps> = ({
           >
             1
           </button>
-          {visiblePages[0] > 2 && (
+          {visiblePages[0] && visiblePages[0] > 2 && (
             <span className="px-2 text-neutral-500">...</span>
           )}
         </>
@@ -286,11 +286,13 @@ export const Pagination: React.FC<PaginationProps> = ({
       )}
       
       {/* Last Page */}
-      {showFirstLast && !isLastPage && visiblePages[visiblePages.length - 1] < totalPages && (
-        <>
-          {visiblePages[visiblePages.length - 1] < totalPages - 1 && (
-            <span className="px-2 text-neutral-500">...</span>
-          )}
+      {(() => {
+        const lastVisiblePage = visiblePages[visiblePages.length - 1];
+        return showFirstLast && !isLastPage && lastVisiblePage && lastVisiblePage < totalPages && (
+          <>
+            {lastVisiblePage < totalPages - 1 && (
+              <span className="px-2 text-neutral-500">...</span>
+            )}
           <button
             type="button"
             className={`${buttonClasses} rounded-r-lg`}
@@ -300,7 +302,8 @@ export const Pagination: React.FC<PaginationProps> = ({
             {totalPages}
           </button>
         </>
-      )}
+        );
+      })()}
     </nav>
   );
 };

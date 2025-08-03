@@ -385,18 +385,16 @@ export default function Dashboard() {
               key={metric.id}
               title={metric.title}
               value={metric.value}
-              change={
-                metric.change && metric.changeType
-                  ? {
-                      value: `${metric.change}%`,
-                      type: metric.changeType === 'positive' 
-                        ? 'increase' 
-                        : metric.changeType === 'negative' 
-                        ? 'decrease' 
-                        : 'neutral'
-                    }
-                  : undefined
-              }
+              {...(metric.change && metric.changeType ? {
+                change: {
+                  value: `${metric.change}%`,
+                  type: metric.changeType === 'positive' 
+                    ? 'increase' 
+                    : metric.changeType === 'negative' 
+                    ? 'decrease' 
+                    : 'neutral'
+                }
+              } : {})}
               icon={metric.icon}
               className="hover:shadow-lg transition-shadow duration-200"
             />

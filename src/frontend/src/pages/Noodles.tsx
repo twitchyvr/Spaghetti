@@ -15,7 +15,8 @@ import {
   Tag,
   User,
   Calendar,
-  Clock
+  Clock,
+  X
 } from 'lucide-react';
 
 // Import new Pantry Design System components
@@ -555,24 +556,26 @@ export default function Noodles() {
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-sm text-neutral-600">Active filters:</span>
               {filters.filterBy !== 'all' && (
-                <Badge 
-                  variant="secondary" 
-                  onDismiss={() => setFilters({ ...filters, filterBy: 'all' })}
+                <button 
+                  className="inline-flex items-center px-2.5 py-1 text-sm bg-neutral-100 text-neutral-600 border border-neutral-200 rounded-full hover:bg-neutral-200"
+                  onClick={() => setFilters({ ...filters, filterBy: 'all' })}
                 >
                   Status: {filters.filterBy}
-                </Badge>
+                  <X size={14} className="ml-1" />
+                </button>
               )}
               {filters.selectedTags.map(tag => (
-                <Badge 
+                <button 
                   key={tag} 
-                  variant="secondary"
-                  onDismiss={() => setFilters({ 
+                  className="inline-flex items-center px-2.5 py-1 text-sm bg-neutral-100 text-neutral-600 border border-neutral-200 rounded-full hover:bg-neutral-200"
+                  onClick={() => setFilters({ 
                     ...filters, 
                     selectedTags: filters.selectedTags.filter(t => t !== tag) 
                   })}
                 >
                   {tag}
-                </Badge>
+                  <X size={14} className="ml-1" />
+                </button>
               ))}
             </div>
           )}

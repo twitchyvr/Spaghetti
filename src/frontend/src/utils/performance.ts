@@ -57,14 +57,17 @@ export function createIntersectionObserver(options: IntersectionObserverInit = {
         const element = entry.target as HTMLElement;
         
         // Trigger lazy loading
-        if (element.dataset.src) {
+        if (element.dataset['src']) {
           const img = element as HTMLImageElement;
-          img.src = img.dataset.src;
-          img.removeAttribute('data-src');
+          const srcValue = element.dataset['src'];
+          if (srcValue) {
+            img.src = srcValue;
+            img.removeAttribute('data-src');
+          }
         }
         
         // Trigger component loading
-        if (element.dataset.lazyComponent) {
+        if (element.dataset['lazyComponent']) {
           element.dispatchEvent(new CustomEvent('lazyLoad'));
         }
         
@@ -187,7 +190,7 @@ export function getMemoryUsage(): {
 
 // Bundle analyzer utilities
 export function analyzeBundleSize(): void {
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env['NODE_ENV'] === 'development') {
     console.group('Bundle Analysis');
     
     // Check for large dependencies
@@ -361,7 +364,7 @@ export function initializePerformanceMonitoring(): void {
   observer.observe(document.body, { childList: true, subtree: true });
   
   // Bundle analysis in development
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env['NODE_ENV'] === 'development') {
     setTimeout(analyzeBundleSize, 2000);
   }
 }
