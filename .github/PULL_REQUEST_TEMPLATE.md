@@ -172,6 +172,8 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 
 ---
 
-**⚠️ Deployment Notice**: This PR will trigger automatic deployment to `https://spaghetti-platform-drgev.ondigitalocean.app/` upon merge. Verify all changes locally before approval.
+**⚠️ Deployment Notice**: This PR will trigger automatic deployment to <https://spaghetti-platform-drgev.ondigitalocean.app/> upon merge. Verify all changes locally before approval.
+  - NOTE: Use the installed `shot-scraper` python command line tool (Documentation is at <https://shot-scraper.datasette.io/en/stable/>) to capture screenshots of the deployed platform when needed.
+
 
 **🤖 Generated with [Claude Code](https://claude.ai/code)**

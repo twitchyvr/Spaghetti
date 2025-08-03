@@ -12,6 +12,11 @@ import {
   EyeOff
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { Card, CardHeader, CardContent } from '../components/pantry/Card';
+import { Button } from '../components/pantry/Button';
+import { Input } from '../components/pantry/Input';
+import { Alert } from '../components/pantry/Alert';
+import { Tabs, TabItem } from '../components/pantry/Navigation';
 
 interface ProfileFormData {
   firstName: string;
@@ -104,285 +109,194 @@ export default function Profile() {
     }
   };
 
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center space-x-4">
-          <div className="relative">
-            <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center">
-              <User className="icon-2xl text-white" />
-            </div>
-            <button className="absolute bottom-0 right-0 w-8 h-8 bg-white rounded-full shadow-md border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors">
-              <Camera className="icon-sm text-gray-600" />
-            </button>
+  const tabItems: TabItem[] = [
+    {
+      id: 'profile',
+      label: 'Profile Information',
+      content: (
+        <form onSubmit={handleProfileSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Input
+              label="First Name"
+              value={formData.firstName}
+              onChange={handleInputChange('firstName')}
+              placeholder="Enter your first name"
+              disabled={isLoading}
+            />
+            <Input
+              label="Last Name"
+              value={formData.lastName}
+              onChange={handleInputChange('lastName')}
+              placeholder="Enter your last name"
+              disabled={isLoading}
+            />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              {user?.firstName} {user?.lastName}
-            </h1>
-            <p className="text-gray-600">{user?.email}</p>
-            <div className="flex items-center mt-2">
-              <Building2 className="icon-sm text-gray-400 mr-2" />
-              <span className="text-sm text-gray-600">
-                {user?.tenant?.name || 'Enterprise Docs Platform'}
-              </span>
-            </div>
+
+          <Input
+            label="Email Address"
+            type="email"
+            value={formData.email}
+            onChange={handleInputChange('email')}
+            placeholder="Enter your email address"
+            leftIcon={<Mail className="w-5 h-5" />}
+            disabled={isLoading}
+          />
+
+          <Input
+            label="Organization"
+            value={formData.organization}
+            onChange={handleInputChange('organization')}
+            placeholder="Enter your organization name"
+            leftIcon={<Building2 className="w-5 h-5" />}
+            disabled={isLoading}
+          />
+
+          <div className="flex justify-end">
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={isLoading}
+              loading={isLoading}
+              icon={<Save className="w-4 h-4" />}
+              iconPosition="left"
+            >
+              {isLoading ? 'Updating...' : 'Update Profile'}
+            </Button>
           </div>
-        </div>
-      </div>
+        </form>
+      )
+    },
+    {
+      id: 'security',
+      label: 'Security Settings',
+      content: (
+        <div className="space-y-6">
+          <Alert
+            variant="info"
+            title="Password Security"
+            icon={<Shield className="w-5 h-5" />}
+          >
+            Use a strong password with at least 8 characters including numbers and special characters.
+          </Alert>
 
-      {/* Tabs */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="border-b border-gray-200">
-          <nav className="flex space-x-8 px-6">
-            <button
-              onClick={() => setActiveTab('profile')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'profile'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Profile Information
-            </button>
-            <button
-              onClick={() => setActiveTab('security')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'security'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Security Settings
-            </button>
-          </nav>
-        </div>
-
-        <div className="p-6">
-          {activeTab === 'profile' && (
-            <form onSubmit={handleProfileSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* First Name */}
-                <div>
-                  <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
-                    First Name
-                  </label>
-                  <input
-                    id="firstName"
-                    type="text"
-                    value={formData.firstName}
-                    onChange={handleInputChange('firstName')}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                    placeholder="Enter your first name"
-                    disabled={isLoading}
-                  />
-                </div>
-
-                {/* Last Name */}
-                <div>
-                  <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
-                    Last Name
-                  </label>
-                  <input
-                    id="lastName"
-                    type="text"
-                    value={formData.lastName}
-                    onChange={handleInputChange('lastName')}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                    placeholder="Enter your last name"
-                    disabled={isLoading}
-                  />
-                </div>
-              </div>
-
-              {/* Email */}
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 icon-sm text-gray-400" />
-                  <input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleInputChange('email')}
-                    className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                    placeholder="Enter your email address"
-                    disabled={isLoading}
-                  />
-                </div>
-              </div>
-
-              {/* Organization */}
-              <div>
-                <label htmlFor="organization" className="block text-sm font-medium text-gray-700 mb-2">
-                  Organization
-                </label>
-                <div className="relative">
-                  <Building2 className="absolute left-4 top-1/2 transform -translate-y-1/2 icon-sm text-gray-400" />
-                  <input
-                    id="organization"
-                    type="text"
-                    value={formData.organization}
-                    onChange={handleInputChange('organization')}
-                    className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                    placeholder="Enter your organization name"
-                    disabled={isLoading}
-                  />
-                </div>
-              </div>
-
-              {/* Submit Button */}
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  {isLoading ? (
-                    <>
-                      <LoadingSpinner size="sm" />
-                      <span className="ml-2">Updating...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Save className="icon-sm mr-2" />
-                      Update Profile
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
-          )}
-
-          {activeTab === 'security' && (
-            <form onSubmit={handlePasswordSubmit} className="space-y-6">
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <div className="flex">
-                  <Shield className="icon-sm text-blue-400 mr-2 mt-0.5" />
-                  <div className="text-sm text-blue-800">
-                    <p className="font-medium mb-1">Password Security</p>
-                    <p>Use a strong password with at least 8 characters including numbers and special characters.</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Current Password */}
-              <div>
-                <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                  Current Password
-                </label>
-                <div className="relative">
-                  <input
-                    id="currentPassword"
-                    type={showCurrentPassword ? 'text' : 'password'}
-                    value={formData.currentPassword}
-                    onChange={handleInputChange('currentPassword')}
-                    autoComplete="current-password"
-                    className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                    placeholder="Enter your current password"
-                    disabled={isLoading}
-                  />
+          <form onSubmit={handlePasswordSubmit} className="space-y-6">
+            <div className="relative">
+              <Input
+                label="Current Password"
+                type={showCurrentPassword ? 'text' : 'password'}
+                value={formData.currentPassword}
+                onChange={handleInputChange('currentPassword')}
+                placeholder="Enter your current password"
+                disabled={isLoading}
+                rightIcon={
                   <button
                     type="button"
                     onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                    className="text-neutral-400 hover:text-neutral-600"
                   >
-                    {showCurrentPassword ? (
-                      <EyeOff className="icon-sm" />
-                    ) : (
-                      <Eye className="icon-sm" />
-                    )}
+                    {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
-                </div>
-              </div>
+                }
+              />
+            </div>
 
-              {/* New Password */}
-              <div>
-                <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                  New Password
-                </label>
-                <div className="relative">
-                  <input
-                    id="newPassword"
-                    type={showNewPassword ? 'text' : 'password'}
-                    value={formData.newPassword}
-                    onChange={handleInputChange('newPassword')}
-                    autoComplete="new-password"
-                    className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                    placeholder="Enter your new password"
-                    disabled={isLoading}
-                  />
+            <div className="relative">
+              <Input
+                label="New Password"
+                type={showNewPassword ? 'text' : 'password'}
+                value={formData.newPassword}
+                onChange={handleInputChange('newPassword')}
+                placeholder="Enter your new password"
+                disabled={isLoading}
+                rightIcon={
                   <button
                     type="button"
                     onClick={() => setShowNewPassword(!showNewPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                    className="text-neutral-400 hover:text-neutral-600"
                   >
-                    {showNewPassword ? (
-                      <EyeOff className="icon-sm" />
-                    ) : (
-                      <Eye className="icon-sm" />
-                    )}
+                    {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
-                </div>
-              </div>
+                }
+              />
+            </div>
 
-              {/* Confirm Password */}
-              <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                  Confirm New Password
-                </label>
-                <div className="relative">
-                  <input
-                    id="confirmPassword"
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    value={formData.confirmPassword}
-                    onChange={handleInputChange('confirmPassword')}
-                    autoComplete="new-password"
-                    className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                    placeholder="Confirm your new password"
-                    disabled={isLoading}
-                  />
+            <div className="relative">
+              <Input
+                label="Confirm New Password"
+                type={showConfirmPassword ? 'text' : 'password'}
+                value={formData.confirmPassword}
+                onChange={handleInputChange('confirmPassword')}
+                placeholder="Confirm your new password"
+                disabled={isLoading}
+                rightIcon={
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                    className="text-neutral-400 hover:text-neutral-600"
                   >
-                    {showConfirmPassword ? (
-                      <EyeOff className="icon-sm" />
-                    ) : (
-                      <Eye className="icon-sm" />
-                    )}
+                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
-                </div>
-              </div>
+                }
+              />
+            </div>
 
-              {/* Submit Button */}
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  {isLoading ? (
-                    <>
-                      <LoadingSpinner size="sm" />
-                      <span className="ml-2">Updating...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Save className="icon-sm mr-2" />
-                      Update Password
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
-          )}
+            <div className="flex justify-end">
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={isLoading}
+                loading={isLoading}
+                icon={<Save className="w-4 h-4" />}
+                iconPosition="left"
+              >
+                {isLoading ? 'Updating...' : 'Update Password'}
+              </Button>
+            </div>
+          </form>
         </div>
-      </div>
+      )
+    }
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-center space-x-4">
+            <div className="relative">
+              <div className="w-20 h-20 bg-orange-600 rounded-full flex items-center justify-center">
+                <User className="w-8 h-8 text-white" />
+              </div>
+              <button className="absolute bottom-0 right-0 w-8 h-8 bg-white rounded-full shadow-md border border-neutral-200 flex items-center justify-center hover:bg-neutral-50 transition-colors">
+                <Camera className="w-4 h-4 text-neutral-600" />
+              </button>
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-neutral-900">
+                {user?.firstName} {user?.lastName}
+              </h1>
+              <p className="text-neutral-600">{user?.email}</p>
+              <div className="flex items-center mt-2">
+                <Building2 className="w-4 h-4 text-neutral-400 mr-2" />
+                <span className="text-sm text-neutral-600">
+                  {user?.tenant?.name || 'Enterprise Docs Platform'}
+                </span>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Profile Management Tabs */}
+      <Card>
+        <Tabs
+          items={tabItems}
+          defaultActiveTab="profile"
+          variant="underline"
+          className="p-0"
+        />
+      </Card>
     </div>
   );
 }

@@ -73,6 +73,9 @@ curl -I https://spaghetti-platform-drgev.ondigitalocean.app/
 curl -I https://spaghetti-platform-drgev.ondigitalocean.app/api/health
 ```
 
+## NOTE: Use the installed `shot-scraper` python command line tool (Documentation is at <https://shot-scraper.datasette.io/en/stable/>) to capture screenshots of the deployed platform when needed.
+
+
 ## Common Issues & Solutions
 
 ### Issue 1: Frontend build fails

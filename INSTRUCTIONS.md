@@ -35,9 +35,11 @@ Refer to the `teamAndRoles` and `sprintLifecycle` sections within `project-archi
 
 **Spaghetti Platform** - Enterprise Documentation Platform targeting legal professionals with expansion planned for insurance, consulting, and other domains. Production-ready multi-tenant platform designed for various hosting environments.
 
-- **Live URL**: https://spaghetti-platform-drgev.ondigitalocean.app/
+- **Live URL**: <https://spaghetti-platform-drgev.ondigitalocean.app/>
 - **Repository**: Production-ready enterprise documentation system
 - **Technology**: .NET Core 8 backend, React 18 TypeScript frontend
+  - NOTE: Use the installed `shot-scraper` python command line tool (Documentation is at <https://shot-scraper.datasette.io/en/stable/>) to capture screenshots of the deployed platform when needed.
+
 
 ## Team of Agents (9-Phase Workflow)
 
