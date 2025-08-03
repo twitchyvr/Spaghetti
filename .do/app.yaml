@@ -12,9 +12,9 @@ routes:
   component_name: api
 
 services:
-# Full .NET Core API service
+# Minimal .NET Core API service for emergency restoration
 - name: api
-  source_dir: src/core
+  source_dir: src/core/api
   github:
     repo: twitchyvr/Spaghetti
     branch: main
@@ -25,7 +25,7 @@ services:
   http_port: 8080
   health_check:
     http_path: /api/health
-  build_command: dotnet restore EnterpriseDocsCore.sln && dotnet publish api/EnterpriseDocsCore.API.csproj -c Release -o out
+  build_command: dotnet restore && dotnet publish -c Release -o out
   run_command: dotnet out/EnterpriseDocsCore.API.dll
   envs:
   - key: ASPNETCORE_ENVIRONMENT
