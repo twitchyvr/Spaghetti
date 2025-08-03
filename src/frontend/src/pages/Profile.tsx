@@ -280,6 +280,7 @@ export default function Profile() {
                     type={showCurrentPassword ? 'text' : 'password'}
                     value={formData.currentPassword}
                     onChange={handleInputChange('currentPassword')}
+                    autoComplete="current-password"
                     className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                     placeholder="Enter your current password"
                     disabled={isLoading}
@@ -309,6 +310,7 @@ export default function Profile() {
                     type={showNewPassword ? 'text' : 'password'}
                     value={formData.newPassword}
                     onChange={handleInputChange('newPassword')}
+                    autoComplete="new-password"
                     className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                     placeholder="Enter your new password"
                     disabled={isLoading}
@@ -338,6 +340,7 @@ export default function Profile() {
                     type={showConfirmPassword ? 'text' : 'password'}
                     value={formData.confirmPassword}
                     onChange={handleInputChange('confirmPassword')}
+                    autoComplete="new-password"
                     className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                     placeholder="Confirm your new password"
                     disabled={isLoading}

@@ -12,9 +12,9 @@ routes:
   component_name: api
 
 services:
-# Simple Test API service
+# Full .NET Core API service
 - name: api
-  source_dir: test-api
+  source_dir: src/core/api
   github:
     repo: twitchyvr/Spaghetti
     branch: main
@@ -24,12 +24,18 @@ services:
   instance_size_slug: basic-xxs
   http_port: 8080
   health_check:
-    http_path: /health
+    http_path: /api/health
+  build_command: dotnet restore && dotnet publish -c Release -o out
+  run_command: dotnet out/EnterpriseDocsCore.API.dll
   envs:
   - key: ASPNETCORE_ENVIRONMENT
     value: Production
   - key: ASPNETCORE_URLS
     value: http://0.0.0.0:8080
+  - key: ConnectionStrings__DefaultConnection
+    value: ${postgres-db.DATABASE_URL}
+  - key: ConnectionStrings__RedisConnection
+    value: ${redis-cache.REDIS_URL}
 
 # Frontend service with catch-all route MUST be listed last
 - name: frontend

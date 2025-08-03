@@ -58,16 +58,6 @@ function App() {
     if (loadingContainer) {
       (loadingContainer as HTMLElement).style.display = 'none';
     }
-
-    // Listen for service worker updates
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.addEventListener('message', (event) => {
-        if (event.data && event.data.type === 'CACHE_UPDATED') {
-          console.log('[App] Service worker cache updated, refreshing...');
-          window.location.reload();
-        }
-      });
-    }
   }, []);
 
   // Show PWA notification bar after user is authenticated and settled (only if not dismissed)
