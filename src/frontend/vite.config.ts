@@ -32,6 +32,14 @@ export default defineConfig(({ mode }) => ({
     cors: true,
   },
   
+  // Preview server configuration for production deployment
+  preview: {
+    port: 8080,
+    host: true,
+    strictPort: true,
+    cors: true,
+  },
+  
   // Build configuration
   build: {
     outDir: 'dist',
