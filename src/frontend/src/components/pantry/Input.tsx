@@ -31,10 +31,10 @@ const getInputClasses = (size: InputSize, state: InputState, hasLeftIcon: boolea
   
   // State classes
   const stateClasses = {
-    default: 'border-neutral-300 bg-white text-neutral-900 placeholder-neutral-500 focus:border-orange-500 focus:ring-orange-500',
-    error: 'border-red-300 bg-white text-neutral-900 placeholder-neutral-500 focus:border-red-500 focus:ring-red-500',
-    success: 'border-green-300 bg-white text-neutral-900 placeholder-neutral-500 focus:border-green-500 focus:ring-green-500',
-    warning: 'border-yellow-300 bg-white text-neutral-900 placeholder-neutral-500 focus:border-yellow-500 focus:ring-yellow-500',
+    default: 'border-neutral-300 bg-white text-neutral-900 placeholder-neutral-500 focus:border-primary focus:ring-primary shadow-sm',
+    error: 'border-red-300 bg-white text-neutral-900 placeholder-neutral-500 focus:border-red-500 focus:ring-red-500 shadow-sm',
+    success: 'border-green-300 bg-white text-neutral-900 placeholder-neutral-500 focus:border-green-500 focus:ring-green-500 shadow-sm',
+    warning: 'border-yellow-300 bg-white text-neutral-900 placeholder-neutral-500 focus:border-yellow-500 focus:ring-yellow-500 shadow-sm',
   };
   
   const leftPadding = hasLeftIcon ? (size === 'sm' ? 'pl-10' : size === 'md' ? 'pl-11' : 'pl-12') : '';
@@ -146,10 +146,10 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(({
   const actualState = error ? 'error' : state;
   
   const stateClasses = {
-    default: 'border-neutral-300 bg-white text-neutral-900 placeholder-neutral-500 focus:border-orange-500 focus:ring-orange-500',
-    error: 'border-red-300 bg-white text-neutral-900 placeholder-neutral-500 focus:border-red-500 focus:ring-red-500',
-    success: 'border-green-300 bg-white text-neutral-900 placeholder-neutral-500 focus:border-green-500 focus:ring-green-500',
-    warning: 'border-yellow-300 bg-white text-neutral-900 placeholder-neutral-500 focus:border-yellow-500 focus:ring-yellow-500',
+    default: 'border-neutral-300 bg-white text-neutral-900 placeholder-neutral-500 focus:border-primary focus:ring-primary shadow-sm',
+    error: 'border-red-300 bg-white text-neutral-900 placeholder-neutral-500 focus:border-red-500 focus:ring-red-500 shadow-sm',
+    success: 'border-green-300 bg-white text-neutral-900 placeholder-neutral-500 focus:border-green-500 focus:ring-green-500 shadow-sm',
+    warning: 'border-yellow-300 bg-white text-neutral-900 placeholder-neutral-500 focus:border-yellow-500 focus:ring-yellow-500 shadow-sm',
   };
   
   const textareaClasses = `block border rounded-lg px-4 py-3 text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-0 disabled:opacity-50 disabled:cursor-not-allowed resize-vertical ${stateClasses[actualState]}`;

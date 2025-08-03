@@ -18,12 +18,12 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 const getCardClasses = (variant: CardVariant, padding: CardPadding, hoverable: boolean) => {
   const baseClasses = 'rounded-lg transition-all duration-200';
   
-  // Variant classes
+  // Professional variant classes with subtle shadows
   const variantClasses = {
-    default: 'bg-white border border-neutral-200',
-    outlined: 'bg-transparent border-2 border-neutral-300',
-    elevated: 'bg-white shadow-md hover:shadow-lg',
-    filled: 'bg-neutral-50 border border-neutral-100',
+    default: 'bg-white border border-neutral-200 shadow-sm',
+    outlined: 'bg-white border-2 border-neutral-300',
+    elevated: 'bg-white border border-neutral-200 shadow-md hover:shadow-lg',
+    filled: 'bg-neutral-50 border border-neutral-200',
   };
   
   // Padding classes
@@ -35,7 +35,7 @@ const getCardClasses = (variant: CardVariant, padding: CardPadding, hoverable: b
     xl: 'p-8',
   };
   
-  const hoverClass = hoverable ? 'hover:shadow-lg cursor-pointer' : '';
+  const hoverClass = hoverable ? 'hover:shadow-lg hover:border-neutral-300 cursor-pointer' : '';
   
   return `${baseClasses} ${variantClasses[variant]} ${paddingClasses[padding]} ${hoverClass}`.trim();
 };
@@ -78,7 +78,7 @@ export const CardHeader: React.FC<CardHeaderProps> = ({
 }) => {
   return (
     <div
-      className={`flex items-start justify-between pb-4 border-b border-neutral-200 ${className}`.trim()}
+      className={`flex items-start justify-between pb-4 border-b ${className}`.trim()}
       {...props}
     >
       <div className="flex-1 min-w-0">
@@ -203,8 +203,8 @@ export const StatsCard: React.FC<StatsCardProps> = ({
           )}
         </div>
         {icon && (
-          <div className="flex-shrink-0 p-3 bg-orange-50 rounded-lg">
-            <div className="text-orange-600">
+          <div className="flex-shrink-0 p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="text-blue-600">
               {icon}
             </div>
           </div>

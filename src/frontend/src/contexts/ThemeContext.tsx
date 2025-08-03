@@ -1,124 +1,48 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { createContext, useContext, useEffect } from 'react';
 
-type Theme = 'light' | 'dark' | 'system';
-
+// Simplified theme interface - professional light theme only
 interface ThemeContextType {
-  theme: Theme;
-  actualTheme: 'light' | 'dark';
-  setTheme: (theme: Theme) => void;
-  toggleTheme: () => void;
+  theme: 'light';
+  actualTheme: 'light';
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const STORAGE_KEY = 'enterprise-docs-theme';
-
-function getSystemTheme(): 'light' | 'dark' {
-  if (typeof window === 'undefined') return 'dark';
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-}
-
-function getStoredTheme(): Theme {
-  if (typeof window === 'undefined') return 'system';
-  
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored && ['light', 'dark', 'system'].includes(stored)) {
-      return stored as Theme;
-    }
-  } catch (error) {
-    console.warn('Failed to read theme from localStorage:', error);
-  }
-  
-  return 'system';
-}
-
-function applyTheme(theme: 'light' | 'dark') {
+// Apply professional light theme styling
+function applyLightTheme() {
   const root = document.documentElement;
   
-  // Remove existing theme classes
+  // Remove any existing theme classes
   root.classList.remove('light', 'dark');
   
-  // Add new theme class
-  root.classList.add(theme);
+  // Apply light theme class
+  root.classList.add('light');
   
-  // Update meta theme-color for mobile browsers
+  // Set professional light theme color for mobile browsers
   const metaThemeColor = document.querySelector('meta[name="theme-color"]');
   if (metaThemeColor) {
-    metaThemeColor.setAttribute(
-      'content', 
-      theme === 'dark' ? '#0f172a' : '#ffffff'
-    );
+    metaThemeColor.setAttribute('content', '#ffffff');
   }
   
-  // Update favicon based on theme
+  // Ensure favicon is set for light theme
   const favicon = document.querySelector('link[rel="icon"]') as HTMLLinkElement;
-  if (favicon) {
-    favicon.href = theme === 'dark' ? '/favicon-dark.svg' : '/favicon-light.svg';
+  if (favicon && !favicon.href.includes('light')) {
+    favicon.href = '/favicon-light.svg';
   }
+  
+  // Set color scheme for consistent browser styling
+  root.style.colorScheme = 'light';
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(() => getStoredTheme());
-  const [systemTheme, setSystemTheme] = useState<'light' | 'dark'>(() => getSystemTheme());
-
-  // Calculate the actual theme being used
-  const actualTheme = theme === 'system' ? systemTheme : theme;
-
-  const setTheme = useCallback((newTheme: Theme) => {
-    setThemeState(newTheme);
-    
-    try {
-      localStorage.setItem(STORAGE_KEY, newTheme);
-    } catch (error) {
-      console.warn('Failed to save theme to localStorage:', error);
-    }
-  }, []);
-
-  const toggleTheme = useCallback(() => {
-    if (theme === 'system') {
-      // If using system theme, toggle to the opposite of current system theme
-      setTheme(systemTheme === 'dark' ? 'light' : 'dark');
-    } else {
-      // If using explicit theme, toggle to the opposite
-      setTheme(theme === 'dark' ? 'light' : 'dark');
-    }
-  }, [theme, systemTheme, setTheme]);
-
-  // Listen for system theme changes
+  // Initialize professional light theme on mount
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    
-    const handleChange = (e: MediaQueryListEvent) => {
-      setSystemTheme(e.matches ? 'dark' : 'light');
-    };
-    
-    mediaQuery.addEventListener('change', handleChange);
-    
-    return () => {
-      mediaQuery.removeEventListener('change', handleChange);
-    };
-  }, []);
-
-  // Apply theme changes
-  useEffect(() => {
-    applyTheme(actualTheme);
-  }, [actualTheme]);
-
-  // Initialize theme on mount
-  useEffect(() => {
-    // Set initial theme class
-    applyTheme(actualTheme);
-    
-    // Prevent flash of unstyled content
-    document.documentElement.style.colorScheme = actualTheme;
+    applyLightTheme();
   }, []);
 
   const value: ThemeContextType = {
-    theme,
-    actualTheme,
-    setTheme,
-    toggleTheme,
+    theme: 'light',
+    actualTheme: 'light',
   };
 
   return (
@@ -136,11 +60,9 @@ export function useTheme(): ThemeContextType {
   return context;
 }
 
-// Hook for components that need to react to theme changes
-export function useThemeEffect(callback: (theme: 'light' | 'dark') => void, deps: React.DependencyList = []) {
-  const { actualTheme } = useTheme();
-  
+// Simplified hook for light theme - always returns 'light'
+export function useThemeEffect(callback: (theme: 'light') => void, deps: React.DependencyList = []) {
   useEffect(() => {
-    callback(actualTheme);
-  }, [actualTheme, ...deps]);
+    callback('light');
+  }, [callback, ...deps]);
 }

@@ -44,58 +44,63 @@ const getButtonClasses = (
     }
   );
 
-  // Variant styles using CSS custom properties
+  // Professional variant styles with Microsoft-inspired colors
   const variantClasses = {
     primary: cn(
-      'bg-orange-500 text-white border border-orange-500',
-      'hover:bg-orange-600 hover:border-orange-600',
-      'focus:ring-orange-500 focus:ring-offset-2',
-      'active:bg-orange-700'
+      'bg-blue-600 text-white border border-blue-600',
+      'hover:bg-blue-700 hover:border-blue-700',
+      'focus:ring-blue-500 focus:ring-offset-2',
+      'active:bg-blue-800',
+      'shadow-sm hover:shadow-md'
     ),
     secondary: cn(
-      'bg-neutral-100 text-neutral-900 border border-neutral-200',
-      'hover:bg-neutral-200 hover:border-neutral-300',
-      'focus:ring-neutral-500 focus:ring-offset-2',
-      'active:bg-neutral-300'
+      'bg-white text-neutral-700 border border-neutral-300',
+      'hover:bg-neutral-50 hover:border-neutral-400',
+      'focus:ring-blue-500 focus:ring-offset-2',
+      'active:bg-neutral-100',
+      'shadow-sm hover:shadow-md'
     ),
     outline: cn(
-      'bg-transparent text-orange-600 border border-orange-500',
-      'hover:bg-orange-50 hover:text-orange-700',
-      'focus:ring-orange-500 focus:ring-offset-2',
-      'active:bg-orange-100'
+      'bg-transparent text-blue-600 border border-blue-600',
+      'hover:bg-blue-50 hover:text-blue-700',
+      'focus:ring-blue-500 focus:ring-offset-2',
+      'active:bg-blue-100'
     ),
     ghost: cn(
       'bg-transparent text-neutral-700 border border-transparent',
       'hover:bg-neutral-100 hover:text-neutral-900',
-      'focus:ring-neutral-500 focus:ring-offset-2',
+      'focus:ring-blue-500 focus:ring-offset-2',
       'active:bg-neutral-200'
     ),
     destructive: cn(
       'bg-red-600 text-white border border-red-600',
       'hover:bg-red-700 hover:border-red-700',
       'focus:ring-red-500 focus:ring-offset-2',
-      'active:bg-red-800'
+      'active:bg-red-800',
+      'shadow-sm hover:shadow-md'
     ),
     success: cn(
       'bg-green-600 text-white border border-green-600',
       'hover:bg-green-700 hover:border-green-700',
       'focus:ring-green-500 focus:ring-offset-2',
-      'active:bg-green-800'
+      'active:bg-green-800',
+      'shadow-sm hover:shadow-md'
     ),
     warning: cn(
       'bg-yellow-500 text-white border border-yellow-500',
       'hover:bg-yellow-600 hover:border-yellow-600',
       'focus:ring-yellow-500 focus:ring-offset-2',
-      'active:bg-yellow-700'
+      'active:bg-yellow-700',
+      'shadow-sm hover:shadow-md'
     ),
   };
 
-  // Size styles
+  // Professional size styles with proper spacing
   const sizeClasses = {
-    sm: 'px-3 py-1.5 text-sm rounded-md gap-1.5',
-    md: 'px-4 py-2 text-sm rounded-md gap-2',
-    lg: 'px-6 py-3 text-base rounded-lg gap-2.5',
-    xl: 'px-8 py-4 text-lg rounded-lg gap-3',
+    sm: 'px-3 py-2 text-sm rounded-md gap-1.5 min-h-[32px]',
+    md: 'px-4 py-2.5 text-sm rounded-md gap-2 min-h-[36px]',
+    lg: 'px-6 py-3 text-base rounded-lg gap-2.5 min-h-[44px]',
+    xl: 'px-8 py-4 text-lg rounded-lg gap-3 min-h-[52px]',
   };
 
   return cn(baseClasses, variantClasses[variant], sizeClasses[size]);

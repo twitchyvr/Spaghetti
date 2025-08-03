@@ -30,78 +30,80 @@
   --font-4xl: 2.25rem;
   --font-5xl: 3rem;
   
-  /* Colors - Light Theme (Pantry Design System) */
-  --color-bg-primary: #ffffff;
-  --color-bg-secondary: #fafafa;
-  --color-bg-tertiary: #f4f4f5;
-  --color-bg-accent: #e4e4e7;
+  /* Microsoft-Style Light Theme Colors */
+  --color-bg-primary: #ffffff;      /* Pure white backgrounds */
+  --color-bg-secondary: #fafafa;    /* Very light gray surfaces */
+  --color-bg-tertiary: #f5f5f5;     /* Light gray for cards/sections */
+  --color-bg-accent: #f0f0f0;       /* Subtle accent backgrounds */
   
-  --color-text-primary: #18181b;
-  --color-text-secondary: #52525b;
-  --color-text-tertiary: #71717a;
-  --color-text-muted: #a1a1aa;
+  --color-text-primary: #323130;    /* Professional dark gray for primary text */
+  --color-text-secondary: #605e5c;  /* Medium gray for secondary text */
+  --color-text-tertiary: #8a8886;   /* Light gray for tertiary text */
+  --color-text-muted: #a19f9d;      /* Very light gray for muted text */
   
-  --color-border-primary: #e4e4e7;
-  --color-border-secondary: #d4d4d8;
-  --color-border-focus: #f3761a;
+  --color-border-primary: #e1e1e1;  /* Light borders */
+  --color-border-secondary: #d2d0ce; /* Slightly darker borders */
+  --color-border-focus: #0078d4;     /* Microsoft blue for focus states */
   
-  /* Orange Brand Colors (Pantry Design System) */
-  --color-brand-primary: #f3761a;
-  --color-brand-secondary: #e45a0f;
-  --color-brand-light: #fef7ee;
-  --color-brand-dark: #bd450f;
+  /* Professional Blue Brand Colors (Microsoft-inspired) */
+  --color-brand-primary: #0078d4;   /* Microsoft blue */
+  --color-brand-secondary: #106ebe; /* Darker blue for hover states */
+  --color-brand-light: #f3f9fd;     /* Very light blue backgrounds */
+  --color-brand-dark: #005a9e;      /* Dark blue for emphasis */
   
-  /* Primary Orange Scale */
-  --color-orange-50: #fef7ee;
-  --color-orange-100: #fdedd3;
-  --color-orange-200: #fbd6a5;
-  --color-orange-300: #f8b96d;
-  --color-orange-400: #f59332;
-  --color-orange-500: #f3761a;
-  --color-orange-600: #e45a0f;
-  --color-orange-700: #bd450f;
-  --color-orange-800: #973815;
-  --color-orange-900: #7a2f14;
+  /* Alternative: Refined Orange Scale (if keeping orange branding) */
+  --color-orange-50: #fff8f0;
+  --color-orange-100: #ffecd1;
+  --color-orange-200: #ffd4a3;
+  --color-orange-300: #ffb366;
+  --color-orange-400: #ff8f29;
+  --color-orange-500: #ff6b00;      /* More refined orange */
+  --color-orange-600: #e55a00;
+  --color-orange-700: #cc4d00;
+  --color-orange-800: #b33d00;
+  --color-orange-900: #993300;
   
-  /* Neutral Scale */
+  /* Microsoft-Style Neutral Scale */
   --color-neutral-0: #ffffff;
   --color-neutral-50: #fafafa;
-  --color-neutral-100: #f4f4f5;
-  --color-neutral-200: #e4e4e7;
-  --color-neutral-300: #d4d4d8;
-  --color-neutral-400: #a1a1aa;
-  --color-neutral-500: #71717a;
-  --color-neutral-600: #52525b;
-  --color-neutral-700: #3f3f46;
-  --color-neutral-800: #27272a;
-  --color-neutral-900: #18181b;
+  --color-neutral-100: #f5f5f5;
+  --color-neutral-200: #e1e1e1;
+  --color-neutral-300: #d2d0ce;
+  --color-neutral-400: #a19f9d;
+  --color-neutral-500: #8a8886;
+  --color-neutral-600: #605e5c;
+  --color-neutral-700: #484644;
+  --color-neutral-800: #323130;
+  --color-neutral-900: #201f1e;
   
-  /* Semantic Colors */
-  --color-success: #22c55e;
-  --color-success-light: #f0fdf4;
-  --color-success-600: #16a34a;
-  --color-success-700: #15803d;
+  /* Professional Semantic Colors */
+  --color-success: #107c10;          /* Microsoft green */
+  --color-success-light: #f3fdf3;
+  --color-success-600: #0e6e0e;
+  --color-success-700: #0c5f0c;
   
-  --color-warning: #f59e0b;
-  --color-warning-light: #fffbeb;
-  --color-warning-600: #d97706;
-  --color-warning-700: #b45309;
+  --color-warning: #ff8c00;          /* Professional orange */
+  --color-warning-light: #fff8f0;
+  --color-warning-600: #e67c00;
+  --color-warning-700: #cc6e00;
   
-  --color-error: #ef4444;
-  --color-error-light: #fef2f2;
-  --color-error-600: #dc2626;
-  --color-error-700: #b91c1c;
+  --color-error: #d13438;            /* Microsoft red */
+  --color-error-light: #fdf3f3;
+  --color-error-600: #b92b2f;
+  --color-error-700: #a12327;
   
-  --color-info: #3b82f6;
-  --color-info-light: #eff6ff;
-  --color-info-600: #2563eb;
-  --color-info-700: #1d4ed8;
+  --color-info: #0078d4;             /* Microsoft blue */
+  --color-info-light: #f3f9fd;
+  --color-info-600: #106ebe;
+  --color-info-700: #005a9e;
   
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  /* Professional Shadows (subtle and clean) */
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.1);  /* Clean card shadow */
+  --shadow-focus: 0 0 0 3px rgba(0, 120, 212, 0.12); /* Focus ring shadow */
   
   /* Border Radius */
   --radius-sm: 4px;
@@ -126,28 +128,29 @@
   --z-notification: 1080;
 }
 
-/* Dark Theme (Pantry Design System) */
-.dark {
-  --color-bg-primary: #09090b;
-  --color-bg-secondary: #18181b;
-  --color-bg-tertiary: #27272a;
-  --color-bg-accent: #3f3f46;
+/* Light Theme Class (for consistency - matches root variables) */
+.light {
+  /* Explicitly define light theme (same as root for clarity) */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #fafafa;
+  --color-bg-tertiary: #f5f5f5;
+  --color-bg-accent: #f0f0f0;
   
-  --color-text-primary: #fafafa;
-  --color-text-secondary: #d4d4d8;
-  --color-text-tertiary: #a1a1aa;
-  --color-text-muted: #71717a;
+  --color-text-primary: #323130;
+  --color-text-secondary: #605e5c;
+  --color-text-tertiary: #8a8886;
+  --color-text-muted: #a19f9d;
   
-  --color-border-primary: #27272a;
-  --color-border-secondary: #3f3f46;
-  --color-border-focus: #f3761a;
+  --color-border-primary: #e1e1e1;
+  --color-border-secondary: #d2d0ce;
+  --color-border-focus: #0078d4;
   
-  /* Orange Brand Colors remain the same in dark mode */
-  --color-brand-light: #421604;
-  --color-success-light: #14532d;
-  --color-warning-light: #78350f;
-  --color-error-light: #7f1d1d;
-  --color-info-light: #1e3a8a;
+  /* Professional semantic colors for light theme */
+  --color-brand-light: #f3f9fd;
+  --color-success-light: #f3fdf3;
+  --color-warning-light: #fff8f0;
+  --color-error-light: #fdf3f3;
+  --color-info-light: #f3f9fd;
 }
 
 /* Layout Classes */
@@ -169,6 +172,7 @@
   width: var(--sidebar-width);
   background-color: var(--color-bg-primary);
   border-right: 1px solid var(--color-border-primary);
+  box-shadow: var(--shadow-card);
   z-index: var(--z-fixed);
   transition: all var(--transition-slow);
   overflow: hidden;

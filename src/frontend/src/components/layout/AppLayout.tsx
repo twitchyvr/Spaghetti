@@ -254,10 +254,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
   };
 
   return (
-    <div className="flex h-screen bg-neutral-50">
+    <div className="flex h-screen bg-white">
       {/* Sidebar */}
       <aside className={cn(
-        "fixed inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-neutral-200 transition-all duration-300 ease-in-out",
+        "fixed inset-y-0 left-0 z-50 flex flex-col bg-white border-r shadow-sm transition-all duration-300 ease-in-out",
         {
           "w-80": !sidebarCollapsed,
           "w-20": sidebarCollapsed,
@@ -267,39 +267,39 @@ export default function AppLayout({ children }: AppLayoutProps) {
         "lg:translate-x-0 lg:static lg:inset-0"
       )}>
         {/* Logo Section */}
-        <div className="flex items-center justify-between p-6 border-b border-neutral-200 flex-shrink-0">
+        <div className="flex items-center justify-between p-6 border-b flex-shrink-0">
           <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-12 h-12 bg-orange-100 rounded-xl">
-              <ChefHat size={24} className="text-orange-600" />
+            <div className="flex items-center justify-center w-12 h-12 bg-blue-50 border border-blue-200 rounded-lg">
+              <ChefHat size={24} className="text-blue-600" />
             </div>
             {!sidebarCollapsed && (
               <div className="overflow-hidden">
-                <h2 className="text-xl font-bold text-neutral-900 truncate">Spaghetti Platform</h2>
-                <p className="text-sm text-neutral-600 truncate">The Pantry Enterprise Suite</p>
+                <h2 className="text-xl font-semibold text-neutral-900 truncate">Spaghetti Platform</h2>
+                <p className="text-sm text-neutral-600 truncate">Enterprise Document Suite</p>
               </div>
             )}
           </div>
           
           <button 
-            className="lg:hidden p-2 hover:bg-neutral-100 rounded-lg transition-colors"
+            className="lg:hidden p-2 hover:bg-neutral-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
             onClick={() => setSidebarOpen(false)}
           >
-            <X size={20} />
+            <X size={20} className="text-neutral-600" />
           </button>
           
           <button 
-            className="hidden lg:flex p-2 hover:bg-neutral-100 rounded-lg transition-colors"
+            className="hidden lg:flex p-2 hover:bg-neutral-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
             onClick={collapseSidebar}
             title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
-            <ChevronRight size={20} className={cn("transition-transform", {
+            <ChevronRight size={20} className={cn("transition-transform text-neutral-600", {
               "rotate-180": sidebarCollapsed
             })} />
           </button>
         </div>
 
-        {/* Navigation - CRITICAL FIX: Proper scrolling container */}
-        <nav className="flex-1 px-4 py-6 overflow-y-auto scrollbar-thin scrollbar-track-neutral-100 scrollbar-thumb-neutral-300 hover:scrollbar-thumb-neutral-400">
+        {/* Navigation - Clean scrolling with modern styling */}
+        <nav className="flex-1 px-4 py-6 overflow-y-auto">
           <div className="space-y-1">
             {navigationItems.map((item) => (
               <Link
@@ -308,8 +308,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 className={cn(
                   "flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-all duration-200 group relative",
                   {
-                    "bg-orange-50 text-orange-700 shadow-sm": isActiveRoute(item.path),
-                    "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900": !isActiveRoute(item.path),
+                    "bg-blue-50 text-blue-700 border border-blue-200": isActiveRoute(item.path),
+                    "text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900": !isActiveRoute(item.path),
                     "justify-center": sidebarCollapsed,
                   }
                 )}
@@ -323,7 +323,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   <>
                     <span className="flex-1 truncate">{item.label}</span>
                     {item.badge && (
-                      <span className="px-2 py-1 text-xs font-semibold bg-neutral-100 text-neutral-700 rounded-full">
+                      <span className="px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-full">
                         {item.badge}
                       </span>
                     )}
@@ -335,10 +335,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 
                 {/* Tooltip for collapsed state */}
                 {sidebarCollapsed && (
-                  <div className="absolute left-full ml-2 px-3 py-2 bg-neutral-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                  <div className="absolute left-full ml-2 px-3 py-2 bg-neutral-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg">
                     {item.label}
                     {item.badge && (
-                      <span className="ml-2 px-2 py-0.5 text-xs bg-orange-600 rounded-full">
+                      <span className="ml-2 px-2 py-0.5 text-xs bg-blue-600 rounded-full">
                         {item.badge}
                       </span>
                     )}
@@ -350,20 +350,20 @@ export default function AppLayout({ children }: AppLayoutProps) {
         </nav>
 
         {/* User Section */}
-        <div className="p-6 border-t border-neutral-200 flex-shrink-0">
+        <div className="p-6 border-t flex-shrink-0">
           <div className={cn(
-            "flex items-center gap-3 p-3 bg-neutral-50 rounded-xl",
+            "flex items-center gap-3 p-3 bg-neutral-50 rounded-lg border",
             { "justify-center": sidebarCollapsed }
           )}>
-            <div className="flex items-center justify-center w-10 h-10 bg-orange-600 rounded-full text-white flex-shrink-0">
+            <div className="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-full text-white flex-shrink-0">
               <User size={20} />
             </div>
             {!sidebarCollapsed && (
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-neutral-900 truncate">
+                <p className="font-medium text-neutral-900 truncate">
                   {user?.firstName || 'Demo User'}
                 </p>
-                <p className="text-sm text-neutral-600 truncate">Chef Professional</p>
+                <p className="text-sm text-neutral-600 truncate">Professional</p>
               </div>
             )}
           </div>
@@ -373,14 +373,14 @@ export default function AppLayout({ children }: AppLayoutProps) {
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
+          className="fixed inset-0 z-40 bg-black bg-opacity-25 lg:hidden backdrop-blur-sm"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Main Content Area */}
       <div className={cn(
-        "flex-1 flex flex-col min-h-0 transition-all duration-300",
+        "flex-1 flex flex-col min-h-0 transition-all duration-300 bg-neutral-50",
         {
           "lg:ml-80": sidebarOpen && !sidebarCollapsed,
           "lg:ml-20": sidebarOpen && sidebarCollapsed,
@@ -388,32 +388,32 @@ export default function AppLayout({ children }: AppLayoutProps) {
         }
       )}>
         {/* Header */}
-        <header className="flex-shrink-0 bg-white border-b border-neutral-200 px-6 py-4">
+        <header className="flex-shrink-0 bg-white border-b shadow-sm px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
-                className="p-2 hover:bg-neutral-100 rounded-lg transition-colors lg:hidden"
+                className="p-2 hover:bg-neutral-100 rounded-lg transition-colors lg:hidden focus:outline-none focus:ring-2 focus:ring-blue-500"
                 onClick={toggleSidebar}
                 aria-label="Toggle navigation menu"
               >
-                <Menu size={24} />
+                <Menu size={24} className="text-neutral-600" />
               </button>
               <button
-                className="hidden lg:flex p-2 hover:bg-neutral-100 rounded-lg transition-colors"
+                className="hidden lg:flex p-2 hover:bg-neutral-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
                 onClick={toggleSidebar}
                 title={sidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
               >
-                <Menu size={24} />
+                <Menu size={24} className="text-neutral-600" />
               </button>
               
-              <h1 className="text-2xl font-bold text-neutral-900">
+              <h1 className="text-2xl font-semibold text-neutral-900">
                 {navigationItems.find(item => isActiveRoute(item.path))?.label || 'Dashboard'}
               </h1>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               {/* Notifications */}
-              <button className="p-2 hover:bg-neutral-100 rounded-lg transition-colors" title="Notifications">
+              <button className="p-2 hover:bg-neutral-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500" title="Notifications">
                 <Bell size={20} className="text-neutral-600" />
               </button>
 
@@ -421,13 +421,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center gap-3 px-3 py-2 hover:bg-neutral-50 rounded-lg transition-colors"
+                  className="flex items-center gap-3 px-3 py-2 hover:bg-neutral-50 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <div className="w-10 h-10 bg-orange-600 rounded-full flex items-center justify-center">
+                  <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
                     <UserCircle size={20} className="text-white" />
                   </div>
                   <div className="hidden md:block text-left">
-                    <p className="text-sm font-semibold text-neutral-900">
+                    <p className="text-sm font-medium text-neutral-900">
                       {user?.firstName} {user?.lastName}
                     </p>
                     <p className="text-xs text-neutral-600">
@@ -442,22 +442,22 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
                 {/* User Dropdown Menu */}
                 {userMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-neutral-200 py-2 z-50">
+                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border py-2 z-50">
                     {/* User Info */}
-                    <div className="px-4 py-3 border-b border-neutral-100">
+                    <div className="px-4 py-3 border-b">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-orange-600 rounded-full flex items-center justify-center">
+                        <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
                           <UserCircle size={24} className="text-white" />
                         </div>
                         <div>
-                          <p className="font-semibold text-neutral-900">
+                          <p className="font-medium text-neutral-900">
                             {user?.firstName} {user?.lastName}
                           </p>
                           <p className="text-sm text-neutral-600">
                             {user?.email || 'demo@enterprise-docs.com'}
                           </p>
-                          <p className="text-xs text-orange-600 font-semibold">
-                            Chef Professional
+                          <p className="text-xs text-blue-600 font-medium">
+                            Professional
                           </p>
                         </div>
                       </div>
@@ -484,10 +484,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
                     </div>
 
                     {/* Logout */}
-                    <div className="border-t border-neutral-100 mt-2 pt-2">
+                    <div className="border-t mt-2 pt-2">
                       <button
                         onClick={handleLogout}
-                        className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                        className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors focus:outline-none focus:bg-red-50"
                       >
                         <LogOut size={16} />
                         Sign Out
@@ -497,16 +497,16 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 )}
               </div>
 
-              <div className="hidden md:flex items-center gap-2 px-3 py-2 bg-green-50 text-green-700 rounded-full text-sm font-medium">
+              <div className="hidden md:flex items-center gap-2 px-3 py-2 bg-green-50 text-green-700 rounded-full text-sm font-medium border border-green-200">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                Connected
+                Online
               </div>
             </div>
           </div>
         </header>
 
         {/* Page Content - This is where children are rendered */}
-        <main className="flex-1 overflow-hidden">
+        <main className="flex-1 overflow-hidden bg-neutral-50">
           {children}
         </main>
       </div>

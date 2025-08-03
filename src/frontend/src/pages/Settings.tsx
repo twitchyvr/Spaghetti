@@ -1,6 +1,5 @@
 
 import { useState } from 'react';
-import { useTheme } from '../contexts/ThemeContext';
 import { Card } from '../components/pantry/Card';
 import { 
   Settings as SettingsIcon,
@@ -8,18 +7,17 @@ import {
   Shield,
   Globe,
   Database,
-  Moon,
-  Sun,
-  Monitor,
   Save,
   Volume2,
   Mail,
-  AlertCircle
+  AlertCircle,
+  Sun,
+  Moon,
+  Monitor
 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function Settings() {
-  const { theme, setTheme } = useTheme();
   const [activeTab, setActiveTab] = useState<'general' | 'notifications' | 'security' | 'integrations'>('general');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -94,9 +92,9 @@ export default function Settings() {
               ].map(({ value, icon: Icon, label }) => (
                 <button
                   key={value}
-                  onClick={() => setTheme(value as any)}
+                  disabled
                   className={`flex items-center space-x-2 px-4 py-2 rounded-lg border transition-colors ${
-                    theme === value
+                    value === 'light'
                       ? 'bg-blue-100 border-blue-300 text-blue-700'
                       : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
                   }`}
