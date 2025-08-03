@@ -215,8 +215,11 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.MapControllers();
 
-// Add health endpoint for Docker healthcheck
+// Add health endpoints for monitoring and DigitalOcean health checks
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow, service = "enterprise-docs-api" }))
+   .AllowAnonymous();
+
+app.MapGet("/api/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow, service = "enterprise-docs-api" }))
    .AllowAnonymous();
 
 // Add detailed health endpoint for monitoring

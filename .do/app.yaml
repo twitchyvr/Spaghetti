@@ -36,6 +36,14 @@ services:
     value: ${postgres-db.DATABASE_URL}
   - key: ConnectionStrings__RedisConnection
     value: ${redis-cache.REDIS_URL}
+  - key: Authentication__SecretKey
+    value: "Sprint6-Enterprise-JWT-Secret-Key-For-Production-Deployment-2025"
+  - key: Authentication__Issuer
+    value: "EnterpriseDocsAPI"
+  - key: Authentication__Audience
+    value: "EnterpriseDocsClient"
+  - key: Storage__Provider
+    value: "local"
 
 # Frontend service with catch-all route MUST be listed last
 - name: frontend
