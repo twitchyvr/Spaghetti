@@ -113,8 +113,8 @@ export const DocumentComments: React.FC<DocumentCommentsProps> = ({
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+  const formatDate = (dateString: string | Date) => {
+    const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
     const now = new Date();
     const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
 
@@ -245,7 +245,7 @@ interface CommentThreadProps {
   onSendReply: (parentCommentId: string) => void;
   onEditingContentChange: (content: string) => void;
   onReplyContentChange: (content: string) => void;
-  formatDate: (date: string) => string;
+  formatDate: (date: string | Date) => string;
   canEdit: (comment: DocumentComment) => boolean;
   canDelete: (comment: DocumentComment) => boolean;
 }
@@ -299,7 +299,7 @@ const CommentThread: React.FC<CommentThreadProps> = ({
             </div>
             <div className="relative">
               <button
-                onClick={() => setShowActions(showActions === comment.id ? null : comment.id)}
+                onClick={() => setShowActions(showActions === comment.id ? null : comment.id || null)}
                 className="p-1 hover:bg-gray-100 rounded"
               >
                 <MoreVertical className="w-4 h-4 text-gray-500" />
@@ -308,7 +308,7 @@ const CommentThread: React.FC<CommentThreadProps> = ({
                 <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-10 min-w-32">
                   {!comment.isResolved && (
                     <button
-                      onClick={() => onReply(comment.id)}
+                      onClick={() => comment.id && onReply(comment.id)}
                       className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
                     >
                       <Reply className="w-4 h-4 inline mr-2" />
@@ -317,7 +317,7 @@ const CommentThread: React.FC<CommentThreadProps> = ({
                   )}
                   {canEdit(comment) && (
                     <button
-                      onClick={() => onEdit(comment.id)}
+                      onClick={() => comment.id && onEdit(comment.id)}
                       className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
                     >
                       <Edit className="w-4 h-4 inline mr-2" />
@@ -326,7 +326,7 @@ const CommentThread: React.FC<CommentThreadProps> = ({
                   )}
                   {canDelete(comment) && (
                     <button
-                      onClick={() => onDelete(comment.id)}
+                      onClick={() => comment.id && onDelete(comment.id)}
                       className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100 text-red-600"
                     >
                       <Trash2 className="w-4 h-4 inline mr-2" />
@@ -335,7 +335,7 @@ const CommentThread: React.FC<CommentThreadProps> = ({
                   )}
                   {!comment.isResolved && currentUserId === comment.userId && (
                     <button
-                      onClick={() => onResolve(comment.id)}
+                      onClick={() => comment.id && onResolve(comment.id)}
                       className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100 text-green-600"
                     >
                       <Check className="w-4 h-4 inline mr-2" />
@@ -397,7 +397,7 @@ const CommentThread: React.FC<CommentThreadProps> = ({
                   />
                   <div className="flex items-center gap-2 mt-2">
                     <button
-                      onClick={() => onSendReply(comment.id)}
+                      onClick={() => comment.id && onSendReply(comment.id)}
                       disabled={!replyContent.trim()}
                       className="flex items-center gap-1 px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 disabled:opacity-50"
                     >

@@ -125,7 +125,7 @@ builder.Services.AddScoped<DatabaseSeedingService>();
 // Sprint 6: Add Workflow Services
 // TODO: Temporarily disable problematic services until infrastructure is fixed
 // builder.Services.AddScoped<IWorkflowService, WorkflowService>();
-// builder.Services.AddScoped<ICollaborationService, CollaborationService>();
+builder.Services.AddScoped<ICollaborationService, CollaborationService>();
 
 // Health Monitoring Services
 builder.Services.AddScoped<IHealthMonitoringService, HealthMonitoringService>();
@@ -241,8 +241,8 @@ app.MapGet("/health/detailed", async (ApplicationDbContext context) =>
     }
 }).AllowAnonymous();
 
-// Sprint 2: Map SignalR hubs for real-time collaboration
-app.MapHub<DocumentHub>("/hubs/collaboration");
+// Sprint 6: Map SignalR hubs for real-time collaboration
+app.MapHub<DocumentCollaborationHub>("/hubs/collaboration");
 
 // Temporarily disable module initialization
 // TODO: Re-enable after fixing module system

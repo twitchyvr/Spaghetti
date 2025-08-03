@@ -3,12 +3,12 @@
 
 export interface UserPresence {
   userId: string;
-  userName: string;
-  email: string;
-  status: 'active' | 'idle' | 'away';
-  cursorPosition: number;
-  lastSeen: string;
-  color: string;
+  userName?: string;
+  email?: string;
+  status?: 'active' | 'idle' | 'away' | 'typing';
+  cursorPosition?: number;
+  lastSeen?: Date | string;
+  color?: string;
 }
 
 export interface DocumentLockInfo {
@@ -34,16 +34,37 @@ export interface ContentChange {
 }
 
 export interface DocumentComment {
-  id: string;
+  id?: string;
   documentId: string;
   userId: string;
   userName: string;
   content: string;
   position: number;
-  createdAt: string;
+  line?: number;
+  createdAt: Date | string;
   isResolved: boolean;
   resolvedBy?: string;
   resolvedAt?: string;
+}
+
+// Operational Transformation Types
+export interface DocumentOperationRequest {
+  id: string;
+  operationType: 'insert' | 'delete' | 'replace';
+  position: number;
+  content: string;
+  length: number;
+  version: number;
+  userId: string;
+  timestamp: Date;
+}
+
+export interface CursorPosition {
+  position: number;
+  selectionStart?: number;
+  selectionEnd?: number;
+  line?: number;
+  column?: number;
 }
 
 // Search Types

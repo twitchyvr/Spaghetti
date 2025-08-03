@@ -34,6 +34,7 @@ const MLDocumentClassification = React.lazy(() => import('./pages/MLDocumentClas
 const PredictiveAnalytics = React.lazy(() => import('./pages/PredictiveAnalytics'));
 const AdvancedWorkflows = React.lazy(() => import('./pages/AdvancedWorkflows'));
 const CollaborativeEditor = React.lazy(() => import('./pages/CollaborativeEditor'));
+const RealTimeEditor = React.lazy(() => import('./pages/RealTimeEditor'));
 const KnowledgeGraph = React.lazy(() => import('./pages/KnowledgeGraph'));
 const MobileApp = React.lazy(() => import('./pages/MobileApp'));
 const PerformanceMonitoring = React.lazy(() => import('./pages/PerformanceMonitoring'));
@@ -174,6 +175,7 @@ function App() {
                     <Route path="/predictive-analytics" element={<PredictiveAnalytics />} />
                     <Route path="/advanced-workflows" element={<AdvancedWorkflows />} />
                     <Route path="/collaborative-editor" element={<CollaborativeEditor />} />
+                    <Route path="/realtime-editor/:documentId" element={<RealTimeEditor />} />
                     <Route path="/knowledge-graph" element={<KnowledgeGraph />} />
                     <Route path="/mobile-app" element={<MobileApp />} />
                     <Route path="/performance-monitoring" element={<PerformanceMonitoring />} />

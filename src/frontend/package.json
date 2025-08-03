@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.2",
+    "@microsoft/signalr": "^7.0.14",
     "@monaco-editor/react": "^4.6.0",
     "@radix-ui/react-avatar": "^1.0.4",
     "@radix-ui/react-dialog": "^1.0.5",
@@ -84,7 +85,6 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.8.2",
     "@lhci/cli": "^0.12.0",
-    "@microsoft/signalr": "^7.0.14",
     "@playwright/test": "^1.40.0",
     "@storybook/addon-essentials": "^7.5.3",
     "@storybook/addon-interactions": "^7.5.3",
