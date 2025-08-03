@@ -3,6 +3,10 @@ using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configure listening port for DigitalOcean
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
 // Add minimal services for a working API
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
