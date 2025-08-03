@@ -31,7 +31,7 @@ services:
     success_threshold: 1
     failure_threshold: 5
   build_command: dotnet restore && dotnet publish -c Release -o out --self-contained false
-  run_command: cd out && dotnet EnterpriseDocsCore.API.dll
+  run_command: cd out && dotnet EnterpriseDocsCore.API.dll --urls http://0.0.0.0:$PORT
   envs:
   - key: ASPNETCORE_ENVIRONMENT
     value: Production

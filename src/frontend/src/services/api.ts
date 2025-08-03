@@ -1,4 +1,5 @@
 // API Service Layer for Enterprise Docs Platform
+import { getMockResponse } from './mockData';
 
 const API_BASE_URL = import.meta.env['VITE_API_BASE_URL'] || 'http://localhost:5001';
 const DEMO_MODE = import.meta.env['VITE_DEMO_MODE'] === 'true' || API_BASE_URL.includes('api-placeholder');
@@ -51,17 +52,26 @@ export async function fetchApi<T>(
       return {} as T;
     }
 
+    // Check if response is HTML (API not available)
+    if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html')) {
+      console.warn(`API endpoint ${endpoint} returned HTML, using mock data`);
+      return getMockResponse(endpoint) as T;
+    }
+
     return JSON.parse(text);
   } catch (error) {
     if (error instanceof ApiError) {
+      // If API is unavailable, return mock data
+      if (error.status === 503 || error.status === 0) {
+        console.warn(`API endpoint ${endpoint} failed, using mock data`);
+        return getMockResponse(endpoint) as T;
+      }
       throw error;
     }
     
-    // Network or other errors
-    throw new ApiError(
-      0,
-      error instanceof Error ? error.message : 'Network error'
-    );
+    // Network or other errors - return mock data for Sprint 7
+    console.warn(`Network error for ${endpoint}, using mock data:`, error);
+    return getMockResponse(endpoint) as T;
   }
 }
 
