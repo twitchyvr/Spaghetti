@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLocation, Link } from 'react-router-dom';
-import '../../styles/layout.css';
+import { cn } from '../../utils/cn';
 import { 
   LayoutDashboard, 
   Database, 
@@ -254,66 +254,118 @@ export default function AppLayout({ children }: AppLayoutProps) {
   };
 
   return (
-    <div className="app-layout">
+    <div className="flex h-screen bg-neutral-50">
       {/* Sidebar */}
-      <aside className={`app-sidebar ${sidebarOpen ? 'open' : ''} ${sidebarCollapsed ? 'collapsed' : ''}`}>
+      <aside className={cn(
+        "fixed inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-neutral-200 transition-all duration-300 ease-in-out",
+        {
+          "w-80": !sidebarCollapsed,
+          "w-20": sidebarCollapsed,
+          "translate-x-0": sidebarOpen,
+          "-translate-x-full": !sidebarOpen,
+        },
+        "lg:translate-x-0 lg:static lg:inset-0"
+      )}>
         {/* Logo Section */}
-        <div className="sidebar-header">
-          <div className="sidebar-logo">
-            <div className="logo-icon">
+        <div className="flex items-center justify-between p-6 border-b border-neutral-200 flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-12 h-12 bg-orange-100 rounded-xl">
               <ChefHat size={24} className="text-orange-600" />
             </div>
-            <div className="logo-text">
-              <h2 className="logo-title">Spaghetti Platform</h2>
-              <p className="logo-subtitle">The Pantry Enterprise Suite</p>
-            </div>
+            {!sidebarCollapsed && (
+              <div className="overflow-hidden">
+                <h2 className="text-xl font-bold text-neutral-900 truncate">Spaghetti Platform</h2>
+                <p className="text-sm text-neutral-600 truncate">The Pantry Enterprise Suite</p>
+              </div>
+            )}
           </div>
+          
           <button 
-            className="sidebar-toggle lg:hidden"
+            className="lg:hidden p-2 hover:bg-neutral-100 rounded-lg transition-colors"
             onClick={() => setSidebarOpen(false)}
           >
             <X size={20} />
           </button>
+          
           <button 
-            className="sidebar-collapse hidden lg:flex"
+            className="hidden lg:flex p-2 hover:bg-neutral-100 rounded-lg transition-colors"
             onClick={collapseSidebar}
             title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
-            <ChevronRight size={20} className={`transition-transform ${sidebarCollapsed ? 'rotate-180' : ''}`} />
+            <ChevronRight size={20} className={cn("transition-transform", {
+              "rotate-180": sidebarCollapsed
+            })} />
           </button>
         </div>
 
-        {/* Navigation */}
-        <nav className="sidebar-nav">
-          {navigationItems.map((item) => (
-            <Link
-              key={item.id}
-              to={item.path}
-              className={`nav-item ${isActiveRoute(item.path) ? 'active' : ''}`}
-              onClick={() => setSidebarOpen(false)}
-            >
-              <span className="nav-icon">{item.icon}</span>
-              <span className="nav-label">{item.label}</span>
-              {item.badge && (
-                <span className="nav-badge">{item.badge}</span>
-              )}
-              {isActiveRoute(item.path) && (
-                <ChevronRight className="nav-active-indicator" size={16} />
-              )}
-            </Link>
-          ))}
+        {/* Navigation - CRITICAL FIX: Proper scrolling container */}
+        <nav className="flex-1 px-4 py-6 overflow-y-auto scrollbar-thin scrollbar-track-neutral-100 scrollbar-thumb-neutral-300 hover:scrollbar-thumb-neutral-400">
+          <div className="space-y-1">
+            {navigationItems.map((item) => (
+              <Link
+                key={item.id}
+                to={item.path}
+                className={cn(
+                  "flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-all duration-200 group relative",
+                  {
+                    "bg-orange-50 text-orange-700 shadow-sm": isActiveRoute(item.path),
+                    "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900": !isActiveRoute(item.path),
+                    "justify-center": sidebarCollapsed,
+                  }
+                )}
+                onClick={() => setSidebarOpen(false)}
+                title={sidebarCollapsed ? item.label : undefined}
+              >
+                <span className="flex-shrink-0">
+                  {item.icon}
+                </span>
+                {!sidebarCollapsed && (
+                  <>
+                    <span className="flex-1 truncate">{item.label}</span>
+                    {item.badge && (
+                      <span className="px-2 py-1 text-xs font-semibold bg-neutral-100 text-neutral-700 rounded-full">
+                        {item.badge}
+                      </span>
+                    )}
+                    {isActiveRoute(item.path) && (
+                      <ChevronRight size={16} className="opacity-60" />
+                    )}
+                  </>
+                )}
+                
+                {/* Tooltip for collapsed state */}
+                {sidebarCollapsed && (
+                  <div className="absolute left-full ml-2 px-3 py-2 bg-neutral-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                    {item.label}
+                    {item.badge && (
+                      <span className="ml-2 px-2 py-0.5 text-xs bg-orange-600 rounded-full">
+                        {item.badge}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </Link>
+            ))}
+          </div>
         </nav>
 
         {/* User Section */}
-        <div className="sidebar-footer">
-          <div className="user-section">
-            <div className="user-avatar">
+        <div className="p-6 border-t border-neutral-200 flex-shrink-0">
+          <div className={cn(
+            "flex items-center gap-3 p-3 bg-neutral-50 rounded-xl",
+            { "justify-center": sidebarCollapsed }
+          )}>
+            <div className="flex items-center justify-center w-10 h-10 bg-orange-600 rounded-full text-white flex-shrink-0">
               <User size={20} />
             </div>
-            <div className="user-info">
-              <p className="user-name">{user?.firstName || 'Demo User'}</p>
-              <p className="user-role">Professional</p>
-            </div>
+            {!sidebarCollapsed && (
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-neutral-900 truncate">
+                  {user?.firstName || 'Demo User'}
+                </p>
+                <p className="text-sm text-neutral-600 truncate">Chef Professional</p>
+              </div>
+            )}
           </div>
         </div>
       </aside>
@@ -321,82 +373,90 @@ export default function AppLayout({ children }: AppLayoutProps) {
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div 
-          className="sidebar-overlay lg:hidden"
+          className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Main Content Area */}
-      <div className="app-main">
+      <div className={cn(
+        "flex-1 flex flex-col min-h-0 transition-all duration-300",
+        {
+          "lg:ml-80": sidebarOpen && !sidebarCollapsed,
+          "lg:ml-20": sidebarOpen && sidebarCollapsed,
+          "lg:ml-0": !sidebarOpen,
+        }
+      )}>
         {/* Header */}
-        <header className="app-header">
-          <div className="header-content">
-            <button
-              className="header-menu-btn lg:hidden"
-              onClick={toggleSidebar}
-              aria-label="Toggle navigation menu"
-            >
-              <Menu size={24} />
-            </button>
-            <button
-              className="header-menu-btn hidden lg:flex"
-              onClick={toggleSidebar}
-              title={sidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
-              aria-label={sidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
-            >
-              <Menu size={24} />
-            </button>
-            
-            <div className="header-title flex-1">
-              <h1 className="page-title">
-                {navigationItems.find(item => isActiveRoute(item.path))?.label || 'Page'}
+        <header className="flex-shrink-0 bg-white border-b border-neutral-200 px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button
+                className="p-2 hover:bg-neutral-100 rounded-lg transition-colors lg:hidden"
+                onClick={toggleSidebar}
+                aria-label="Toggle navigation menu"
+              >
+                <Menu size={24} />
+              </button>
+              <button
+                className="hidden lg:flex p-2 hover:bg-neutral-100 rounded-lg transition-colors"
+                onClick={toggleSidebar}
+                title={sidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
+              >
+                <Menu size={24} />
+              </button>
+              
+              <h1 className="text-2xl font-bold text-neutral-900">
+                {navigationItems.find(item => isActiveRoute(item.path))?.label || 'Dashboard'}
               </h1>
             </div>
 
-            <div className="header-actions">
+            <div className="flex items-center gap-4">
               {/* Notifications */}
-              <button className="header-action-btn" title="Notifications">
-                <Bell className="icon-sm" />
-                <span className="sr-only">Notifications</span>
+              <button className="p-2 hover:bg-neutral-100 rounded-lg transition-colors" title="Notifications">
+                <Bell size={20} className="text-neutral-600" />
               </button>
 
               {/* User Menu */}
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex items-center gap-3 px-3 py-2 hover:bg-neutral-50 rounded-lg transition-colors"
                 >
-                  <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                    <UserCircle className="icon-sm text-white" />
+                  <div className="w-10 h-10 bg-orange-600 rounded-full flex items-center justify-center">
+                    <UserCircle size={20} className="text-white" />
                   </div>
                   <div className="hidden md:block text-left">
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-sm font-semibold text-neutral-900">
                       {user?.firstName} {user?.lastName}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-neutral-600">
                       {user?.email || 'demo@enterprise-docs.com'}
                     </p>
                   </div>
-                  <ChevronDown className={`icon-sm text-gray-400 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown size={16} className={cn(
+                    "text-neutral-400 transition-transform",
+                    { "rotate-180": userMenuOpen }
+                  )} />
                 </button>
 
                 {/* User Dropdown Menu */}
                 {userMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-neutral-200 py-2 z-50">
                     {/* User Info */}
-                    <div className="px-4 py-3 border-b border-gray-100">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-                          <UserCircle className="icon-md text-white" />
+                    <div className="px-4 py-3 border-b border-neutral-100">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-orange-600 rounded-full flex items-center justify-center">
+                          <UserCircle size={24} className="text-white" />
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900">
+                          <p className="font-semibold text-neutral-900">
                             {user?.firstName} {user?.lastName}
                           </p>
-                          <p className="text-sm text-gray-500">
+                          <p className="text-sm text-neutral-600">
                             {user?.email || 'demo@enterprise-docs.com'}
                           </p>
-                          <p className="text-xs text-orange-600 font-medium">
+                          <p className="text-xs text-orange-600 font-semibold">
                             Chef Professional
                           </p>
                         </div>
@@ -407,29 +467,29 @@ export default function AppLayout({ children }: AppLayoutProps) {
                     <div className="py-2">
                       <Link
                         to="/settings"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        className="flex items-center gap-3 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors"
                         onClick={() => setUserMenuOpen(false)}
                       >
-                        <Settings className="icon-sm mr-3" />
+                        <Settings size={16} />
                         Account Settings
                       </Link>
                       <Link
                         to="/profile"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        className="flex items-center gap-3 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors"
                         onClick={() => setUserMenuOpen(false)}
                       >
-                        <User className="icon-sm mr-3" />
+                        <User size={16} />
                         Profile
                       </Link>
                     </div>
 
                     {/* Logout */}
-                    <div className="border-t border-gray-100 mt-2 pt-2">
+                    <div className="border-t border-neutral-100 mt-2 pt-2">
                       <button
                         onClick={handleLogout}
-                        className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                        className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                       >
-                        <LogOut className="icon-sm mr-3" />
+                        <LogOut size={16} />
                         Sign Out
                       </button>
                     </div>
@@ -437,19 +497,17 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 )}
               </div>
 
-              <span className="connection-status hidden md:flex">
-                <span className="status-dot"></span>
+              <div className="hidden md:flex items-center gap-2 px-3 py-2 bg-green-50 text-green-700 rounded-full text-sm font-medium">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                 Connected
-              </span>
+              </div>
             </div>
           </div>
         </header>
 
-        {/* Page Content */}
-        <main className="app-content">
-          <div className="content-container">
-            {children}
-          </div>
+        {/* Page Content - This is where children are rendered */}
+        <main className="flex-1 overflow-hidden">
+          {children}
         </main>
       </div>
     </div>

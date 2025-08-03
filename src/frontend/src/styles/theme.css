@@ -30,32 +30,72 @@
   --font-4xl: 2.25rem;
   --font-5xl: 3rem;
   
-  /* Colors - Light Theme */
+  /* Colors - Light Theme (Pantry Design System) */
   --color-bg-primary: #ffffff;
-  --color-bg-secondary: #f8fafc;
-  --color-bg-tertiary: #f1f5f9;
-  --color-bg-accent: #e2e8f0;
+  --color-bg-secondary: #fafafa;
+  --color-bg-tertiary: #f4f4f5;
+  --color-bg-accent: #e4e4e7;
   
-  --color-text-primary: #0f172a;
-  --color-text-secondary: #475569;
-  --color-text-tertiary: #64748b;
-  --color-text-muted: #94a3b8;
+  --color-text-primary: #18181b;
+  --color-text-secondary: #52525b;
+  --color-text-tertiary: #71717a;
+  --color-text-muted: #a1a1aa;
   
-  --color-border-primary: #e2e8f0;
-  --color-border-secondary: #cbd5e1;
-  --color-border-focus: #3b82f6;
+  --color-border-primary: #e4e4e7;
+  --color-border-secondary: #d4d4d8;
+  --color-border-focus: #f3761a;
   
-  --color-brand-primary: #3b82f6;
-  --color-brand-secondary: #2563eb;
-  --color-brand-light: #dbeafe;
-  --color-brand-dark: #1e40af;
+  /* Orange Brand Colors (Pantry Design System) */
+  --color-brand-primary: #f3761a;
+  --color-brand-secondary: #e45a0f;
+  --color-brand-light: #fef7ee;
+  --color-brand-dark: #bd450f;
   
-  --color-success: #10b981;
-  --color-success-light: #d1fae5;
+  /* Primary Orange Scale */
+  --color-orange-50: #fef7ee;
+  --color-orange-100: #fdedd3;
+  --color-orange-200: #fbd6a5;
+  --color-orange-300: #f8b96d;
+  --color-orange-400: #f59332;
+  --color-orange-500: #f3761a;
+  --color-orange-600: #e45a0f;
+  --color-orange-700: #bd450f;
+  --color-orange-800: #973815;
+  --color-orange-900: #7a2f14;
+  
+  /* Neutral Scale */
+  --color-neutral-0: #ffffff;
+  --color-neutral-50: #fafafa;
+  --color-neutral-100: #f4f4f5;
+  --color-neutral-200: #e4e4e7;
+  --color-neutral-300: #d4d4d8;
+  --color-neutral-400: #a1a1aa;
+  --color-neutral-500: #71717a;
+  --color-neutral-600: #52525b;
+  --color-neutral-700: #3f3f46;
+  --color-neutral-800: #27272a;
+  --color-neutral-900: #18181b;
+  
+  /* Semantic Colors */
+  --color-success: #22c55e;
+  --color-success-light: #f0fdf4;
+  --color-success-600: #16a34a;
+  --color-success-700: #15803d;
+  
   --color-warning: #f59e0b;
-  --color-warning-light: #fef3c7;
+  --color-warning-light: #fffbeb;
+  --color-warning-600: #d97706;
+  --color-warning-700: #b45309;
+  
   --color-error: #ef4444;
-  --color-error-light: #fee2e2;
+  --color-error-light: #fef2f2;
+  --color-error-600: #dc2626;
+  --color-error-700: #b91c1c;
+  
+  --color-info: #3b82f6;
+  --color-info-light: #eff6ff;
+  --color-info-600: #2563eb;
+  --color-info-700: #1d4ed8;
   
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
@@ -86,25 +126,28 @@
   --z-notification: 1080;
 }
 
-/* Dark Theme */
+/* Dark Theme (Pantry Design System) */
 .dark {
-  --color-bg-primary: #0f172a;
-  --color-bg-secondary: #1e293b;
-  --color-bg-tertiary: #334155;
-  --color-bg-accent: #475569;
+  --color-bg-primary: #09090b;
+  --color-bg-secondary: #18181b;
+  --color-bg-tertiary: #27272a;
+  --color-bg-accent: #3f3f46;
   
-  --color-text-primary: #f1f5f9;
-  --color-text-secondary: #cbd5e1;
-  --color-text-tertiary: #94a3b8;
-  --color-text-muted: #64748b;
+  --color-text-primary: #fafafa;
+  --color-text-secondary: #d4d4d8;
+  --color-text-tertiary: #a1a1aa;
+  --color-text-muted: #71717a;
   
-  --color-border-primary: #334155;
-  --color-border-secondary: #475569;
+  --color-border-primary: #27272a;
+  --color-border-secondary: #3f3f46;
+  --color-border-focus: #f3761a;
   
-  --color-brand-light: #1e3a8a;
-  --color-success-light: #064e3b;
+  /* Orange Brand Colors remain the same in dark mode */
+  --color-brand-light: #421604;
+  --color-success-light: #14532d;
   --color-warning-light: #78350f;
   --color-error-light: #7f1d1d;
+  --color-info-light: #1e3a8a;
 }
 
 /* Layout Classes */
@@ -214,10 +257,15 @@
   padding: 0 var(--content-padding-x);
 }
 
-/* Responsive */
+/* Mobile Navigation Improvements */
 @media (max-width: 1024px) {
+  :root {
+    --sidebar-width: 320px; /* Wider on mobile for better touch targets */
+  }
+  
   .app-sidebar {
     transform: translateX(-100%);
+    box-shadow: var(--shadow-xl);
   }
   
   .app-sidebar.open {
@@ -231,8 +279,30 @@
   .sidebar-overlay {
     position: fixed;
     inset: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.6);
     z-index: calc(var(--z-fixed) - 1);
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  /* Enhanced mobile nav items */
+  .nav-item {
+    min-height: 56px; /* Larger touch targets */
+    padding: var(--space-lg) var(--space-lg);
+    margin-bottom: var(--space-sm);
+    font-size: var(--font-base);
+  }
+  
+  .nav-item .nav-icon {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .nav-badge {
+    font-size: var(--font-xs);
+    padding: 4px 8px;
+    min-width: 20px;
+    text-align: center;
   }
 
   /* Disable collapsed state on mobile */
@@ -246,6 +316,37 @@
   .app-sidebar.collapsed .user-info {
     opacity: 1;
     width: auto;
+  }
+  
+  /* Mobile header improvements */
+  .app-header {
+    padding: 0 var(--space-md);
+    height: 64px; /* Slightly smaller on mobile */
+  }
+  
+  .header-menu-btn {
+    padding: var(--space-md);
+    min-width: 44px;
+    min-height: 44px;
+  }
+  
+  /* Mobile sidebar header */
+  .sidebar-header {
+    padding: var(--space-lg);
+    border-bottom: 2px solid var(--color-border-primary);
+  }
+  
+  .logo-icon {
+    width: 56px;
+    height: 56px;
+  }
+  
+  .logo-title {
+    font-size: var(--font-lg);
+  }
+  
+  .logo-subtitle {
+    font-size: var(--font-sm);
   }
 }
 

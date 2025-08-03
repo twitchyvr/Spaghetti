@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
-import '../styles/dashboard.css';
 import { 
   Users, 
   FileText, 
@@ -14,8 +13,20 @@ import {
   Database,
   Server,
   HardDrive,
-  AlertCircle
+  AlertCircle,
+  Sparkles,
+  TrendingUp
 } from 'lucide-react';
+
+// Import Pantry Design System Components
+import { 
+  Card, 
+  CardHeader, 
+  CardContent, 
+  StatsCard 
+} from '../components/pantry/Card';
+import { Button } from '../components/pantry/Button';
+import { Alert } from '../components/pantry/Alert';
 
 interface DashboardStats {
   totalDocuments: number;
@@ -217,177 +228,279 @@ export default function Dashboard() {
 
   if (isLoading) {
     return (
-      <div className="dashboard">
-        <div className="loading-container">
-          <div className="loading-spinner">
-            <Activity className="loading-icon animate-spin" />
+      <div className="min-h-screen bg-neutral-50 p-6">
+        <div className="flex flex-col items-center justify-center min-h-96 space-y-4">
+          <div className="flex items-center justify-center w-12 h-12 bg-orange-100 rounded-full">
+            <Activity className="w-6 h-6 text-orange-600 animate-spin" />
           </div>
-          <p className="loading-text">Loading dashboard data...</p>
+          <p className="text-lg font-medium text-neutral-700">Loading dashboard data...</p>
+          <p className="text-sm text-neutral-500">Please wait while we fetch your latest information</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="dashboard">
-      {/* Error Alert */}
-      {error && (
-        <div className="alert alert-error">
-          <AlertCircle size={20} />
-          <span>{error}</span>
-          <button onClick={fetchDashboardData} className="btn btn-sm">
-            Retry
-          </button>
-        </div>
-      )}
+    <div className="min-h-screen bg-neutral-50">
+      <div className="max-w-7xl mx-auto p-6 space-y-8">
+        {/* Error Alert */}
+        {error && (
+          <Alert 
+            variant="error" 
+            dismissible 
+            title="Connection Error"
+            action={
+              <Button variant="outline" size="sm" onClick={fetchDashboardData}>
+                Retry
+              </Button>
+            }
+          >
+            {error}
+          </Alert>
+        )}
 
-      {/* Welcome Section */}
-      <section className="dashboard-header">
-        <div className="header-content">
-          <div>
-            <h1 className="dashboard-title">Welcome back, {user?.firstName || 'User'}</h1>
-            <p className="dashboard-subtitle">
-              {hasSampleData 
-                ? "Here's what's happening with your documents today."
-                : "Get started by seeding sample data or creating your first document."}
-            </p>
+        {/* Welcome Section */}
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center w-12 h-12 bg-orange-100 rounded-xl">
+                <Sparkles className="w-6 h-6 text-orange-600" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-neutral-900">
+                  Welcome back, {user?.firstName || 'User'}
+                </h1>
+                <p className="text-neutral-600 text-lg">
+                  {hasSampleData 
+                    ? "Here's what's happening with your documents today."
+                    : "Get started by seeding sample data or creating your first document."}
+                </p>
+              </div>
+            </div>
           </div>
-          <div className="header-actions">
+          
+          <div className="flex flex-wrap gap-3">
             {!hasSampleData && (
-              <button className="btn btn-secondary" onClick={handleSeedData}>
-                <Database size={20} />
+              <Button 
+                variant="outline" 
+                icon={<Database size={20} />}
+                onClick={handleSeedData}
+                loading={isLoading}
+              >
                 Seed Sample Data
-              </button>
+              </Button>
             )}
-            <button className="btn btn-secondary">
-              <Download size={20} />
+            <Button 
+              variant="secondary" 
+              icon={<Download size={20} />}
+            >
               Export Report
-            </button>
-            <button className="btn btn-primary">
-              <Plus size={20} />
+            </Button>
+            <Button 
+              variant="primary" 
+              icon={<Plus size={20} />}
+            >
               New Document
-            </button>
+            </Button>
           </div>
         </div>
-      </section>
 
-      {/* System Health Status */}
-      {stats && (
-        <section className="health-section">
-          <div className="health-status card">
-            <h3 className="health-title">System Status</h3>
-            <div className="health-indicators">
-              <div className={`health-item ${stats.systemHealth.database ? 'healthy' : 'unhealthy'}`}>
-                <Database size={16} />
-                <span>Database</span>
-                <span className="status-dot"></span>
-              </div>
-              <div className={`health-item ${stats.systemHealth.redis ? 'healthy' : 'unhealthy'}`}>
-                <Server size={16} />
-                <span>Cache</span>
-                <span className="status-dot"></span>
-              </div>
-              <div className={`health-item ${stats.systemHealth.elasticsearch ? 'healthy' : 'unhealthy'}`}>
-                <Activity size={16} />
-                <span>Search</span>
-                <span className="status-dot"></span>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Metrics Grid */}
-      <section className="metrics-section">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4">
-          {metrics.map((metric) => (
-            <div key={metric.id} className="metric-card card">
-              <div className="metric-header">
-                <div className={`metric-icon metric-icon-${metric.color}`}>
-                  {metric.icon}
+        {/* System Health Status */}
+        {stats && (
+          <Card className="p-6">
+            <CardHeader title="System Status" className="pb-4" />
+            <CardContent className="pt-0">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className={`flex items-center gap-3 p-4 rounded-lg border-2 transition-colors ${
+                  stats.systemHealth.database 
+                    ? 'border-green-200 bg-green-50' 
+                    : 'border-red-200 bg-red-50'
+                }`}>
+                  <Database className={`w-5 h-5 ${
+                    stats.systemHealth.database ? 'text-green-600' : 'text-red-600'
+                  }`} />
+                  <div className="flex-1">
+                    <p className="font-medium text-neutral-900">Database</p>
+                    <p className={`text-sm ${
+                      stats.systemHealth.database ? 'text-green-600' : 'text-red-600'
+                    }`}>
+                      {stats.systemHealth.database ? 'Operational' : 'Offline'}
+                    </p>
+                  </div>
+                  <div className={`w-3 h-3 rounded-full ${
+                    stats.systemHealth.database ? 'bg-green-500' : 'bg-red-500'
+                  }`} />
                 </div>
-                {formatChange(metric.change, metric.changeType)}
+                
+                <div className={`flex items-center gap-3 p-4 rounded-lg border-2 transition-colors ${
+                  stats.systemHealth.redis 
+                    ? 'border-green-200 bg-green-50' 
+                    : 'border-red-200 bg-red-50'
+                }`}>
+                  <Server className={`w-5 h-5 ${
+                    stats.systemHealth.redis ? 'text-green-600' : 'text-red-600'
+                  }`} />
+                  <div className="flex-1">
+                    <p className="font-medium text-neutral-900">Cache</p>
+                    <p className={`text-sm ${
+                      stats.systemHealth.redis ? 'text-green-600' : 'text-red-600'
+                    }`}>
+                      {stats.systemHealth.redis ? 'Operational' : 'Offline'}
+                    </p>
+                  </div>
+                  <div className={`w-3 h-3 rounded-full ${
+                    stats.systemHealth.redis ? 'bg-green-500' : 'bg-red-500'
+                  }`} />
+                </div>
+                
+                <div className={`flex items-center gap-3 p-4 rounded-lg border-2 transition-colors ${
+                  stats.systemHealth.elasticsearch 
+                    ? 'border-green-200 bg-green-50' 
+                    : 'border-red-200 bg-red-50'
+                }`}>
+                  <Activity className={`w-5 h-5 ${
+                    stats.systemHealth.elasticsearch ? 'text-green-600' : 'text-red-600'
+                  }`} />
+                  <div className="flex-1">
+                    <p className="font-medium text-neutral-900">Search</p>
+                    <p className={`text-sm ${
+                      stats.systemHealth.elasticsearch ? 'text-green-600' : 'text-red-600'
+                    }`}>
+                      {stats.systemHealth.elasticsearch ? 'Operational' : 'Offline'}
+                    </p>
+                  </div>
+                  <div className={`w-3 h-3 rounded-full ${
+                    stats.systemHealth.elasticsearch ? 'bg-green-500' : 'bg-red-500'
+                  }`} />
+                </div>
               </div>
-              <div className="metric-content">
-                <h3 className="metric-value">{metric.value}</h3>
-                <p className="metric-title">{metric.title}</p>
-                {metric.description && (
-                  <p className="metric-description">{metric.description}</p>
-                )}
-              </div>
-            </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Metrics Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {metrics.map((metric) => (
+            <StatsCard
+              key={metric.id}
+              title={metric.title}
+              value={metric.value}
+              change={
+                metric.change && metric.changeType
+                  ? {
+                      value: `${metric.change}%`,
+                      type: metric.changeType === 'positive' 
+                        ? 'increase' 
+                        : metric.changeType === 'negative' 
+                        ? 'decrease' 
+                        : 'neutral'
+                    }
+                  : undefined
+              }
+              icon={metric.icon}
+              className="hover:shadow-lg transition-shadow duration-200"
+            />
           ))}
         </div>
-      </section>
 
-      {/* Quick Stats */}
-      {stats && (
-        <section className="stats-section">
-          <h2 className="section-title">Platform Overview</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4">
-            <div className="stat-card">
-              <div className="stat-icon">
-                <FileText size={20} />
-              </div>
-              <div className="stat-content">
-                <p className="stat-value">{stats.totalDocuments}</p>
-                <p className="stat-label">Total Documents</p>
-              </div>
+        {/* Platform Overview */}
+        {stats && (
+          <div className="space-y-6">
+            <div className="flex items-center gap-3">
+              <TrendingUp className="w-6 h-6 text-orange-600" />
+              <h2 className="text-2xl font-bold text-neutral-900">Platform Overview</h2>
             </div>
-            <div className="stat-card">
-              <div className="stat-icon">
-                <Users size={20} />
-              </div>
-              <div className="stat-content">
-                <p className="stat-value">{stats.totalUsers}</p>
-                <p className="stat-label">Platform Users</p>
-              </div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-icon">
-                <Target size={20} />
-              </div>
-              <div className="stat-content">
-                <p className="stat-value">{stats.activeProjects}</p>
-                <p className="stat-label">Active Projects</p>
-              </div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-icon">
-                <Server size={20} />
-              </div>
-              <div className="stat-content">
-                <p className="stat-value">{stats.totalTenants}</p>
-                <p className="stat-label">Organizations</p>
-              </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card className="p-6 hover:shadow-lg transition-shadow duration-200">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-neutral-600">Total Documents</p>
+                    <p className="text-3xl font-bold text-neutral-900">{stats.totalDocuments}</p>
+                  </div>
+                  <div className="flex items-center justify-center w-12 h-12 bg-orange-100 rounded-xl">
+                    <FileText className="w-6 h-6 text-orange-600" />
+                  </div>
+                </div>
+              </Card>
+              
+              <Card className="p-6 hover:shadow-lg transition-shadow duration-200">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-neutral-600">Platform Users</p>
+                    <p className="text-3xl font-bold text-neutral-900">{stats.totalUsers}</p>
+                  </div>
+                  <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-xl">
+                    <Users className="w-6 h-6 text-blue-600" />
+                  </div>
+                </div>
+              </Card>
+              
+              <Card className="p-6 hover:shadow-lg transition-shadow duration-200">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-neutral-600">Active Projects</p>
+                    <p className="text-3xl font-bold text-neutral-900">{stats.activeProjects}</p>
+                  </div>
+                  <div className="flex items-center justify-center w-12 h-12 bg-green-100 rounded-xl">
+                    <Target className="w-6 h-6 text-green-600" />
+                  </div>
+                </div>
+              </Card>
+              
+              <Card className="p-6 hover:shadow-lg transition-shadow duration-200">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-neutral-600">Organizations</p>
+                    <p className="text-3xl font-bold text-neutral-900">{stats.totalTenants}</p>
+                  </div>
+                  <div className="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-xl">
+                    <Server className="w-6 h-6 text-purple-600" />
+                  </div>
+                </div>
+              </Card>
             </div>
           </div>
-        </section>
-      )}
+        )}
 
-      {/* Empty State */}
-      {!hasSampleData && !isLoading && (
-        <section className="empty-state">
-          <div className="empty-state-content card">
-            <Database className="empty-state-icon" />
-            <h3 className="empty-state-title">No Data Available</h3>
-            <p className="empty-state-text">
-              Your database is empty. Seed sample data to see the dashboard in action,
-              or start creating documents to populate your platform.
-            </p>
-            <div className="empty-state-actions">
-              <button className="btn btn-primary" onClick={handleSeedData}>
-                <Database size={20} />
-                Seed Sample Data
-              </button>
-              <button className="btn btn-secondary">
-                <Plus size={20} />
-                Create First Document
-              </button>
+        {/* Empty State */}
+        {!hasSampleData && !isLoading && (
+          <Card className="p-12 text-center">
+            <div className="flex flex-col items-center space-y-6 max-w-md mx-auto">
+              <div className="flex items-center justify-center w-20 h-20 bg-neutral-100 rounded-2xl">
+                <Database className="w-10 h-10 text-neutral-400" />
+              </div>
+              
+              <div className="space-y-2">
+                <h3 className="text-2xl font-bold text-neutral-900">No Data Available</h3>
+                <p className="text-neutral-600">
+                  Your database is empty. Seed sample data to see the dashboard in action,
+                  or start creating documents to populate your platform.
+                </p>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                <Button 
+                  variant="primary" 
+                  icon={<Database size={20} />}
+                  onClick={handleSeedData}
+                  loading={isLoading}
+                  className="w-full sm:w-auto"
+                >
+                  Seed Sample Data
+                </Button>
+                <Button 
+                  variant="secondary" 
+                  icon={<Plus size={20} />}
+                  className="w-full sm:w-auto"
+                >
+                  Create First Document
+                </Button>
+              </div>
             </div>
-          </div>
-        </section>
-      )}
+          </Card>
+        )}
+      </div>
     </div>
   );
 }
