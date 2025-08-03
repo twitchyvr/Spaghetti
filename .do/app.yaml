@@ -24,12 +24,12 @@ services:
   instance_size_slug: basic-xxs
   http_port: 8080
   health_check:
-    http_path: /api/health
-    initial_delay_seconds: 30
-    period_seconds: 10
-    timeout_seconds: 5
+    http_path: /health
+    initial_delay_seconds: 60
+    period_seconds: 15
+    timeout_seconds: 10
     success_threshold: 1
-    failure_threshold: 3
+    failure_threshold: 5
   build_command: dotnet restore && dotnet publish -c Release -o out
   run_command: dotnet out/EnterpriseDocsCore.API.dll
   envs:
@@ -49,6 +49,10 @@ services:
     value: "EnterpriseDocsClient"
   - key: Storage__Provider
     value: "local"
+  - key: Logging__LogLevel__Default
+    value: "Information"
+  - key: Logging__LogLevel__Microsoft.AspNetCore
+    value: "Information"
 
 # Frontend service with catch-all route MUST be listed last
 - name: frontend

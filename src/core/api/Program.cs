@@ -238,6 +238,13 @@ try
     var urls = builder.Configuration["ASPNETCORE_URLS"] ?? "http://0.0.0.0:8080";
     Console.WriteLine($"Configured URLs: {urls}");
     
+    // Add startup delay for DigitalOcean initialization
+    if (app.Environment.IsProduction())
+    {
+        Console.WriteLine("Production environment detected - applying startup delay...");
+        await Task.Delay(5000); // 5 second delay
+    }
+    
     Console.WriteLine("Available endpoints:");
     Console.WriteLine("- GET /health (Health check endpoint)");
     Console.WriteLine("- GET /api/health (API Health check endpoint)");
@@ -247,6 +254,9 @@ try
     Console.WriteLine("- GET /api/clients (Client management endpoint)");
     Console.WriteLine("- GET /api/documents (Documents endpoint)");
     Console.WriteLine("=== API STARTUP COMPLETE ===");
+    
+    // Force flush console output
+    Console.Out.Flush();
     
     app.Run();
 }
