@@ -1,8 +1,75 @@
-# CLAUDE.md
+# AI Development Guide: Adhering to the Single Source of Truth
+
+##  Core Directive: Your Primary Source of Truth
+
+Your primary responsibility is to generate code and documentation that **strictly adheres** to the specifications defined in the **`project-architecture.yaml`** file, located in the project root. This file is the definitive source of truth for the entire platform.
+
+**ALWAYS consult this YAML file before generating any code or making any technical decisions.**
+
+## Why This File Exists
+
+The project previously faced challenges with UI/UX inconsistency, unpolished interfaces, and unclear API contracts. The `project-architecture.yaml` file was created to solve these problems by providing a clear, structured, and authoritative specification for all development. Your goal is to use it to build a polished, professional, and consistent enterprise-level application.
+
+## Your Development Workflow
+
+On every task you are assigned, you MUST follow this sequence:
+
+1.  **Consult the YAML**: Before writing any code, locate the relevant sections in `project-architecture.yaml`.
+    -   For **UI/UX tasks**, review the `designSystem` section. Pay close attention to `componentLibrary`, `principles`, and `terminology`.
+    -   For **Backend/API tasks**, review the `technologyStack` and `architecture` sections.
+    -   To understand the current context, review the active sprint under `sprintLifecycle`.
+
+2.  **Verify & Ask for Clarification**: If a user request is ambiguous or contradicts the YAML, you MUST state the conflict and ask for clarification. Do NOT infer requirements that are not specified.
+
+3.  **Implement to Specification**: Generate code that perfectly matches the specifications.
+    -   Use the exact component names and purposes defined in `designSystem.componentLibrary`.
+    -   Follow the styling philosophy and use the correct product vernacular (e.g., "Noodles", "The Kitchen").
+    -   Ensure API endpoints and data structures match the defined architecture.
+
+4.  **Adhere to Project Standards**: All generated code must follow the standards defined in the YAML under `developmentWorkflow` and `qualityAssurance`. This includes commit message formats, testing coverage, and performance targets.
+
+5.  **Propose Architectural Changes**: If a user request requires a change to the established architecture (e.g., adding a new core component to the design system, changing a key technology), your primary output should be a **proposal to update `project-architecture.yaml`**. Do not implement the code until the architectural change is approved and merged into the source of truth.
+
+## How to Use `project-architecture.yaml`
+
+-   **To fix the "horrendous" UI**: Use the `designSystem` section as your guide. The `principles` should inform your design choices. The `componentLibrary` provides the building blocks. Generate beautiful, responsive, and accessible components that match the "Aesthetic Professionalism" principle.
+-   **To clarify the API**: Use the `architecture.keyPatterns` and `technologyStack.backend` sections to understand how the API should be structured. All new endpoints should follow these established patterns.
+-   **To build new features**: Look at the `sprintLifecycle` to find the current sprint's goals. Then, build the feature according to the `architecture` and `designSystem` specifications.
+
+## Critical Rules of Engagement
+
+-   **ALWAYS** use `project-architecture.yaml` as your primary reference.
+-   **NEVER** invent new design patterns or components that are not defined in the `designSystem`. Propose them as an update to the YAML first.
+-   **ALWAYS** write code that meets the `performanceMetrics` and `qualityAssurance` targets.
+-   **NEVER** generate code that violates the `securityAndCompliance` standards.
+-   **YOUR GOAL** is to translate the enterprise-level vision and architecture defined in the YAML into high-quality, production-ready code.
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-Your primary responsibility is ensuring agents maintain the INSTRUCTIONS.md file that serves as the operational guide for all other agents in the project ecosystem, including the `developer` agent, `project-manager` agent, `ui-designer` agent, `scrum-master` agent,and `qa-engineer` agent, as well as others that we might create later like the `gitops-engineer` agent.
+## Your Primary Responsibility: Three-Tier Documentation System
+
+You are responsible for maintaining the **Three-Tier Documentation Architecture** that provides optimal context for all agents:
+
+### TIER 1: Living Core (Always Accessible)
+Your default context includes these root directory files:
+- `project-architecture.yaml` - **SINGLE SOURCE OF TRUTH** for all project configuration
+- `INSTRUCTIONS.md` - Project context and agent coordination
+- `CLAUDE.md` - This file - Your operational manual
+- `README.md` - Project front door and comprehensive overview  
+- `CHANGELOG.md` - Release notes and version history
+
+### TIER 2: Working Sprint (`docs/` directory)
+Current sprint planning and active decisions only - included in default context:
+- Documentation standards and maintenance procedures
+- Active UI design specifications and component library
+- Current sprint coordination framework
+- Active release information
+
+### TIER 3: Archive (`docs/archive/` directory)
+Historical documentation accessed only when explicitly requested:
+- Sprint-based archives (`sprint-2/`, `sprint-3/`, `sprint-5/`, `sprint-6/`, `sprint-8/`, `sprint-9/`)
+- General historical documentation
+- Obsolete specifications and deprecated features
 
 ## Project Overview
 

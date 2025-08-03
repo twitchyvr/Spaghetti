@@ -1,0 +1,220 @@
+projectConfiguration:
+  projectInfo:
+    name: "Spaghetti Platform"
+    visionStatement: "A comprehensive multi-level enterprise platform that enables large organizations to manage documentation across multiple subsidiaries, divisions, and business units."
+    version: "0.0.15-alpha"
+    repositoryUrl: "https://github.com/twitchyvr/Spaghetti"
+  platformStatus:
+    currentSprint: "Sprint 6 - Advanced Collaboration Infrastructure"
+    overallStatus: "Active Development"
+    liveUrl: "https://spaghetti-platform-drgev.ondigitalocean.app/"
+    lastDeployment:
+      timestamp: "2025-08-01T00:00:00Z"
+      commitHash: "db52ae2"
+    buildStatus:
+      status: "Success"
+      duration: "~966ms"
+  technologyStack:
+    backend:
+      language: "C#"
+      framework: ".NET 8"
+      api: "ASP.NET Core Web API"
+    frontend:
+      language: "TypeScript"
+      framework: "React 18"
+      buildTool: "Vite"
+    database:
+      type: "PostgreSQL"
+      orm: "Entity Framework Core"
+    search:
+      engine: "Elasticsearch"
+    cache:
+      engine: "Redis"
+    realtime:
+      engine: "SignalR"
+    containerization:
+      engine: "Docker"
+      orchestration: "Docker Compose"
+      deploymentPlatform: "DigitalOcean App Platform"
+  architecture:
+    multiTierModel:
+      platformAdmin:
+        purpose: "Manage enterprise client relationships and platform operations."
+        targetUsers: ["Platform Developers", "Sales", "Customer Success"]
+      clientAdmin:
+        purpose: "Enterprise clients managing their organizational ecosystem."
+        targetUsers: ["Client Executives", "IT Directors", "Admin Teams"]
+      endUser:
+        purpose: "Day-to-day document creation and collaboration within tenants."
+        targetUsers: ["Lawyers", "Consultants", "Employees", "Content Creators"]
+      publicPortal:
+        purpose: "Serve public documentation with access controls and SEO optimization."
+        targetUsers: ["Public Visitors", "Prospective Clients", "Guest Users"]
+    keyPatterns:
+      - "Multi-Tenant Architecture with Row-Level Security"
+      - "Clean Architecture"
+      - "Repository Pattern with Unit of Work"
+      - "API Gateway"
+      - "Progressive Web App (PWA)"
+    dataModel:
+      strategy: "Code-First with Entity Framework Migrations"
+      primaryKeys: "GUIDs for distributed environments"
+  designSystem:
+    name: "The Spaghetti Philosophy"
+    principles:
+      - "Structured Fluidity"
+      - "Clarity & Precision"
+      - "Aesthetic Professionalism"
+      - "Scalable Intuition"
+      - "Security & Auditability by Design"
+    componentLibraryName: "The Pantry"
+    componentLibrary:
+      - name: "TopNav"
+        purpose: "Primary navigation bar with role-based menu items, tenant switching."
+      - name: "SideNav"
+        purpose: "Collapsible secondary navigation for deep content organization."
+      - name: "DataTable"
+        purpose: "Structured data display with enterprise features like sorting, filtering, and export."
+      - name: "DocumentCard"
+        purpose: "Visual preview of documents with status indicators and quick actions."
+      - name: "Al Dente Editor"
+        purpose: "The rich text editing component for document creation, supporting real-time collaboration."
+    terminology:
+      Noodles: "Individual documents"
+      Plates: "Collections or groups of related documents"
+      TheKitchen: "Administrative interface for system management"
+      Chefs: "Administrative roles with system management privileges"
+      Diners: "End users who consume and interact with documents"
+      Stewards: "Content maintainers and document managers"
+  developmentWorkflow:
+    branchingStrategy:
+      main: "Protected. Represents production. Every merge triggers an automatic deployment to DigitalOcean."
+      feature: "Used for all new development. Format: `type/scope/description` (e.g., `feature/ui/add-collab-editor`)."
+      hotfix: "Used for urgent production fixes, merging directly into main."
+    commitStandards:
+      format: "Conventional Commits: `type(scope): subject`."
+      footer: "Must include AI attribution footer: `Co-Authored-By: Claude <noreply@anthropic.com>`"
+    ciCdPipeline:
+      platform: "DigitalOcean App Platform via GitHub Actions"
+      trigger: "Push to main branch"
+      buildTime: "~30-45 seconds"
+      qualityGates: ["Unit Tests", "TypeScript Compilation", "Security Scan", "Build Verification"]
+    localSetupInstructions: "Run `docker-compose up -d`, then run `dotnet ef database update --project src/core/infrastructure`, then run `npm install` and `npm run dev` in the `src/frontend` directory."
+  qualityAssurance:
+    testingPyramid:
+      unitTests: 70
+      integrationTests: 20
+      e2eTests: 10
+    tools:
+      backend: ["xUnit", "Moq", "FluentAssertions", "NBomber"]
+      frontend: ["Vitest", "@testing-library/react", "Playwright"]
+    qualityGates:
+      codeCoverage:
+        target: ">90%"
+        enforced: true
+      performance:
+        apiResponseTime: "<200ms"
+        pageLoadTime: "<2s"
+        buildTime: "<2s"
+      security:
+        vulnerabilities: "0 critical"
+  securityAndCompliance:
+    authentication:
+      primary: "JWT with .NET Identity"
+      ssoIntegration: ["Azure AD (planned)", "Auth0 (planned)"]
+    dataProtection:
+      atRest: "AES-256 Encryption"
+      inTransit: "TLS 1.3"
+    complianceStandards:
+      - "SOC 2 (ready)"
+      - "GDPR (ready)"
+      - "HIPAA (ready)"
+  teamAndRoles:
+    workflowModel: "9-Phase Enterprise Workflow"
+    roles:
+      - name: "team-p1-project-initializer"
+        type: "Workflow Phase Agent"
+        responsibilities: "Establishes foundational elements, stakeholder requirements, and initial planning."
+      - name: "team-p2-architecture-coordinator"
+        type: "Workflow Phase Agent"
+        responsibilities: "Orchestrates architectural design, coordinates technical leads, produces documentation."
+      - name: "team-p3-sprint-planner"
+        type: "Workflow Phase Agent"
+        responsibilities: "Segments projects into sprints, creates task assignments, generates backlogs."
+      - name: "project-manager"
+        type: "Leadership"
+        responsibilities: "Manages overall project coordination and updates INSTRUCTIONS.md."
+      - name: "backend-lead"
+        type: "Technical Lead"
+        responsibilities: "Guides server-side architecture, database design, API development, and security."
+      - name: "frontend-lead"
+        type: "Technical Lead"
+        responsibilities: "Guides UI/UX implementation, client-side performance, and frontend architecture."
+      - name: "devops-lead"
+        type: "Technical Lead"
+        responsibilities: "Manages infrastructure, CI/CD pipelines, cloud services, and deployment processes."
+  sprintLifecycle:
+    - id: "sprint-6"
+      name: "Advanced Collaboration Infrastructure"
+      goal: "Implement real-time collaborative editing, workflow automation, and Progressive Web App capabilities."
+      status: "Active"
+      storyPoints:
+        planned: 130
+      startDate: "2025-08-01"
+      endDate: "2025-08-14"
+      keyDocuments:
+        - "docs/sprint6-phase2-architecture-coordination.md"
+        - "docs/sprint6-phase3-sprint-planning.md"
+    - id: "sprint-5"
+      name: "AI-Powered Enterprise Features"
+      goal: "Deliver an AI-powered document generation system with enterprise-grade monitoring, production-ready search infrastructure, and a professional user experience."
+      status: "Completed"
+      storyPoints:
+        planned: 130
+        delivered: 130
+      startDate: "2025-07-18"
+      endDate: "2025-07-31"
+      keyDocuments:
+        - "docs/Sprint5-AI-Enterprise-Architecture-Design.md"
+        - "docs/sprint5-retrospective.md"
+  performanceMetrics:
+    - metricName: "Build Time"
+      category: "Build"
+      targetValue: "<2s"
+      currentValue: "~966ms"
+      status: "✅"
+    - metricName: "API Response Time"
+      category: "API"
+      targetValue: "<500ms"
+      currentValue: "<200ms"
+      status: "✅"
+    - metricName: "Search Performance"
+      category: "Search"
+      targetValue: "<200ms"
+      currentValue: "<100ms"
+      status: "✅"
+    - metricName: "Frontend Load Time"
+      category: "Frontend"
+      targetValue: "<2s"
+      currentValue: "<1s"
+      status: "✅"
+    - metricName: "Uptime"
+      category: "Production"
+      targetValue: ">99%"
+      currentValue: "99.9%"
+      status: "✅"
+  documentation:
+    structure:
+      - file: "INSTRUCTIONS.md"
+        purpose: "Main project context, team structure, and agent coordination guidelines."
+      - file: "CLAUDE.md"
+        purpose: "Comprehensive development standards, workflow, technology stack details, and status for AI agents."
+      - file: "README.md"
+        purpose: "High-level project overview, quick start guide, architecture summary, and key links."
+      - file: "docs/ui-design-system.md"
+        purpose: "Complete UI/UX specifications, component library ('The Pantry'), and product terminology."
+      - file: "docs/sprint-planning.md"
+        purpose: "Sprint coordination framework, story point allocation, and agent coordination."
+      - file: "project-architecture.yaml"
+        purpose: "This file. The machine-readable and human-friendly single source of truth for the project's configuration."
+    maintenanceSchedule: "Weekly for active sprint documents, quarterly for core architectural and standards documents."

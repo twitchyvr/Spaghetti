@@ -1,4 +1,35 @@
-# INSTRUCTIONS.md - Project Context
+# INSTRUCTIONS.md - Project Context & Coordination
+
+**Version**: 0.0.16-alpha
+**Status**: 🚀 Sprint 6 Active - Source of Truth Migrated to YAML
+
+## ❗ CRITICAL UPDATE: Project Source of Truth
+
+**All project stakeholders and agents MUST read this.**
+
+To resolve inconsistencies and establish a definitive guide for all development, this project now uses a master YAML configuration file as its **single source of truth**.
+
+### **Primary Reference: `project-architecture.yaml`**
+
+This file, located in the root directory, contains the complete, up-to-date configuration for every aspect of the Spaghetti Platform, including:
+
+- **Project Vision & Status**
+- **Technology Stack & Architecture**
+- **UI/UX Design System (The Pantry)**
+- **Development Workflows & Quality Gates**
+- **Security & Compliance Standards**
+- **Active Sprint Goals & Lifecycle**
+
+**Before starting any task, consult `project-architecture.yaml` first.**
+
+### AI Agent Instructions
+
+- **Developer Agents (Claude, Gemini, etc.)**: Your detailed operational instructions for implementing features based on the master YAML file are located in **`CLAUDE.md`** and **`GEMINI.md`**. You MUST adhere to the workflow defined in those files.
+- **Orchestrator Agents**: You are to use `project-architecture.yaml` to generate context and instructions for all other agents.
+
+### Team Coordination
+
+Refer to the `teamAndRoles` and `sprintLifecycle` sections within `project-architecture.yaml` for current team assignments and sprint objectives. The `docs/` directory contains detailed supplementary documentation, but **`project-architecture.yaml` is the authoritative source in case of any conflict.**
 
 ## Project Overview
 
@@ -116,16 +147,25 @@ See `/docs/ui-design-system.md` for detailed persona definitions including:
 4. **Documentation**: Update relevant docs with changes
 5. **Deployment**: Automated via git push to DigitalOcean
 
-## Key Documentation References
+## Three-Tier Documentation Architecture
 
-- **📋 Documentation Guide**: `docs/README.md` - Complete documentation navigation
-- **📝 Documentation Standards**: `docs/DOCUMENTATION-STANDARDS.md` - Guidelines and standards
-- **🗂️ Documentation Structure**: `docs/DOCUMENTATION-STRUCTURE.md` - Full documentation map
-- **🎨 UI/UX Design**: `docs/ui-design-system.md` - Complete design system
-- **🚀 Sprint Planning**: `docs/sprint-planning.md` - Sprint coordination framework
-- **📊 Project State**: `project-status.yaml` - Real-time project status
-- **⚙️ Development Guide**: `CLAUDE.md` - Development workflow and standards
+### TIER 1: Living Core (Root Directory) - Always Current
+- **🏗️ Project Architecture**: `project-architecture.yaml` - **SINGLE SOURCE OF TRUTH**
+- **📋 Project Instructions**: `INSTRUCTIONS.md` - This file - Project context and agent coordination
+- **⚙️ Development Guide**: `CLAUDE.md` - Development standards and AI operational manual
+- **📖 Project Overview**: `README.md` - Comprehensive project front door
 - **📈 Change History**: `CHANGELOG.md` - Release notes and version history
+
+### TIER 2: Working Sprint (`docs/` directory) - Current Sprint Only
+- **📝 Documentation Standards**: Current documentation guidelines and maintenance procedures
+- **🎨 UI Design System**: Active design specifications and component library  
+- **🚀 Sprint Planning**: Current sprint coordination framework
+- **📊 Active Release Notes**: Current release information and changes
+
+### TIER 3: Archive (`docs/archive/` directory) - Historical Context
+- **Sprint Archives**: Organized by sprint number for historical reference
+- **General Archive**: Historical documentation and obsolete specifications
+- **Access Pattern**: Only when explicitly requested for historical context
 
 ## Success Metrics
 
@@ -196,3 +236,4 @@ The platform has completed Sprint 6 with advanced collaboration features and is 
 - Performance optimization
 
 For current sprint status and agent assignments, refer to `project-status.yaml`.
+

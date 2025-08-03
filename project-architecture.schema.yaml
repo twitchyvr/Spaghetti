@@ -1,0 +1,289 @@
+# Schema for project-architecture.yaml
+# This file defines the structure for the master configuration of the Enterprise Documentation Platform.
+# It is designed to be the single source of truth for all project stakeholders, including developers,
+# project managers, and AI agents.
+
+# (Object, Required) The root of the project configuration.
+projectConfiguration:
+  # (Object, Required) Core metadata about the project.
+  projectInfo:
+    # (String, Required) The official name of the platform.
+    name: "Spaghetti Platform"
+    # (String, Required) A concise, high-level vision statement.
+    visionStatement: "A comprehensive multi-level enterprise platform for managing documentation across complex organizational structures."
+    # (String, Required) Current version of the platform, following SemVer.
+    version: "0.0.15-alpha"
+    # (String, Required) The URL of the source code repository.
+    repositoryUrl: "https://github.com/your-org/Spaghetti"
+
+  # (Object, Required) Real-time, dynamic status of the platform.
+  platformStatus:
+    # (String, Required) The name of the current active sprint.
+    currentSprint: "Sprint 6 - Advanced Collaboration Infrastructure"
+    # (Enum, Required) Overall system health status. [Healthy, Degraded, Maintenance, Critical]
+    overallStatus: "Active Development"
+    # (String, Required) The public URL of the live application.
+    liveUrl: "https://spaghetti-platform-drgev.ondigitalocean.app/"
+    # (Object, Required) Information about the last successful deployment.
+    lastDeployment:
+      # (String) A timestamp for the last deployment.
+      timestamp: "2025-08-01T00:00:00Z"
+      # (String) The commit hash of the deployed version.
+      commitHash: "db52ae2"
+    # (Object, Required) Key build performance metrics.
+    buildStatus:
+      # (String) The status of the last build. [Success, Failure, InProgress]
+      status: "Success"
+      # (String) The total time for the last production build.
+      duration: "~966ms"
+
+  # (Object, Required) A detailed breakdown of the technologies used.
+  technologyStack:
+    # (Object, Required) Backend technology details.
+    backend:
+      language: "C#"
+      framework: ".NET 8"
+      api: "ASP.NET Core Web API"
+    # (Object, Required) Frontend technology details.
+    frontend:
+      language: "TypeScript"
+      framework: "React 18"
+      buildTool: "Vite"
+    # (Object, Required) Database technology.
+    database:
+      type: "PostgreSQL"
+      orm: "Entity Framework Core"
+    # (Object, Required) Search technology.
+    search:
+      engine: "Elasticsearch"
+    # (Object, Required) Caching technology.
+    cache:
+      engine: "Redis"
+    # (Object, Required) Real-time communication technology.
+    realtime:
+      engine: "SignalR"
+    # (Object, Required) Infrastructure and containerization.
+    containerization:
+      engine: "Docker"
+      orchestration: "Docker Compose"
+      deploymentPlatform: "DigitalOcean App Platform"
+
+  # (Object, Required) High-level architectural design principles and patterns.
+  architecture:
+    # (Object, Required) Describes the multi-tier SaaS model.
+    multiTierModel:
+      # (Object) The highest level of administration, managed by the platform owner.
+      platformAdmin:
+        purpose: "Manage enterprise client relationships and platform operations."
+        targetUsers: ["Platform Developers", "Sales", "Customer Success"]
+      # (Object) The level for enterprise client organizations.
+      clientAdmin:
+        purpose: "Manage their organizational ecosystem of tenants."
+        targetUsers: ["Client Executives", "IT Directors"]
+      # (Object) The level for individual business units or subsidiaries.
+      endUser:
+        purpose: "Day-to-day document creation and collaboration within a tenant."
+        targetUsers: ["Lawyers", "Consultants", "Employees"]
+      # (Object) The public-facing documentation portal.
+      publicPortal:
+        purpose: "Serve public documentation with access controls."
+        targetUsers: ["Public Visitors", "Guest Users"]
+    # (List of Strings, Required) Key architectural patterns employed.
+    keyPatterns:
+      - "Multi-Tenant Architecture with Row-Level Security"
+      - "Clean Architecture"
+      - "Repository Pattern with Unit of Work"
+      - "Microservices (planned)"
+      - "API Gateway"
+      - "Event-Driven Architecture (planned)"
+    # (Object) A summary of the data model strategy.
+    dataModel:
+      strategy: "Code-First with Entity Framework Migrations"
+      primaryKeys: "GUIDs for distributed environments"
+
+  # (Object, Required) UI/UX design system specifications. Addresses the UI/UX pain points.
+  designSystem:
+    # (String) The thematic name of the design philosophy.
+    name: "The Spaghetti Philosophy"
+    # (List of Strings) Core design principles.
+    principles:
+      - "Structured Fluidity"
+      - "Clarity & Precision"
+      - "Aesthetic Professionalism"
+      - "Scalable Intuition"
+    # (String) The thematic name of the component library.
+    componentLibraryName: "The Pantry"
+    # (List of Objects) An overview of core components.
+    componentLibrary:
+      - name: "TopNav"
+        purpose: "Primary navigation with role-based items and tenant switching."
+      - name: "SideNav"
+        purpose: "Collapsible secondary navigation with context-aware sections."
+      - name: "DataTable"
+        purpose: "Data display with sorting, filtering, pagination, and export."
+      - name: "Al Dente Editor"
+        purpose: "Rich text editor with collaboration and version tracking."
+    # (Object, Required) The official product terminology/vernacular.
+    terminology:
+      Noodles: "Individual documents"
+      Plates: "Collections of documents"
+      TheKitchen: "Administrative interface"
+      Chefs: "Administrative roles"
+      Diners: "End users"
+      Stewards: "Content maintainers"
+
+  # (Object, Required) Guidelines for development processes.
+  developmentWorkflow:
+    # (Object, Required) Rules for Git branching.
+    branchingStrategy:
+      main: "Protected, represents production. Deploys on merge."
+      feature: "Used for all new development, named `type/scope/description`."
+      hotfix: "For urgent production fixes."
+    # (Object, Required) Standards for commit messages.
+    commitStandards:
+      format: "Conventional Commits: `type(scope): subject`"
+      footer: "Must include AI attribution and Co-Authored-By footer."
+    # (Object, Required) Continuous Integration / Continuous Deployment pipeline details.
+    ciCdPipeline:
+      platform: "DigitalOcean App Platform via GitHub Actions"
+      trigger: "Push to main branch"
+      buildTime: "~30-45 seconds"
+      qualityGates: ["Unit Tests", "Security Scan", "Build Verification"]
+    # (String, Required) Instructions for setting up a local development environment.
+    localSetupInstructions: "Run `docker-compose up -d`, `dotnet ef database update`, and `npm run dev` in the frontend directory."
+
+  # (Object, Required) The strategy and tools for ensuring software quality.
+  qualityAssurance:
+    # (Object, Required) Distribution of tests across different layers.
+    testingPyramid:
+      unitTests: 70
+      integrationTests: 20
+      e2eTests: 10
+    # (Object, Required) Tools used for testing.
+    tools:
+      backend: ["xUnit", "Moq", "FluentAssertions", "NBomber"]
+      frontend: ["Vitest", "@testing-library/react", "Playwright"]
+    # (Object, Required) Automated checks in the CI/CD pipeline before deployment.
+    qualityGates:
+      codeCoverage:
+        target: ">90%"
+        enforced: true
+      performance:
+        apiResponseTime: "<200ms"
+        pageLoadTime: "<2s"
+        buildTime: "<2s"
+      security:
+        vulnerabilities: "0 critical"
+
+  # (Object, Required) The approach to security and regulatory compliance.
+  securityAndCompliance:
+    # (Object, Required) User authentication methods.
+    authentication:
+      primary: "JWT with .NET Identity"
+      ssoIntegration: ["Azure AD", "Auth0 (planned)"]
+    # (Object, Required) How data is protected.
+    dataProtection:
+      atRest: "AES-256 Encryption"
+      inTransit: "TLS 1.3"
+    # (List of Strings, Required) Compliance standards the architecture is built for.
+    complianceStandards:
+      - "SOC 2 (ready)"
+      - "GDPR (ready)"
+      - "HIPAA (ready)"
+
+  # (Object, Required) Defines the team structure and roles.
+  teamAndRoles:
+    # (String) The workflow model used by the team.
+    workflowModel: "9-Phase Enterprise Workflow"
+    # (List of Objects, Required) Definition of key roles (agents).
+    roles:
+      - name: "team-p1-project-initializer"
+        type: "Workflow Phase Agent"
+        responsibilities: "Establishes foundational elements and initial planning."
+      - name: "team-p2-architecture-coordinator"
+        type: "Workflow Phase Agent"
+        responsibilities: "Orchestrates architectural design and documentation."
+      # ... other phase agents
+      - name: "project-manager"
+        type: "Leadership"
+        responsibilities: "Reads, analyzes, and updates INSTRUCTIONS.md, ensuring consistency."
+      - name: "backend-lead"
+        type: "Technical Lead"
+        responsibilities: "Provides expert guidance on server-side architecture, database, API, and security."
+      - name: "frontend-lead"
+        type: "Technical Lead"
+        responsibilities: "Provides expert guidance on UI/UX implementation and client-side architecture."
+      - name: "devops-lead"
+        type: "Technical Lead"
+        responsibilities: "Manages infrastructure, CI/CD pipelines, and cloud services."
+
+  # (List of Objects, Required) A log of all development sprints.
+  sprintLifecycle:
+    - id: "sprint-6"
+      name: "Advanced Collaboration Infrastructure"
+      goal: "Implement real-time collaboration, workflow automation, and PWA capabilities."
+      status: "Active"
+      storyPoints:
+        planned: 130
+      startDate: "2025-08-01"
+      endDate: "2025-08-14"
+      keyDocuments:
+        - "docs/sprint6-phase2-architecture-coordination.md"
+        - "docs/sprint6-phase3-sprint-planning.md"
+    - id: "sprint-5"
+      name: "AI-Powered Enterprise Features"
+      goal: "Deliver an AI-powered document generation system with production-ready infrastructure."
+      status: "Completed"
+      storyPoints:
+        planned: 130
+        delivered: 130
+      startDate: "2025-07-18"
+      endDate: "2025-07-31"
+      keyDocuments:
+        - "docs/Sprint5-AI-Enterprise-Architecture-Design.md"
+    # ... previous sprints
+
+  # (List of Objects, Required) Key Performance Indicators and their targets.
+  performanceMetrics:
+    - metricName: "Build Time"
+      category: "Build"
+      targetValue: "<2s"
+      currentValue: "~966ms"
+      status: "✅"
+    - metricName: "API Response Time"
+      category: "API"
+      targetValue: "<500ms"
+      currentValue: "<200ms"
+      status: "✅"
+    - metricName: "Search Performance"
+      category: "Search"
+      targetValue: "<200ms"
+      currentValue: "<100ms"
+      status: "✅"
+    - metricName: "Frontend Load Time"
+      category: "Frontend"
+      targetValue: "<2s"
+      currentValue: "<1s"
+      status: "✅"
+    - metricName: "Uptime"
+      category: "Production"
+      targetValue: ">99%"
+      currentValue: "99.9%"
+      status: "✅"
+
+  # (Object, Required) Manages the documentation structure itself.
+  documentation:
+    # (Object) The core structure of the documentation.
+    structure:
+      - file: "INSTRUCTIONS.md"
+        purpose: "Main project context and agent coordination."
+      - file: "CLAUDE.md"
+        purpose: "Development standards and workflow for AI agents."
+      - file: "README.md"
+        purpose: "Project overview and quick start guide."
+      - file: "docs/ui-design-system.md"
+        purpose: "Complete UI/UX specifications."
+      - file: "docs/sprint-planning.md"
+        purpose: "Sprint coordination framework."
+    # (String) The schedule for reviewing and maintaining documentation.
+    maintenanceSchedule: "Weekly for active documents, quarterly for architectural docs."

@@ -1,0 +1,377 @@
+{
+  "projectInfo": {
+    "name": "Spaghetti Platform",
+    "tagline": "Enterprise Documentation Platform",
+    "visionStatement": "A comprehensive multi-level enterprise platform that enables large organizations to manage documentation across multiple subsidiaries, divisions, and business units. Built for enterprise clients who need to scale documentation processes across complex organizational structures while maintaining security, compliance, and centralized control.",
+    "liveUrl": "https://spaghetti-platform-drgev.ondigitalocean.app/",
+    "repositoryUrl": "https://github.com/twitchyvr/Spaghetti",
+    "productTerminology": [
+      {
+        "name": "Noodles",
+        "description": "Individual documents within the platform."
+      },
+      {
+        "name": "Plates",
+        "description": "Collections or groups of related documents."
+      },
+      {
+        "name": "The Kitchen",
+        "description": "Administrative interface for system management."
+      },
+      {
+        "name": "Al Dente Editor",
+        "description": "Rich text editing component for document creation."
+      },
+      {
+        "name": "Chefs/Sous Chefs",
+        "description": "Administrative roles with system management privileges."
+      },
+      {
+        "name": "Diners",
+        "description": "End users who consume and interact with documents."
+      },
+      {
+        "name": "Stewards",
+        "description": "Content maintainers and document managers."
+      }
+    ],
+    "targetPersonas": [
+      {
+        "name": "Stella - Strategic Chef",
+        "role": "Enterprise Admin",
+        "needs": "High-level analytics, compliance oversight, strategic insights."
+      },
+      {
+        "name": "Carlos - Compliance Connoisseur",
+        "role": "Legal/Compliance Officer",
+        "needs": "Audit trails, version control, security compliance."
+      },
+      {
+        "name": "Tariq - Technical Writer Steward",
+        "role": "Documentation Specialist",
+        "needs": "Advanced editing tools, workflow automation, collaboration features."
+      },
+      {
+        "name": "Priya - Product Manager Steward",
+        "role": "Product Manager",
+        "needs": "Project visibility, team collaboration, progress tracking."
+      },
+      {
+        "name": "David - Developer Diner/Steward",
+        "role": "Developer",
+        "needs": "Integration capabilities, API documentation, code examples."
+      },
+      {
+        "name": "Lauren - Learner Diner",
+        "role": "New Employee/Learner",
+        "needs": "Intuitive navigation, learning paths, search capabilities."
+      }
+    ]
+  },
+  "status": {
+    "version": "0.0.15-alpha",
+    "phase": "Active Development",
+    "currentSprint": {
+      "number": 6,
+      "name": "Advanced Collaboration Infrastructure",
+      "goal": "Implement real-time collaborative editing with SignalR, a visual workflow automation system, and enhance the application with Progressive Web App (PWA) capabilities.",
+      "storyPoints": 130
+    },
+    "deployment": {
+      "lastDeployment": "2025-08-01",
+      "buildTimeSeconds": 0.966,
+      "uptimePercentage": 99.9,
+      "health": "Operational"
+    }
+  },
+  "architecture": {
+    "style": "Multi-Tier SaaS Platform",
+    "levels": [
+      {
+        "name": "Platform Administration",
+        "user": "Spaghetti Team"
+      },
+      {
+        "name": "Client Administration",
+        "user": "Enterprise Organizations"
+      },
+      {
+        "name": "Tenant Management",
+        "user": "Organizational Units"
+      },
+      {
+        "name": "End User Application",
+        "user": "Individual Contributors"
+      }
+    ],
+    "multiTenant": {
+      "isolation": "Row-Level Security (RLS)",
+      "deploymentScenarios": [
+        "SaaS Multi-Tenant",
+        "Enterprise Single-Tenant",
+        "On-Premises",
+        "Hybrid Cloud"
+      ]
+    },
+    "corePatterns": [
+      "Microservices",
+      "Repository Pattern",
+      "Unit of Work",
+      "Clean Architecture"
+    ]
+  },
+  "technologyStack": {
+    "backend": {
+      "language": "C#",
+      "framework": ".NET 8",
+      "api": "ASP.NET Core Web API",
+      "orm": "Entity Framework Core",
+      "realtime": "SignalR",
+      "authentication": "JWT"
+    },
+    "frontend": {
+      "framework": "React 18",
+      "language": "TypeScript",
+      "buildTool": "Vite",
+      "styling": "Tailwind CSS",
+      "stateManagement": "Context API"
+    },
+    "database": {
+      "primary": "PostgreSQL",
+      "search": "Elasticsearch",
+      "caching": "Redis"
+    },
+    "infrastructure": {
+      "containerization": "Docker",
+      "orchestration": {
+        "development": "Docker Compose",
+        "production": "Kubernetes"
+      },
+      "hosting": "DigitalOcean App Platform",
+      "ci_cd": "GitHub Actions",
+      "monitoring": "Grafana + Prometheus"
+    }
+  },
+  "developmentWorkflow": {
+    "git": {
+      "branchStrategy": "Feature branches merged to main",
+      "commitConvention": {
+        "format": "type(scope): subject",
+        "types": ["feat", "fix", "docs", "style", "refactor", "test", "chore"],
+        "scopes": ["api", "ui", "docs", "ci", "test", "config", "db"]
+      }
+    },
+    "ci_cd": {
+      "trigger": "Push to main branch",
+      "deploymentTimeSeconds": 45,
+      "automatedVerification": ["Health Checks"]
+    },
+    "ninePhaseWorkflow": [
+      {
+        "phase": 1,
+        "agent": "team-p1-project-initializer",
+        "description": "Project initialization and requirements gathering."
+      },
+      {
+        "phase": 2,
+        "agent": "team-p2-architecture-coordinator",
+        "description": "Technical architecture design and review."
+      },
+      {
+        "phase": 3,
+        "agent": "team-p3-sprint-planner",
+        "description": "Sprint planning and task distribution."
+      },
+      {
+        "phase": 4,
+        "agent": "team-p4-development-coordinator",
+        "description": "Development execution and coordination."
+      },
+      {
+        "phase": 5,
+        "agent": "team-p5-test-strategy-architect",
+        "description": "Testing strategy and quality assurance."
+      },
+      {
+        "phase": 6,
+        "agent": "team-p6-deployment-orchestrator",
+        "description": "Deployment and release management."
+      },
+      {
+        "phase": 7,
+        "agent": "team-p7-sprint-retrospective-facilitator",
+        "description": "Sprint review and improvement."
+      },
+      {
+        "phase": 8,
+        "agent": "team-p8-system-maintenance-coordinator",
+        "description": "System maintenance and monitoring."
+      },
+      {
+        "phase": 9,
+        "agent": "team-p9-workflow-termination-coordinator",
+        "description": "Workflow closure and documentation."
+      }
+    ]
+  },
+  "qualityAssurance": {
+    "strategy": "Test Pyramid (70% Unit, 20% Integration, 10% E2E)",
+    "performanceTargets": {
+      "apiResponseMs": 200,
+      "searchResponseMs": 100,
+      "frontendLoadSec": 1,
+      "buildTimeSec": 2,
+      "collaborationLatencyMs": 100
+    },
+    "qualityGates": {
+      "testCoveragePercentage": 90,
+      "buildTimeSec": 2,
+      "bundleSizeKb": 500,
+      "securityVulnerabilities": {
+        "critical": 0,
+        "high": 0
+      }
+    }
+  },
+  "securityAndCompliance": {
+    "securityModel": "Zero-Trust Architecture",
+    "authentication": {
+      "method": "JWT",
+      "ssoIntegrations": ["Azure AD", "Auth0"]
+    },
+    "dataProtection": {
+      "encryptionAtRest": "AES-256",
+      "encryptionInTransit": "TLS 1.3"
+    },
+    "complianceReadiness": ["SOC 2", "GDPR", "HIPAA"],
+    "audit": {
+      "logging": "Comprehensive logging of all user and administrative actions via audit trails."
+    }
+  },
+  "documentationStandards": {
+    "maxFileSizeKb": 25,
+    "namingConvention": "kebab-case for documentation files.",
+    "headerStructure": [
+      "H1 (Main Title)",
+      "H2 (Major Sections)",
+      "H3 (Subsections)"
+    ],
+    "statusIndicators": ["✅", "⚠️", "❌", "🔄", "⬜", "🚀"]
+  },
+  "apiReference": {
+    "baseUrl": "/api",
+    "swaggerUrl": "/swagger",
+    "summary": "11 fully implemented and production-ready endpoints covering Document CRUD, Version Management, and File Operations.",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/documents",
+        "purpose": "List documents with filtering/pagination"
+      },
+      {
+        "method": "GET",
+        "path": "/documents/{id}",
+        "purpose": "Get single document"
+      },
+      {
+        "method": "POST",
+        "path": "/documents",
+        "purpose": "Create document"
+      },
+      {
+        "method": "PUT",
+        "path": "/documents/{id}",
+        "purpose": "Update document"
+      },
+      {
+        "method": "DELETE",
+        "path": "/documents/{id}",
+        "purpose": "Soft delete document"
+      },
+      {
+        "method": "GET",
+        "path": "/documents/{id}/versions",
+        "purpose": "Get version history"
+      },
+      {
+        "method": "POST",
+        "path": "/documents/{id}/versions",
+        "purpose": "Create new version"
+      },
+      {
+        "method": "GET",
+        "path": "/documents/{id}/latest",
+        "purpose": "Get latest version"
+      },
+      {
+        "method": "POST",
+        "path": "/documents/upload",
+        "purpose": "Upload file"
+      },
+      {
+        "method": "GET",
+        "path": "/documents/{id}/download",
+        "purpose": "Download file"
+      },
+      {
+        "method": "GET",
+        "path": "/documents/{id}/file-info",
+        "purpose": "Get file metadata"
+      }
+    ]
+  },
+  "teamAndRoles": {
+    "workflowAgents": [
+      {
+        "name": "team-p1-project-initializer",
+        "responsibility": "Establishes foundational elements, requirements, technical architecture, team coordination, and initial project planning."
+      },
+      {
+        "name": "team-p2-architecture-coordinator",
+        "responsibility": "Orchestrates architectural design execution, coordinates input from technical leads, produces comprehensive architectural documentation."
+      },
+      {
+        "name": "team-p3-srint-planner",
+        "responsibility": "Segments projects into sprints, creates detailed task assignments, and generates sprint backlogs."
+      },
+      {
+        "name": "team-p4-development-coordinator",
+        "responsibility": "Coordinates development implementation across backend, frontend, and DevOps teams."
+      },
+      {
+        "name": "team-p5-test-strategy-architect",
+        "responsibility": "Defines comprehensive test strategies and coordinates all QA activities."
+      },
+      {
+        "name": "team-p6-deployment-orchestrator",
+        "responsibility": "Orchestrates the complete deployment process from CI/CD to production rollouts."
+      },
+      {
+        "name": "team-p7-sprint-retrospective-facilitator",
+        "responsibility": "Conducts sprint reviews, retrospectives, and gathers stakeholder feedback."
+      },
+      {
+        "name": "team-p8-system-maintenance-coordinator",
+        "responsibility": "Coordinates ongoing system maintenance, performance monitoring, and incident response."
+      },
+      {
+        "name": "team-p9-workflow-termination-coordinator",
+        "responsibility": "Manages transition from active development to maintenance mode."
+      }
+    ],
+    "supportingRoles": [
+      "project-manager",
+      "system-architect",
+      "backend-lead",
+      "frontend-lead",
+      "devops-lead",
+      "qa-lead",
+      "scrum-master",
+      "developer",
+      "ui-designer",
+      "qa-engineer",
+      "gitops-orchestrator",
+      "team-orchestrator"
+    ]
+  }
+}

@@ -1,65 +1,69 @@
-# Documentation Directory
+# Working Sprint Documentation (TIER 2)
 
-This directory contains detailed technical documentation for the Spaghetti Platform.
+This directory contains **current sprint planning and active decisions only**. Historical documentation has been moved to `docs/archive/` for cleaner AI context and improved navigation.
 
-## 🎯 Quick Navigation
-- **📝 Standards**: `DOCUMENTATION-STANDARDS.md` - Complete documentation guidelines
-- **🗂️ Structure**: `DOCUMENTATION-STRUCTURE.md` - Full documentation map and navigation  
-- **🔧 Maintenance**: `DOCUMENTATION-MAINTENANCE.md` - Maintenance procedures and guidelines
-- **🎨 Design System**: `ui-design-system.md` - Complete UI/UX design system
-- **🚀 Sprint Planning**: `sprint-planning.md` - Sprint coordination framework
+## 🎯 TIER 2: Current Working Documents
+- **📝 Standards**: `DOCUMENTATION-STANDARDS.md` - Current documentation guidelines
+- **🗂️ Structure**: `DOCUMENTATION-STRUCTURE.md` - Active documentation structure  
+- **🔧 Maintenance**: `DOCUMENTATION-MAINTENANCE.md` - Current maintenance procedures
+- **🎨 Design System**: `ui-design-system.md` - Active UI/UX design specifications
+- **🚀 Sprint Planning**: `sprint-planning.md` - Current sprint coordination framework
 - **📊 Release Notes**: `changelog-current.md` - Active release information
 
-## 📁 Documentation Structure
+## 📁 Active Subdirectories
+- **📡 API Documentation**: `api/` - Current API specifications and integration guides
+- **🏗️ Architecture**: `architecture/` - Current active architecture decisions
+- **🚀 Deployment**: `deployment/` - Current deployment procedures and configurations
+- **📦 Archive**: `archive/` - Historical documentation organized by sprint
 
-### Core Documentation Files
+## 🗂️ Three-Tier Architecture Overview
 
-| File | Purpose | Size | Last Updated |
-|------|---------|------|--------------|
-| **ui-design-system.md** | Complete UI/UX design system, component library, and enterprise terminology | ~25KB | 2025-08-01 |
-| **sprint-planning.md** | Sprint planning guidelines, agent coordination framework | ~5KB | 2025-08-01 |
-| **changelog-current.md** | Current release notes and active sprint information | ~15KB | 2025-08-01 |
-| **changelog-archive.md** | Historical changelog entries for completed sprints | ~12KB | 2025-08-01 |
+### TIER 1: Living Core (Root Directory)
+**Always current, default AI context**
+- `project-architecture.yaml` - Single source of truth
+- `INSTRUCTIONS.md`, `CLAUDE.md`, `README.md`, `CHANGELOG.md`
 
-### How to Use This Documentation
+### TIER 2: Working Sprint (This Directory)
+**Current sprint only - active decisions and planning**
+- Documentation standards and maintenance procedures
+- Active UI design specifications and component library
+- Current sprint coordination framework and release notes
 
-1. **For UI/UX Work**: Start with `ui-design-system.md` for complete design guidelines
-2. **For Sprint Planning**: Reference `sprint-planning.md` for coordination frameworks
-3. **For Release Information**: Check `changelog-current.md` for latest updates
-4. **For Historical Context**: Review `changelog-archive.md` for previous sprint details
+### TIER 3: Archive (`archive/` subdirectory)
+**Historical context accessed only when requested**
+- Sprint-based archives organized by number
+- General historical documentation
+- Obsolete specifications and deprecated features
 
-### Cross-References
+## 🎯 Usage Guidelines
 
-- **Project Context**: See root `INSTRUCTIONS.md` for high-level project guidance
-- **Project Status**: Check root `project-status.yaml` for real-time agent status
-- **Development Guide**: Refer to root `CLAUDE.md` for development standards
-- **Quick Start**: See root `README.md` for setup and overview
+### For Current Work
+1. **UI/UX Development**: Use `ui-design-system.md` for active design specifications
+2. **Sprint Planning**: Reference `sprint-planning.md` for current coordination framework
+3. **Release Information**: Check `changelog-current.md` for active release details
+4. **Architecture**: Use `architecture/` for current system design decisions
 
-## 🎯 Documentation Standards
+### For Historical Context
+- Access `archive/sprint-X/` for specific sprint historical documentation
+- Use `archive/general/` for general historical context
+- **Important**: Historical documentation is only accessed when explicitly needed
 
-### File Size Guidelines
-- Keep individual files under 25KB (roughly 25,000 characters)
-- Split large files into focused, topic-specific documents
-- Use cross-references to connect related information
+### Cross-References to Tier 1
+- **Project Source of Truth**: `../project-architecture.yaml`
+- **Project Context**: `../INSTRUCTIONS.md`
+- **Development Standards**: `../CLAUDE.md`
+- **Project Overview**: `../README.md`
 
-### Content Organization
-- **Focused Scope**: Each file covers a specific aspect of the platform
+## 📋 Documentation Standards
+
+### Content Guidelines
+- **Current Focus**: Only include information relevant to active sprint
+- **Historical Separation**: Move completed sprint content to appropriate archive
 - **Clear Headers**: Use descriptive section headings for easy navigation
-- **Cross-References**: Link to related documentation where appropriate
-- **Regular Updates**: Keep documentation current with platform changes
+- **Consistent Terminology**: Follow definitions in `ui-design-system.md`
 
-### Quality Standards
-- All documentation should be easily readable by both humans and AI agents
-- Use consistent terminology as defined in `ui-design-system.md`
-- Maintain clear separation between static context and dynamic state information
-- Ensure agent definition files remain project-agnostic
-
-## 📊 Quick Reference
-
-### Current Platform Status
-- **Version**: 0.0.15-alpha
-- **Sprint**: 6 - Advanced Collaboration Infrastructure
-- **Documentation Status**: ✅ Organized and optimized
-- **File Sizes**: All under 25KB limit
-
-For real-time project status, always refer to `../project-status.yaml`.
+### File Management
+- **Size Limit**: Keep files under 25KB for optimal AI processing
+- **Focused Scope**: Each file covers specific aspects of current work
+- **Regular Archival**: Move historical content to maintain clean working context
+- **Cross-References**: Link to Tier 1 documents for authoritative information
