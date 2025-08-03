@@ -12,56 +12,30 @@ routes:
   component_name: api
 
 services:
-# API service
+# Simple Test API service
 - name: api
-  source_dir: src/core/api
+  source_dir: test-api
   github:
-    repo: mattrogers1990/Spaghetti
+    repo: twitchyvr/Spaghetti
     branch: main
     deploy_on_push: true
-  build_command: dotnet publish src/core/api/EnterpriseDocsCore.API.csproj -c Release -o out
-  run_command: dotnet out/EnterpriseDocsCore.API.dll
   environment_slug: dotnet
   instance_count: 1
-  instance_size_slug: professional-xs
-  http_port: 5000
+  instance_size_slug: basic-xxs
+  http_port: 8080
   health_check:
     http_path: /health
   envs:
   - key: ASPNETCORE_ENVIRONMENT
     value: Production
   - key: ASPNETCORE_URLS
-    value: http://0.0.0.0:5000
-  - key: DATABASE_URL
-    type: SECRET
-    value: "$(databaseConnectionString)"
-  - key: REDIS_URL
-    type: SECRET
-    value: "$(redisConnectionString)"
-  - key: JWT_SECRET_KEY
-    type: SECRET
-    value: ThisIsAVerySecureKeyThatShouldBeChangedInProduction123456789!
-  - key: ENCRYPTION_KEY
-    type: SECRET
-    value: change-this-32-character-key-prod
-  - key: STORAGE_PROVIDER
-    value: Local
-  - key: AI_PROVIDER
-    value: Mock
-  - key: OPENAI_API_KEY
-    type: SECRET
-    value: ""
-  - key: CLAUDE_API_KEY
-    type: SECRET
-    value: ""
-  - key: ELASTICSEARCH_URL
-    value: ""
+    value: http://0.0.0.0:8080
 
 # Frontend service with catch-all route MUST be listed last
 - name: frontend
   source_dir: src/frontend
   github:
-    repo: mattrogers1990/Spaghetti
+    repo: twitchyvr/Spaghetti
     branch: main
     deploy_on_push: true
   build_command: npm ci --omit=dev && npm run build
@@ -73,7 +47,7 @@ services:
   catch_all: true
   envs:
   - key: VITE_API_BASE_URL
-    value: https://spaghetti-platform-drgev.ondigitalocean.app
+    value: /api
   - key: VITE_ENVIRONMENT
     value: production
   - key: NODE_ENV
