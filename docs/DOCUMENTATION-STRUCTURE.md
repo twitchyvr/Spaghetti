@@ -27,14 +27,15 @@ Spaghetti Platform Documentation
 
 | File | Purpose | Size | Owner | Update Frequency |
 |------|---------|------|-------|------------------|
-| **CLAUDE.md** | Development workflow & standards | 14.7KB | enterprise-workflow-orchestrator | Process changes |
+| **CLAUDE.md** | Development workflow & standards (Anthropic Claude Code powered) | 20.0KB | enterprise-workflow-orchestrator | Process changes |
+| **GEMINI.md** | Development workflow & standards (Google Gemini CLI powered) | 20.0KB | enterprise-workflow-orchestrator | Process changes |
 | **CLAUDE.local.md** | Private project instructions | 2.3KB | developer | As needed |
+| **GEMINI.md** | AI code generation instructions | 20.0KB | enterprise-workflow-orchestrator | AI updates |
 
 ### Legacy/Archive Files
 
 | File | Purpose | Size | Status | Notes |
 |------|---------|------|--------|-------|
-| **GEMINI.md** | Alternative AI instructions | 14.4KB | Archive | Historical reference |
 | **DEVELOPMENT_STATUS.md** | Development tracking | 7.4KB | Archive | Superseded by project-status.yaml |
 | **IMPLEMENTATION_SUMMARY.md** | Implementation overview | 4.2KB | Archive | Superseded by structured docs |
 

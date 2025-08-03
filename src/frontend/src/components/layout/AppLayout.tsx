@@ -254,10 +254,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
   };
 
   return (
-    <div className="flex h-screen bg-white">
-      {/* Sidebar */}
+    <div className="flex h-screen bg-gray-50">
+      {/* Sidebar - Apple Style */}
       <aside className={cn(
-        "fixed inset-y-0 left-0 z-50 flex flex-col bg-white border-r shadow-sm transition-all duration-300 ease-in-out",
+        "fixed inset-y-0 left-0 z-50 flex flex-col bg-white/95 backdrop-blur-xl border-r border-gray-200/50 shadow-2xl transition-all duration-500 ease-out",
         {
           "w-80": !sidebarCollapsed,
           "w-20": sidebarCollapsed,
@@ -266,82 +266,88 @@ export default function AppLayout({ children }: AppLayoutProps) {
         },
         "lg:translate-x-0 lg:static lg:inset-0"
       )}>
-        {/* Logo Section */}
-        <div className="flex items-center justify-between p-6 border-b flex-shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-12 h-12 bg-blue-50 border border-blue-200 rounded-lg">
-              <ChefHat size={24} className="text-blue-600" />
+        {/* Logo Section - Apple Style */}
+        <div className="flex items-center justify-between p-8 border-b border-gray-200/30 flex-shrink-0">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <ChefHat size={28} className="text-white" />
             </div>
             {!sidebarCollapsed && (
               <div className="overflow-hidden">
-                <h2 className="text-xl font-semibold text-neutral-900 truncate">Spaghetti Platform</h2>
-                <p className="text-sm text-neutral-600 truncate">Enterprise Document Suite</p>
+                <h2 className="text-2xl font-light text-gray-900 truncate tracking-tight">Spaghetti Platform</h2>
+                <p className="text-sm text-gray-500 font-light truncate">Intelligent Document Suite</p>
               </div>
             )}
           </div>
           
           <button 
-            className="lg:hidden p-2 hover:bg-neutral-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="lg:hidden p-3 hover:bg-gray-100/50 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
             onClick={() => setSidebarOpen(false)}
           >
-            <X size={20} className="text-neutral-600" />
+            <X size={20} className="text-gray-600" />
           </button>
           
           <button 
-            className="hidden lg:flex p-2 hover:bg-neutral-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="hidden lg:flex p-3 hover:bg-gray-100/50 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
             onClick={collapseSidebar}
             title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
-            <ChevronRight size={20} className={cn("transition-transform text-neutral-600", {
+            <ChevronRight size={18} className={cn("transition-all duration-300 text-gray-600", {
               "rotate-180": sidebarCollapsed
             })} />
           </button>
         </div>
 
-        {/* Navigation - Clean scrolling with modern styling */}
-        <nav className="flex-1 px-4 py-6 overflow-y-auto">
-          <div className="space-y-1">
+        {/* Navigation - Apple Style */}
+        <nav className="flex-1 px-6 py-8 overflow-y-auto">
+          <div className="space-y-2">
             {navigationItems.map((item) => (
               <Link
                 key={item.id}
                 to={item.path}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-all duration-200 group relative",
+                  "flex items-center gap-4 px-4 py-4 rounded-2xl text-sm font-medium transition-all duration-300 group relative overflow-hidden",
                   {
-                    "bg-blue-50 text-blue-700 border border-blue-200": isActiveRoute(item.path),
-                    "text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900": !isActiveRoute(item.path),
-                    "justify-center": sidebarCollapsed,
+                    "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg scale-105": isActiveRoute(item.path),
+                    "text-gray-700 hover:bg-gray-100/60 hover:text-gray-900 hover:scale-102": !isActiveRoute(item.path),
+                    "justify-center px-4": sidebarCollapsed,
                   }
                 )}
                 onClick={() => setSidebarOpen(false)}
                 title={sidebarCollapsed ? item.label : undefined}
               >
-                <span className="flex-shrink-0">
+                <span className="flex-shrink-0 relative z-10">
                   {item.icon}
                 </span>
                 {!sidebarCollapsed && (
                   <>
-                    <span className="flex-1 truncate">{item.label}</span>
+                    <span className="flex-1 truncate relative z-10">{item.label}</span>
                     {item.badge && (
-                      <span className="px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-full">
+                      <span className={cn(
+                        "px-3 py-1 text-xs font-medium rounded-full relative z-10",
+                        isActiveRoute(item.path) 
+                          ? "bg-white/20 text-white" 
+                          : "bg-blue-100 text-blue-700"
+                      )}>
                         {item.badge}
                       </span>
                     )}
                     {isActiveRoute(item.path) && (
-                      <ChevronRight size={16} className="opacity-60" />
+                      <ChevronRight size={16} className="opacity-80 relative z-10" />
                     )}
                   </>
                 )}
                 
                 {/* Tooltip for collapsed state */}
                 {sidebarCollapsed && (
-                  <div className="absolute left-full ml-2 px-3 py-2 bg-neutral-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg">
+                  <div className="absolute left-full ml-4 px-4 py-3 bg-gray-900/90 backdrop-blur-xl text-white text-sm rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-50 shadow-2xl">
                     {item.label}
                     {item.badge && (
-                      <span className="ml-2 px-2 py-0.5 text-xs bg-blue-600 rounded-full">
+                      <span className="ml-2 px-2 py-1 text-xs bg-blue-500 text-white rounded-full">
                         {item.badge}
                       </span>
                     )}
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-gray-900/90 rotate-45"></div>
                   </div>
                 )}
               </Link>
@@ -349,114 +355,114 @@ export default function AppLayout({ children }: AppLayoutProps) {
           </div>
         </nav>
 
-        {/* User Section */}
-        <div className="p-6 border-t flex-shrink-0">
+        {/* User Section - Apple Style */}
+        <div className="p-6 border-t border-gray-200/30 flex-shrink-0">
           <div className={cn(
-            "flex items-center gap-3 p-3 bg-neutral-50 rounded-lg border",
+            "flex items-center gap-4 p-4 bg-gradient-to-r from-gray-50/80 to-blue-50/50 rounded-2xl border border-gray-200/50 backdrop-blur-sm",
             { "justify-center": sidebarCollapsed }
           )}>
-            <div className="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-full text-white flex-shrink-0">
-              <User size={20} />
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-md flex-shrink-0">
+              <User size={22} className="text-white" />
             </div>
             {!sidebarCollapsed && (
               <div className="flex-1 min-w-0">
-                <p className="font-medium text-neutral-900 truncate">
+                <p className="font-medium text-gray-900 truncate text-base">
                   {user?.firstName || 'Demo User'}
                 </p>
-                <p className="text-sm text-neutral-600 truncate">Professional</p>
+                <p className="text-sm text-gray-500 font-light truncate">Professional</p>
               </div>
             )}
           </div>
         </div>
       </aside>
 
-      {/* Mobile Sidebar Overlay */}
+      {/* Mobile Sidebar Overlay - Apple Style */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 z-40 bg-black bg-opacity-25 lg:hidden backdrop-blur-sm"
+          className="fixed inset-0 z-40 bg-black/30 lg:hidden backdrop-blur-lg transition-all duration-500"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Main Content Area */}
+      {/* Main Content Area - Apple Style */}
       <div className={cn(
-        "flex-1 flex flex-col min-h-0 transition-all duration-300 bg-neutral-50",
+        "flex-1 flex flex-col min-h-0 transition-all duration-500 bg-gray-50",
         {
           "lg:ml-80": sidebarOpen && !sidebarCollapsed,
           "lg:ml-20": sidebarOpen && sidebarCollapsed,
           "lg:ml-0": !sidebarOpen,
         }
       )}>
-        {/* Header */}
-        <header className="flex-shrink-0 bg-white border-b shadow-sm px-6 py-4">
+        {/* Header - Apple Style */}
+        <header className="flex-shrink-0 bg-white/80 backdrop-blur-xl border-b border-gray-200/50 px-8 py-6 shadow-sm">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-6">
               <button
-                className="p-2 hover:bg-neutral-100 rounded-lg transition-colors lg:hidden focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="p-3 hover:bg-gray-100/60 rounded-2xl transition-all duration-300 lg:hidden focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                 onClick={toggleSidebar}
                 aria-label="Toggle navigation menu"
               >
-                <Menu size={24} className="text-neutral-600" />
+                <Menu size={24} className="text-gray-700" />
               </button>
               <button
-                className="hidden lg:flex p-2 hover:bg-neutral-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="hidden lg:flex p-3 hover:bg-gray-100/60 rounded-2xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                 onClick={toggleSidebar}
                 title={sidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
               >
-                <Menu size={24} className="text-neutral-600" />
+                <Menu size={24} className="text-gray-700" />
               </button>
               
-              <h1 className="text-2xl font-semibold text-neutral-900">
+              <h1 className="text-3xl font-light text-gray-900 tracking-tight">
                 {navigationItems.find(item => isActiveRoute(item.path))?.label || 'Dashboard'}
               </h1>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               {/* Notifications */}
-              <button className="p-2 hover:bg-neutral-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500" title="Notifications">
-                <Bell size={20} className="text-neutral-600" />
+              <button className="p-3 hover:bg-gray-100/60 rounded-2xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50" title="Notifications">
+                <Bell size={20} className="text-gray-700" />
               </button>
 
               {/* User Menu */}
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center gap-3 px-3 py-2 hover:bg-neutral-50 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex items-center gap-4 px-4 py-3 hover:bg-gray-100/60 rounded-2xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                 >
-                  <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-                    <UserCircle size={20} className="text-white" />
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-md">
+                    <UserCircle size={22} className="text-white" />
                   </div>
                   <div className="hidden md:block text-left">
-                    <p className="text-sm font-medium text-neutral-900">
+                    <p className="text-sm font-medium text-gray-900">
                       {user?.firstName} {user?.lastName}
                     </p>
-                    <p className="text-xs text-neutral-600">
+                    <p className="text-xs text-gray-500 font-light">
                       {user?.email || 'demo@enterprise-docs.com'}
                     </p>
                   </div>
                   <ChevronDown size={16} className={cn(
-                    "text-neutral-400 transition-transform",
+                    "text-gray-500 transition-all duration-300",
                     { "rotate-180": userMenuOpen }
                   )} />
                 </button>
 
-                {/* User Dropdown Menu */}
+                {/* User Dropdown Menu - Apple Style */}
                 {userMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border py-2 z-50">
+                  <div className="absolute right-0 mt-4 w-72 bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200/50 py-4 z-50">
                     {/* User Info */}
-                    <div className="px-4 py-3 border-b">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
-                          <UserCircle size={24} className="text-white" />
+                    <div className="px-6 py-4 border-b border-gray-200/30">
+                      <div className="flex items-center gap-4">
+                        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
+                          <UserCircle size={28} className="text-white" />
                         </div>
-                        <div>
-                          <p className="font-medium text-neutral-900">
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900 text-base">
                             {user?.firstName} {user?.lastName}
                           </p>
-                          <p className="text-sm text-neutral-600">
+                          <p className="text-sm text-gray-600">
                             {user?.email || 'demo@enterprise-docs.com'}
                           </p>
-                          <p className="text-xs text-blue-600 font-medium">
+                          <p className="text-xs text-blue-600 font-medium mt-1 px-2 py-1 bg-blue-50 rounded-full inline-block">
                             Professional
                           </p>
                         </div>
@@ -467,29 +473,29 @@ export default function AppLayout({ children }: AppLayoutProps) {
                     <div className="py-2">
                       <Link
                         to="/settings"
-                        className="flex items-center gap-3 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors"
+                        className="flex items-center gap-4 px-6 py-3 text-sm text-gray-700 hover:bg-gray-100/60 transition-all duration-300 mx-2 rounded-2xl"
                         onClick={() => setUserMenuOpen(false)}
                       >
-                        <Settings size={16} />
+                        <Settings size={18} />
                         Account Settings
                       </Link>
                       <Link
                         to="/profile"
-                        className="flex items-center gap-3 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors"
+                        className="flex items-center gap-4 px-6 py-3 text-sm text-gray-700 hover:bg-gray-100/60 transition-all duration-300 mx-2 rounded-2xl"
                         onClick={() => setUserMenuOpen(false)}
                       >
-                        <User size={16} />
+                        <User size={18} />
                         Profile
                       </Link>
                     </div>
 
                     {/* Logout */}
-                    <div className="border-t mt-2 pt-2">
+                    <div className="border-t border-gray-200/30 mt-2 pt-2">
                       <button
                         onClick={handleLogout}
-                        className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors focus:outline-none focus:bg-red-50"
+                        className="flex items-center gap-4 w-full px-6 py-3 text-sm text-red-600 hover:bg-red-50/80 transition-all duration-300 mx-2 rounded-2xl focus:outline-none focus:bg-red-50/80"
                       >
-                        <LogOut size={16} />
+                        <LogOut size={18} />
                         Sign Out
                       </button>
                     </div>
@@ -497,16 +503,16 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 )}
               </div>
 
-              <div className="hidden md:flex items-center gap-2 px-3 py-2 bg-green-50 text-green-700 rounded-full text-sm font-medium border border-green-200">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <div className="hidden md:flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 rounded-full text-sm font-medium border border-green-200/50 backdrop-blur-sm">
+                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-sm"></div>
                 Online
               </div>
             </div>
           </div>
         </header>
 
-        {/* Page Content - This is where children are rendered */}
-        <main className="flex-1 overflow-hidden bg-neutral-50">
+        {/* Page Content - Apple Style */}
+        <main className="flex-1 overflow-hidden bg-gray-50">
           {children}
         </main>
       </div>

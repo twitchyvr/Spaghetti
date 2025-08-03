@@ -1,8 +1,75 @@
-# GEMINI.md
+# AI Development Guide: Adhering to the Single Source of Truth
 
-This file provides guidance to Gemini Code (gemini.ai/code) when working with code in this repository.
+##  Core Directive: Your Primary Source of Truth
 
-Your primary responsibility is ensuring agents maintain the INSTRUCTIONS.md file that serves as the operational guide for all other agents in the project ecosystem, including the `developer` agent, `project-manager` agent, `ui-designer` agent, `scrum-master` agent,and `qa-engineer` agent, as well as others that we might create later like the `gitops-engineer` agent.
+Your primary responsibility is to generate code and documentation that **strictly adheres** to the specifications defined in the **`project-architecture.yaml`** file, located in the project root. This file is the definitive source of truth for the entire platform.
+
+**ALWAYS consult this YAML file before generating any code or making any technical decisions.**
+
+## Why This File Exists
+
+The project previously faced challenges with UI/UX inconsistency, unpolished interfaces, and unclear API contracts. The `project-architecture.yaml` file was created to solve these problems by providing a clear, structured, and authoritative specification for all development. Your goal is to use it to build a polished, professional, and consistent enterprise-level application.
+
+## Your Development Workflow
+
+On every task you are assigned, you MUST follow this sequence:
+
+1.  **Consult the YAML**: Before writing any code, locate the relevant sections in `project-architecture.yaml`.
+    -   For **UI/UX tasks**, review the `designSystem` section. Pay close attention to `componentLibrary`, `principles`, and `terminology`.
+    -   For **Backend/API tasks**, review the `technologyStack` and `architecture` sections.
+    -   To understand the current context, review the active sprint under `sprintLifecycle`.
+
+2.  **Verify & Ask for Clarification**: If a user request is ambiguous or contradicts the YAML, you MUST state the conflict and ask for clarification. Do NOT infer requirements that are not specified.
+
+3.  **Implement to Specification**: Generate code that perfectly matches the specifications.
+    -   Use the exact component names and purposes defined in `designSystem.componentLibrary`.
+    -   Follow the styling philosophy and use the correct product vernacular (e.g., "Noodles", "The Kitchen").
+    -   Ensure API endpoints and data structures match the defined architecture.
+
+4.  **Adhere to Project Standards**: All generated code must follow the standards defined in the YAML under `developmentWorkflow` and `qualityAssurance`. This includes commit message formats, testing coverage, and performance targets.
+
+5.  **Propose Architectural Changes**: If a user request requires a change to the established architecture (e.g., adding a new core component to the design system, changing a key technology), your primary output should be a **proposal to update `project-architecture.yaml`**. Do not implement the code until the architectural change is approved and merged into the source of truth.
+
+## How to Use `project-architecture.yaml`
+
+-   **To fix the "horrendous" UI**: Use the `designSystem` section as your guide. The `principles` should inform your design choices. The `componentLibrary` provides the building blocks. Generate beautiful, responsive, and accessible components that match the "Aesthetic Professionalism" principle.
+-   **To clarify the API**: Use the `architecture.keyPatterns` and `technologyStack.backend` sections to understand how the API should be structured. All new endpoints should follow these established patterns.
+-   **To build new features**: Look at the `sprintLifecycle` to find the current sprint's goals. Then, build the feature according to the `architecture` and `designSystem` specifications.
+
+## Critical Rules of Engagement
+
+-   **ALWAYS** use `project-architecture.yaml` as your primary reference.
+-   **NEVER** invent new design patterns or components that are not defined in the `designSystem`. Propose them as an update to the YAML first.
+-   **ALWAYS** write code that meets the `performanceMetrics` and `qualityAssurance` targets.
+-   **NEVER** generate code that violates the `securityAndCompliance` standards.
+-   **YOUR GOAL** is to translate the enterprise-level vision and architecture defined in the YAML into high-quality, production-ready code.
+
+This file provides guidance to Gemini CLI (gemini.google.com) when working with code in this repository.
+
+## Your Primary Responsibility: Three-Tier Documentation System
+
+You are responsible for maintaining the **Three-Tier Documentation Architecture** that provides optimal context for all agents:
+
+### TIER 1: Living Core (Always Accessible)
+Your default context includes these root directory files:
+- `project-architecture.yaml` - **SINGLE SOURCE OF TRUTH** for all project configuration
+- `INSTRUCTIONS.md` - Project context and agent coordination
+- `GEMINI.md` - This file - Your operational manual
+- `README.md` - Project front door and comprehensive overview  
+- `CHANGELOG.md` - Release notes and version history
+
+### TIER 2: Working Sprint (`docs/` directory)
+Current sprint planning and active decisions only - included in default context:
+- Documentation standards and maintenance procedures
+- Active UI design specifications and component library
+- Current sprint coordination framework
+- Active release information
+
+### TIER 3: Archive (`docs/archive/` directory)
+Historical documentation accessed only when explicitly requested:
+- Sprint-based archives (`sprint-2/`, `sprint-3/`, `sprint-5/`, `sprint-6/`, `sprint-8/`, `sprint-9/`)
+- General historical documentation
+- Obsolete specifications and deprecated features
 
 ## Project Overview
 
@@ -10,9 +77,9 @@ Enterprise Documentation Platform - A comprehensive AI-powered document generati
 
 ## Deployment Information
 
-- The current project's publicly accessible URL after being built and hosted is `https://spaghetti-platform-drgev.ondigitalocean.app/`
-- You are supposed to always commit every change, document it/them, etc.. and then push to github; which at that point triggers a ~30-45 second build from DigitalOcean before it becomes available at `https://spaghetti-platform-drgev.ondigitalocean.app/` if the build is successful
-  - NOTE: Use the installed `shot-scraper` python command line tool (Documentation is at `https://shot-scraper.datasette.io/en/stable/`) to capture screenshots of the deployed platform when needed. You *MUST* use `--wait 5000` to ensure the page is fully loaded before capturing.
+- The current project's publicly accessible URL after being built and hosted is <https://spaghetti-platform-drgev.ondigitalocean.app/>
+    - NOTE: Use the installed `shot-scraper` python command line tool (Documentation is at <https://shot-scraper.datasette.io/en/stable/>) to capture screenshots of the deployed platform when needed. You *MUST* use `--wait 5000` to ensure the page is fully loaded before capturing.
+- You are supposed to always commit every change, document it/them, etc.. and then push to github; which at that point triggers a ~30-45 second build from DigitalOcean before it becomes available at <https://spaghetti-platform-drgev.ondigitalocean.app/> if the build is successful
 
 ## Technology Stack
 
@@ -128,37 +195,44 @@ npm run dev
 - Ensure all code is well-documented and follows best practices for readability and maintainability
 - Document all new features in GEMINI.md and Version History section of README.md
 - Use clear, descriptive commit messages following the established pattern
-- Each commit should include the Gemini Code attribution footer
+- Each commit should include the Gemini GLI attribution footer
 
 ## Current Implementation Status
 
-### ✅ COMPLETED MILESTONE: Complete API Integration
+### ✅ COMPLETED MILESTONE: Sprint 6 - Advanced Collaboration & Workflow Automation
 
-#### 🏗️ Enterprise Foundation Established
+#### 🚀 Enterprise-Grade Collaboration Platform Complete
 
-We have successfully achieved **enterprise-platform level architecture** comparable to Salesforce, Workday, ServiceNow foundations:
+We have successfully achieved **Sprint 6 completion** with full enterprise collaboration capabilities:
 
-1. **Full-Stack API Integration** ✅
-   - Frontend service layer with comprehensive API contracts
-   - Real-time database connectivity through admin endpoints  
-   - Type-safe TypeScript integration with error handling
-   - Enterprise-grade loading states and error boundaries
+1. **Advanced Collaboration Features** ✅
+   - Real-time collaborative editing with SignalR hub integration
+   - Multi-user presence system with typing indicators and cursor tracking
+   - Operational transformation for conflict-free concurrent editing
+   - User avatar system with status indicators (active, idle, away, typing)
+   - Document comments and annotation system
 
-2. **CORS & Development Environment** ✅
-   - Professional multi-port development setup (3000, 3001, HTTPS)
-   - Hot-reload compatible API integration
-   - Production-ready security headers
+2. **Workflow Automation System** ✅
+   - Visual workflow designer with ReactFlow integration
+   - Custom node types: Start, Task, Decision, End nodes
+   - Workflow validation with error/warning reporting
+   - Node palette with drag-and-drop functionality
+   - Workflow testing and execution capabilities
+   - Approval process automation
 
-3. **Database Integration & Admin APIs** ✅
-   - PostgreSQL with Entity Framework Core migrations
-   - Multi-tenant schema with owned type configurations
-   - Admin endpoint suite: database-stats, seed-sample-data, clear-all-data
-   - Real enterprise data management with audit trails
+3. **PWA & Performance Enhancements** ✅
+   - Progressive Web App capabilities with offline support
+   - Service worker implementation for caching strategies
+   - App manifest for mobile installation
+   - Performance optimizations with <200ms response times
+   - SSL certificate validation and security headers
 
-4. **Docker & Container Architecture** ✅
-   - Multi-stage builds optimized for development and production
-   - Container orchestration matching production environment
-   - API (port 5001), Database (5432), Redis, Elasticsearch integration
+4. **Production Deployment & Monitoring** ✅
+   - Zero-error TypeScript compilation and build process
+   - 100% health check validation on production environment
+   - Automated deployment pipeline with DigitalOcean integration
+   - Production monitoring with comprehensive health reporting
+   - Enterprise security with multi-tenant isolation
 
 ### 🎯 Available API Endpoints (Production Ready)
 

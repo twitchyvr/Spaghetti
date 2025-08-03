@@ -35,72 +35,69 @@ const getButtonClasses = (
   disabled: boolean
 ) => {
   const baseClasses = cn(
-    'inline-flex items-center justify-center font-medium transition-all duration-200',
-    'focus:outline-none focus:ring-2 focus:ring-offset-2',
+    'inline-flex items-center justify-center font-medium transition-all duration-300 ease-out',
+    'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500/50',
     'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none',
+    'backdrop-blur-sm',
     {
       'w-full': fullWidth,
       'cursor-not-allowed opacity-60': loading || disabled,
     }
   );
 
-  // Professional variant styles with Microsoft-inspired colors
+  // Apple-style variant with elegant gradients and effects
   const variantClasses = {
     primary: cn(
-      'bg-blue-600 text-white border border-blue-600',
-      'hover:bg-blue-700 hover:border-blue-700',
-      'focus:ring-blue-500 focus:ring-offset-2',
-      'active:bg-blue-800',
-      'shadow-sm hover:shadow-md'
+      'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0',
+      'focus:ring-blue-500/50 focus:ring-offset-2',
+      'active:scale-95',
+      'shadow-lg hover:shadow-xl hover:scale-105'
     ),
     secondary: cn(
-      'bg-white text-neutral-700 border border-neutral-300',
-      'hover:bg-neutral-50 hover:border-neutral-400',
-      'focus:ring-blue-500 focus:ring-offset-2',
-      'active:bg-neutral-100',
-      'shadow-sm hover:shadow-md'
+      'bg-white/90 text-gray-700 border border-gray-300/50 backdrop-blur-xl',
+      'hover:bg-white hover:border-gray-400/60 hover:text-gray-900',
+      'focus:ring-blue-500/50 focus:ring-offset-2',
+      'active:scale-95',
+      'shadow-sm hover:shadow-lg hover:scale-102'
     ),
     outline: cn(
-      'bg-transparent text-blue-600 border border-blue-600',
-      'hover:bg-blue-50 hover:text-blue-700',
-      'focus:ring-blue-500 focus:ring-offset-2',
-      'active:bg-blue-100'
+      'bg-transparent text-blue-600 border border-blue-500/60 backdrop-blur-sm',
+      'hover:bg-blue-50/80 hover:text-blue-700 hover:border-blue-600',
+      'focus:ring-blue-500/50 focus:ring-offset-2',
+      'active:scale-95 active:bg-blue-100/80'
     ),
     ghost: cn(
-      'bg-transparent text-neutral-700 border border-transparent',
-      'hover:bg-neutral-100 hover:text-neutral-900',
-      'focus:ring-blue-500 focus:ring-offset-2',
-      'active:bg-neutral-200'
+      'bg-transparent text-gray-700 border border-transparent backdrop-blur-sm',
+      'hover:bg-gray-100/60 hover:text-gray-900',
+      'focus:ring-blue-500/50 focus:ring-offset-2',
+      'active:scale-95 active:bg-gray-200/60'
     ),
     destructive: cn(
-      'bg-red-600 text-white border border-red-600',
-      'hover:bg-red-700 hover:border-red-700',
-      'focus:ring-red-500 focus:ring-offset-2',
-      'active:bg-red-800',
-      'shadow-sm hover:shadow-md'
+      'bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0',
+      'focus:ring-red-500/50 focus:ring-offset-2',
+      'active:scale-95',
+      'shadow-lg hover:shadow-xl hover:scale-105'
     ),
     success: cn(
-      'bg-green-600 text-white border border-green-600',
-      'hover:bg-green-700 hover:border-green-700',
-      'focus:ring-green-500 focus:ring-offset-2',
-      'active:bg-green-800',
-      'shadow-sm hover:shadow-md'
+      'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white border-0',
+      'focus:ring-green-500/50 focus:ring-offset-2',
+      'active:scale-95',
+      'shadow-lg hover:shadow-xl hover:scale-105'
     ),
     warning: cn(
-      'bg-yellow-500 text-white border border-yellow-500',
-      'hover:bg-yellow-600 hover:border-yellow-600',
-      'focus:ring-yellow-500 focus:ring-offset-2',
-      'active:bg-yellow-700',
-      'shadow-sm hover:shadow-md'
+      'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white border-0',
+      'focus:ring-yellow-500/50 focus:ring-offset-2',
+      'active:scale-95',
+      'shadow-lg hover:shadow-xl hover:scale-105'
     ),
   };
 
-  // Professional size styles with proper spacing
+  // Apple-style size classes with generous spacing and rounded corners
   const sizeClasses = {
-    sm: 'px-3 py-2 text-sm rounded-md gap-1.5 min-h-[32px]',
-    md: 'px-4 py-2.5 text-sm rounded-md gap-2 min-h-[36px]',
-    lg: 'px-6 py-3 text-base rounded-lg gap-2.5 min-h-[44px]',
-    xl: 'px-8 py-4 text-lg rounded-lg gap-3 min-h-[52px]',
+    sm: 'px-4 py-2.5 text-sm rounded-2xl gap-2 min-h-[36px]',
+    md: 'px-6 py-3 text-sm rounded-2xl gap-2.5 min-h-[40px]',
+    lg: 'px-8 py-4 text-base rounded-2xl gap-3 min-h-[48px]',
+    xl: 'px-10 py-5 text-lg rounded-3xl gap-3.5 min-h-[56px]',
   };
 
   return cn(baseClasses, variantClasses[variant], sizeClasses[size]);

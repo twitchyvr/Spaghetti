@@ -30,7 +30,7 @@ This document establishes the standardized structure, formatting, and maintenanc
 #### File Names
 ```
 # Root level files - UPPERCASE
-README.md, CHANGELOG.md, INSTRUCTIONS.md, CLAUDE.md
+README.md, CHANGELOG.md, INSTRUCTIONS.md, CLAUDE.md, GEMINI.md, project-status.yaml
 
 # Documentation files - kebab-case
 ui-design-system.md, sprint-planning.md, api-reference.md

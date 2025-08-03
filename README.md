@@ -16,7 +16,7 @@ A comprehensive multi-level enterprise platform that enables large organizations
 - **Sprint 7 Focus**: Backend architecture simplification and incremental feature deployment
 
 ### Three-Tier Documentation System
-- **Tier 1 (Living Core)**: README.md, INSTRUCTIONS.md, CLAUDE.md, project-architecture.yaml, CHANGELOG.md
+- **Tier 1 (Living Core)**: README.md, INSTRUCTIONS.md, CLAUDE.md, GEMINI.md, project-architecture.yaml, CHANGELOG.md
 - **Tier 2 (Working Sprint)**: `docs/` - Current sprint planning and decisions
 - **Tier 3 (Archive)**: `docs/archive/` - Historical sprint documents organized by sprint number
 
@@ -199,7 +199,7 @@ For detailed API documentation, visit `/swagger` when running the application.
 ## 📞 Support & Contributing
 
 For development standards, coding conventions, and contribution guidelines, see:
-- `CLAUDE.md` - Development workflow and standards
+- `CLAUDE.md` & `GEMINI.md` - Development workflow and standards
 - `INSTRUCTIONS.md` - Project context and agent coordination
 - `docs/` directory - Detailed technical documentation
 

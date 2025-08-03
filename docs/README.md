@@ -21,7 +21,7 @@ This directory contains **current sprint planning and active decisions only**. H
 ### TIER 1: Living Core (Root Directory)
 **Always current, default AI context**
 - `project-architecture.yaml` - Single source of truth
-- `INSTRUCTIONS.md`, `CLAUDE.md`, `README.md`, `CHANGELOG.md`
+- `INSTRUCTIONS.md`, `CLAUDE.md`, `GEMINI.md`, `README.md`, `CHANGELOG.md`
 
 ### TIER 2: Working Sprint (This Directory)
 **Current sprint only - active decisions and planning**

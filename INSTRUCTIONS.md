@@ -168,7 +168,7 @@ Our documentation follows a three-tier system to ensure clarity for all agents a
 ### TIER 1: Living Core (Root Directory) - Always Current
 - **🏗️ Project Architecture**: `project-architecture.yaml` - **SINGLE SOURCE OF TRUTH**
 - **📋 Project Instructions**: `INSTRUCTIONS.md` - This file - Project context and agent coordination
-- **⚙️ Development Guide**: `CLAUDE.md` - Development standards and AI operational manual
+- **⚙️ Development Guide**: `CLAUDE.md` & `GEMINI.md` - Development standards and AI operational manual
 - **📖 Project Overview**: `README.md` - Comprehensive project front door
 - **📈 Change History**: `CHANGELOG.md` - Release notes and version history
 
