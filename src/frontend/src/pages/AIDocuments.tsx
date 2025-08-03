@@ -3,6 +3,11 @@ import { AIDocumentGenerator } from '../components/ai/AIDocumentGenerator';
 import { AIDocumentGenerationResponse } from '../types';
 import { documentApi } from '../services/api';
 
+// Pantry Components
+import { Card, CardHeader, CardContent } from '../components/pantry/Card';
+import { Alert } from '../components/pantry/Alert';
+import { Badge, StatusBadge } from '../components/pantry/Badge';
+
 const AIDocuments: React.FC = () => {
   const [recentDocuments, setRecentDocuments] = useState<AIDocumentGenerationResponse[]>([]);
   const [savedSuccess, setSavedSuccess] = useState(false);
@@ -26,25 +31,23 @@ const AIDocuments: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-neutral-50">
       <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-3xl font-bold text-neutral-900">
             AI Document Generation
           </h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
+          <p className="mt-2 text-neutral-600">
             Create professional documents using AI-powered templates and natural language processing
           </p>
         </div>
 
         {/* Success Message */}
         {savedSuccess && (
-          <div className="mb-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-            <p className="text-green-700 dark:text-green-400">
-              Document successfully generated and saved to your document library!
-            </p>
-          </div>
+          <Alert variant="success" className="mb-4" dismissible onDismiss={() => setSavedSuccess(false)}>
+            Document successfully generated and saved to your document library!
+          </Alert>
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -58,112 +61,94 @@ const AIDocuments: React.FC = () => {
           {/* Sidebar - Recent Documents & Tips */}
           <div className="space-y-6">
             {/* Recent Documents */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
-              <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                  Recently Generated
-                </h3>
-              </div>
-              <div className="p-4">
+            <Card>
+              <CardHeader title="Recently Generated" />
+              <CardContent>
                 {recentDocuments.length === 0 ? (
-                  <p className="text-gray-500 dark:text-gray-400 text-sm">
+                  <p className="text-neutral-500 text-sm">
                     No documents generated yet. Create your first AI-generated document using the form on the left.
                   </p>
                 ) : (
                   <div className="space-y-3">
                     {recentDocuments.map((doc, index) => (
-                      <div 
-                        key={index}
-                        className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
-                      >
-                        <h4 className="font-medium text-gray-900 dark:text-white text-sm truncate">
+                      <Card key={index} variant="filled" padding="sm">
+                        <h4 className="font-medium text-neutral-900 text-sm truncate">
                           {doc.title}
                         </h4>
-                        <div className="mt-1 flex items-center justify-between">
-                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                        <div className="mt-2 flex items-center justify-between">
+                          <Badge variant="secondary" size="sm">
                             {doc.metadata.templateType}
-                          </span>
-                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                          </Badge>
+                          <Badge variant="info" size="sm">
                             {Math.round(doc.metadata.confidenceScore * 100)}% confidence
-                          </span>
+                          </Badge>
                         </div>
-                      </div>
+                      </Card>
                     ))}
                   </div>
                 )}
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
             {/* Tips & Best Practices */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
-              <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                  Tips for Better Results
-                </h3>
-              </div>
-              <div className="p-4">
-                <div className="space-y-4 text-sm text-gray-600 dark:text-gray-400">
-                  <div className="flex items-start">
-                    <span className="text-blue-500 mr-2">💡</span>
+            <Card>
+              <CardHeader title="Tips for Better Results" />
+              <CardContent>
+                <div className="space-y-4 text-sm text-neutral-600">
+                  <div className="flex items-start gap-2">
+                    <span className="text-orange-500">💡</span>
                     <p>
-                      <strong>Be specific:</strong> Provide detailed information in the template parameters for more accurate results.
+                      <strong className="text-neutral-900">Be specific:</strong> Provide detailed information in the template parameters for more accurate results.
                     </p>
                   </div>
-                  <div className="flex items-start">
-                    <span className="text-green-500 mr-2">✅</span>
+                  <div className="flex items-start gap-2">
+                    <span className="text-green-500">✅</span>
                     <p>
-                      <strong>Choose the right model:</strong> GPT-4 for complex documents, GPT-3.5 for faster generation.
+                      <strong className="text-neutral-900">Choose the right model:</strong> GPT-4 for complex documents, GPT-3.5 for faster generation.
                     </p>
                   </div>
-                  <div className="flex items-start">
-                    <span className="text-purple-500 mr-2">🎯</span>
+                  <div className="flex items-start gap-2">
+                    <span className="text-orange-500">🎯</span>
                     <p>
-                      <strong>Review and edit:</strong> Always review generated content and make necessary adjustments.
+                      <strong className="text-neutral-900">Review and edit:</strong> Always review generated content and make necessary adjustments.
                     </p>
                   </div>
-                  <div className="flex items-start">
-                    <span className="text-orange-500 mr-2">⚡</span>
+                  <div className="flex items-start gap-2">
+                    <span className="text-orange-500">⚡</span>
                     <p>
-                      <strong>Template selection:</strong> Choose templates that match your industry and document type.
+                      <strong className="text-neutral-900">Template selection:</strong> Choose templates that match your industry and document type.
                     </p>
                   </div>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
             {/* AI Model Status */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
-              <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                  AI Service Status
-                </h3>
-              </div>
-              <div className="p-4">
+            <Card>
+              <CardHeader title="AI Service Status" />
+              <CardContent>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">OpenAI GPT-4</span>
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
-                      <span className="w-1.5 h-1.5 bg-green-500 rounded-full mr-1"></span>
+                    <span className="text-sm text-neutral-600">OpenAI GPT-4</span>
+                    <Badge variant="success" size="sm" dot>
                       Available
-                    </span>
+                    </Badge>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">OpenAI GPT-3.5</span>
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
-                      <span className="w-1.5 h-1.5 bg-green-500 rounded-full mr-1"></span>
+                    <span className="text-sm text-neutral-600">OpenAI GPT-3.5</span>
+                    <Badge variant="success" size="sm" dot>
                       Available
-                    </span>
+                    </Badge>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Claude 3</span>
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300">
-                      <span className="w-1.5 h-1.5 bg-red-500 rounded-full mr-1"></span>
+                    <span className="text-sm text-neutral-600">Claude 3</span>
+                    <Badge variant="warning" size="sm" dot>
                       Coming Soon
-                    </span>
+                    </Badge>
                   </div>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

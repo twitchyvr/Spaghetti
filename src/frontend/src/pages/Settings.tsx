@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
+import { Card } from '../components/pantry/Card';
 import { 
   Settings as SettingsIcon,
   Bell,
