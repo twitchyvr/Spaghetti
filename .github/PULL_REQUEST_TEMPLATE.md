@@ -3,17 +3,20 @@
 ## 📋 GitOps Workflow Checklist
 
 ### Required Information
+
 - [ ] **Type**: `feat` | `fix` | `docs` | `style` | `refactor` | `test` | `chore`
 - [ ] **Scope**: `api` | `ui` | `docs` | `ci` | `test` | `config`
 - [ ] **Related Issue**: Fixes #___
 
 ### GitOps Integration Points
+
 - [ ] **Conventional Commits**: All commits follow conventional commit format
 - [ ] **Co-authored Footer**: All commits include Claude Code attribution
 - [ ] **Branch Naming**: Feature branch follows naming convention
 - [ ] **Documentation**: Updated relevant documentation files
 
 ### Document Management System Integration
+
 - [ ] **Backend Integration**: API endpoints tested and functional
 - [ ] **Frontend Integration**: UI components properly integrated
 - [ ] **Database Changes**: Migrations included if schema changes
@@ -22,6 +25,7 @@
 - [ ] **Real-time Features**: SignalR integration tested if applicable
 
 ### Quality Assurance
+
 - [ ] **Build Status**: ✅ All builds pass locally
 - [ ] **Test Coverage**: ✅ Tests pass and maintain >90% coverage
 - [ ] **TypeScript**: ✅ No TypeScript errors (frontend)
@@ -29,6 +33,7 @@
 - [ ] **Performance**: ✅ Performance impact assessed
 
 ### Deployment Verification
+
 - [ ] **Local Testing**: Verified functionality in local environment
 - [ ] **Docker Build**: Docker builds successfully
 - [ ] **Integration Testing**: API/UI integration verified
@@ -41,15 +46,15 @@
 
 ### Changes Made
 <!-- List of specific changes made -->
-- 
-- 
-- 
+-
+-
+-
 
 ### API Changes (if applicable)
 <!-- Document any API endpoint changes -->
-- **New Endpoints**: 
-- **Modified Endpoints**: 
-- **Deprecated Endpoints**: 
+- **New Endpoints**:
+- **Modified Endpoints**:
+- **Deprecated Endpoints**:
 
 ### UI Changes (if applicable)
 <!-- Include screenshots for UI changes -->
@@ -61,13 +66,14 @@
 
 ### Database Changes (if applicable)
 <!-- Document any schema changes -->
-- **New Tables**: 
-- **Modified Tables**: 
-- **Migrations**: 
+- **New Tables**:
+- **Modified Tables**:
+- **Migrations**:
 
 ## 🔄 GitOps Workflow Compliance
 
 ### Commit History
+
 ```
 feat(ui): add document list component with pagination
 
@@ -82,11 +88,13 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
 ### Branch Information
+
 - **Source Branch**: `feature/___`
 - **Target Branch**: `main`
 - **Delete Branch**: ✅ After merge
 
 ### Deployment Impact
+
 - **DigitalOcean Deployment**: Will trigger automatic deployment
 - **Estimated Deployment Time**: ~30-45 seconds
 - **Rollback Plan**: Available via previous deployment
@@ -95,12 +103,14 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 ## 🧪 Testing
 
 ### Test Coverage
+
 - [ ] **Unit Tests**: Added/updated for new functionality
 - [ ] **Integration Tests**: API endpoints tested
 - [ ] **E2E Tests**: User workflows tested (if applicable)
 - [ ] **Performance Tests**: Load testing completed (if applicable)
 
 ### Manual Testing Checklist
+
 - [ ] **Document Creation**: Create new document successfully
 - [ ] **Document Editing**: Edit existing document successfully  
 - [ ] **Document Deletion**: Delete document successfully
@@ -112,12 +122,14 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 ## 📊 Performance Impact
 
 ### Metrics
+
 - **Bundle Size Impact**: +/- ___ KB
 - **API Response Time**: ~___ ms
 - **Database Query Performance**: No degradation
 - **Memory Usage**: No significant impact
 
 ### Benchmarks
+
 - [ ] **Frontend Build Time**: Maintained <2s build time
 - [ ] **API Response Time**: Maintained <200ms average
 - [ ] **Database Queries**: Optimized and indexed
@@ -126,6 +138,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 ## 🔒 Security Considerations
 
 ### Authentication & Authorization
+
 - [ ] **JWT Integration**: Properly validates JWT tokens
 - [ ] **Role-based Access**: Respects user permissions
 - [ ] **Tenant Isolation**: Multi-tenant data separation maintained
@@ -134,6 +147,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 - [ ] **XSS Protection**: Output properly escaped
 
 ### Data Protection
+
 - [ ] **Sensitive Data**: No sensitive data exposed in logs
 - [ ] **File Upload Security**: File type validation implemented
 - [ ] **Access Control**: Document permissions enforced
@@ -142,12 +156,14 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 ## 📋 Deployment Checklist
 
 ### Pre-deployment
+
 - [ ] **Environment Variables**: All required variables configured
 - [ ] **Database Migrations**: Ready for production deployment
 - [ ] **File Storage**: Storage paths configured correctly
 - [ ] **External Services**: Elasticsearch/Redis/SignalR ready
 
 ### Post-deployment Verification
+
 - [ ] **Health Endpoints**: All health checks passing
 - [ ] **API Functionality**: Core document operations working
 - [ ] **UI Functionality**: User interface fully operational
@@ -159,6 +175,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 ## 📚 Documentation Updates
 
 ### Updated Files
+
 - [ ] **CHANGELOG.md**: Version and changes documented
 - [ ] **README.md**: Updated if user-facing changes
 - [ ] **API Documentation**: Swagger annotations updated
@@ -166,6 +183,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 - [ ] **GitOps Workflow**: Process documentation updated
 
 ### User Documentation
+
 - [ ] **User Guide**: Updated for new features
 - [ ] **API Reference**: Updated for endpoint changes
 - [ ] **Troubleshooting**: Added common issues and solutions
@@ -173,7 +191,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 ---
 
 **⚠️ Deployment Notice**: This PR will trigger automatic deployment to <https://spaghetti-platform-drgev.ondigitalocean.app/> upon merge. Verify all changes locally before approval.
-  - NOTE: Use the installed `shot-scraper` python command line tool (Documentation is at <https://shot-scraper.datasette.io/en/stable/>) to capture screenshots of the deployed platform when needed.
 
+- NOTE: Use the installed `shot-scraper` python command line tool (Documentation is at <https://shot-scraper.datasette.io/en/stable/>) to capture screenshots of the deployed platform when needed. You *MUST* use `--wait 5000` to ensure the page is fully loaded before capturing.
 
 **🤖 Generated with [Claude Code](https://claude.ai/code)**

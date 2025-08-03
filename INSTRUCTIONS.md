@@ -38,7 +38,7 @@ Refer to the `teamAndRoles` and `sprintLifecycle` sections within `project-archi
 - **Live URL**: <https://spaghetti-platform-drgev.ondigitalocean.app/>
 - **Repository**: Production-ready enterprise documentation system
 - **Technology**: .NET Core 8 backend, React 18 TypeScript frontend
-  - NOTE: Use the installed `shot-scraper` python command line tool (Documentation is at <https://shot-scraper.datasette.io/en/stable/>) to capture screenshots of the deployed platform when needed.
+  - NOTE: Use the installed `shot-scraper` python command line tool (Documentation is at <https://shot-scraper.datasette.io/en/stable/>) to capture screenshots of the deployed platform when needed. You *MUST* use `--wait 5000` to ensure the page is fully loaded before capturing.
 
 
 ## Team of Agents (9-Phase Workflow)

@@ -19,7 +19,7 @@ For current and active release information, see:
 - **Sprint**: 7 - Deployment Architecture Optimization
 - **Status**: Active Development
 - **Deployment**: <https://spaghetti-platform-drgev.ondigitalocean.app/>
-  - NOTE: Use the installed `shot-scraper` python command line tool (Documentation is at <https://shot-scraper.datasette.io/en/stable/>) to capture screenshots of the deployed platform when needed.
+  - NOTE: Use the installed `shot-scraper` python command line tool (Documentation is at <https://shot-scraper.datasette.io/en/stable/>) to capture screenshots of the deployed platform when needed. You *MUST* use `--wait 5000` to ensure the page is fully loaded before capturing.
 
 ### Recent Highlights
 - ✅ Sprint 6: Advanced Collaboration & Workflow Automation (Features complete, deployment complexity identified)

@@ -73,7 +73,7 @@ curl -I https://spaghetti-platform-drgev.ondigitalocean.app/
 curl -I https://spaghetti-platform-drgev.ondigitalocean.app/api/health
 ```
 
-## NOTE: Use the installed `shot-scraper` python command line tool (Documentation is at <https://shot-scraper.datasette.io/en/stable/>) to capture screenshots of the deployed platform when needed.
+## NOTE: Use the installed `shot-scraper` python command line tool (Documentation is at <https://shot-scraper.datasette.io/en/stable/>) to capture screenshots of the deployed platform when needed. You *MUST* use `--wait 5000` to ensure the page is fully loaded before capturing
 
 
 ## Common Issues & Solutions
