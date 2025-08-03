@@ -1,3 +1,5 @@
+using EnterpriseDocsCore.API;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add minimal services for a working API
@@ -145,6 +147,65 @@ app.MapGet("/api/documents", () => Results.Ok(new[] {
         author = "Alice Johnson"
     }
 })).AllowAnonymous();
+
+// Feature Flag Management Endpoints
+app.MapGet("/api/features", () => Results.Ok(FeatureFlags.GetFlagsByCategory())).AllowAnonymous();
+
+app.MapGet("/api/features/all", () => Results.Ok(new {
+    flags = FeatureFlags.GetAllFlags(),
+    timestamp = DateTime.UtcNow,
+    sprint = "Sprint 7 - Deployment Architecture Optimization"
+})).AllowAnonymous();
+
+app.MapPost("/api/features/{featureName}/enable", (string featureName) => {
+    FeatureFlags.Enable(featureName);
+    return Results.Ok(new {
+        feature = featureName,
+        enabled = true,
+        timestamp = DateTime.UtcNow,
+        message = $"Feature '{featureName}' has been enabled"
+    });
+}).AllowAnonymous();
+
+app.MapPost("/api/features/{featureName}/disable", (string featureName) => {
+    FeatureFlags.Disable(featureName);
+    return Results.Ok(new {
+        feature = featureName,
+        enabled = false,
+        timestamp = DateTime.UtcNow,
+        message = $"Feature '{featureName}' has been disabled"
+    });
+}).AllowAnonymous();
+
+app.MapPost("/api/features/rollout/phase1", () => {
+    FeatureFlags.EnablePhase1Features();
+    return Results.Ok(new {
+        phase = "Phase 1",
+        message = "Basic collaboration features enabled",
+        features = new[] { "DocumentLocking", "PresenceAwareness" },
+        timestamp = DateTime.UtcNow
+    });
+}).AllowAnonymous();
+
+app.MapPost("/api/features/rollout/phase2", () => {
+    FeatureFlags.EnablePhase2Features();
+    return Results.Ok(new {
+        phase = "Phase 2",
+        message = "Real-time collaboration features enabled",
+        features = new[] { "DocumentLocking", "PresenceAwareness", "RealTimeCollaboration", "CollaborativeEditing" },
+        timestamp = DateTime.UtcNow
+    });
+}).AllowAnonymous();
+
+app.MapPost("/api/features/rollout/phase3", () => {
+    FeatureFlags.EnablePhase3Features();
+    return Results.Ok(new {
+        phase = "Phase 3",
+        message = "Full workflow automation features enabled",
+        features = new[] { "All Sprint 6 features" },
+        timestamp = DateTime.UtcNow
+    });
+}).AllowAnonymous();
 
 Console.WriteLine("Starting Enterprise Docs API - Sprint 7 Deployment Architecture Optimization...");
 app.Run();
