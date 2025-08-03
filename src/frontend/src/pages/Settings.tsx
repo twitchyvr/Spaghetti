@@ -405,7 +405,7 @@ export default function Settings() {
       </div>
 
       {/* Settings Panel */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+      <Card className="shadow-sm border border-gray-200">
         {/* Tabs */}
         <div className="border-b border-gray-200">
           <nav className="flex space-x-8 px-6">
@@ -415,7 +415,7 @@ export default function Settings() {
                 onClick={() => setActiveTab(id as any)}
                 className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                   activeTab === id
-                    ? 'border-blue-500 text-blue-600'
+                    ? 'border-orange-500 text-orange-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -435,7 +435,7 @@ export default function Settings() {
           {activeTab === 'security' && renderSecuritySettings()}
           {activeTab === 'integrations' && renderIntegrationsSettings()}
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

@@ -1,6 +1,17 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
-import '../styles/dashboard.css';
+
+// Import Pantry Design System components
+import { 
+  Card, 
+  CardHeader, 
+  CardContent 
+} from '../components/pantry/Card';
+import { Button } from '../components/pantry/Button';
+import { Alert } from '../components/pantry/Alert';
+import { Badge } from '../components/pantry/Badge';
+import { Input } from '../components/pantry/Input';
+import { Table } from '../components/pantry/Table';
 import { 
   Database, 
   Server, 
