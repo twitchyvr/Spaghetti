@@ -153,6 +153,12 @@ projectConfiguration:
       - name: "devops-lead"
         type: "Technical Lead"
         responsibilities: "Manages infrastructure, CI/CD pipelines, cloud services, and deployment processes."
+      - name: "documentation-strategist"
+        type: "Strategic Governance"
+        responsibilities: "Governs the documentation ecosystem, defining standards, auditing quality, and planning the documentation architecture."
+      - name: "documentation-technician"
+        type: "Operational Maintenance"
+        responsibilities: "Executes tactical documentation tasks like archiving sprints, fixing links, and applying standards."        
   sprintLifecycle:
     - id: "sprint-6"
       name: "Advanced Collaboration Infrastructure"

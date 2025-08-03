@@ -88,6 +88,20 @@ See `/docs/ui-design-system.md` for detailed persona definitions including:
 - David (Developer Diner/Steward)
 - Lauren (Learner Diner)
 
+## Documentation Structure
+
+Our documentation follows a three-tier system to ensure clarity for all agents and team members:
+
+1.  **Tier 1: Living Core**: The essential, always-current files in the root directory. This is the default context for all operations. This includes:
+    *   `project-architecture.yaml` (The Source of Truth)
+    *   `README.md` (Project Overview)
+    *   **Agent Definitions** (e.g., `backend-lead.md`, `documentation-strategist.md`, etc.)
+    *   `INSTRUCTIONS.md` (This File) and `CLAUDE.md`/`GEMINI.md` (AI Manuals)
+
+2.  **Tier 2: Working Sprint**: Documents related to the *current* sprint are located directly in `docs/`. These provide immediate context for ongoing work.
+
+3.  **Tier 3: The Archive**: All historical documents from past sprints are preserved in `docs/archive/sprint-X/`. **This archive should only be referenced when historical context is explicitly requested.**
+
 ## Technical Architecture
 
 ### Backend (.NET Core 8)
