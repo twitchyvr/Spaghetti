@@ -135,6 +135,7 @@ export default function Login() {
                 <input
                   id="email"
                   type="email"
+                  autoComplete="email"
                   value={formData.email}
                   onChange={handleInputChange('email')}
                   placeholder="Enter your email address"
