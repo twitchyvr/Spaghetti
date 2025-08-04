@@ -44,7 +44,57 @@ On every task you are assigned, you MUST follow this sequence:
 -   **NEVER** generate code that violates the `securityAndCompliance` standards.
 -   **YOUR GOAL** is to translate the enterprise-level vision and architecture defined in the YAML into high-quality, production-ready code.
 
-This file provides guidance to Gemini CLI (gemini.google.com) when working with code in this repository.
+## 🚨 CRITICAL: UI/UX Protection Guidelines
+
+### The "Simplification Trap" - Never Fall Into This
+
+After a major UI transformation in Sprint 6, we identified a critical anti-pattern: **NEVER sacrifice functionality for aesthetics**. The following rules are non-negotiable:
+
+#### Functionality-First Development
+1. **ALWAYS** verify existing functionality before making UI changes
+2. **NEVER** replace working navigation with placeholder code (`console.log`)
+3. **ALWAYS** test complete user flows, not just individual components
+4. **NEVER** commit non-functional code to main branch
+
+#### Protected Components (DO NOT BREAK)
+- **Navigation**: `src/components/navigation/NavigationItems.tsx`
+  - All Link components must remain functional
+  - `onNavigate` prop must be properly handled
+  - Test: Click every nav item, verify mobile auto-close works
+  
+- **Sidebar**: `src/components/pantry/layout/AppLayout.tsx`
+  - `setSidebarOpen` prop must be passed correctly
+  - Mobile overlay must close on backdrop click
+  - Critical CSS: `minHeight: 0` required for flex scrolling
+  - Test: Verify scrolling works on all screen sizes
+  
+- **Header**: `src/components/pantry/layout/Header.tsx`
+  - Settings button must navigate to `/settings`
+  - Profile button must navigate to `/profile`
+  - Never replace `useNavigate` with `console.log`
+  - Test: Click all buttons, verify they navigate correctly
+
+#### UI Development Checklist
+Before committing ANY UI changes:
+- [ ] All navigation links work correctly
+- [ ] Mobile responsiveness functions properly
+- [ ] Scrolling works in all containers
+- [ ] Authentication flows remain intact
+- [ ] All buttons perform their intended actions
+- [ ] End-to-end user flows are tested
+
+#### Emergency Procedures
+If functionality is accidentally broken:
+1. **Immediately** create hotfix branch
+2. **Restore** working functionality before aesthetic improvements
+3. **Test** entire user flows before deployment
+4. **Document** what was broken and how it was fixed
+
+### Reference Documents
+- **Lessons Learned**: `docs/ui-transformation-lessons-learned.md`
+- **Protection Guidelines**: `project-architecture.yaml` → `designSystem.uiuxProtectionGuidelines`
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Your Primary Responsibility: Three-Tier Documentation System
 
@@ -54,7 +104,7 @@ You are responsible for maintaining the **Three-Tier Documentation Architecture*
 Your default context includes these root directory files:
 - `project-architecture.yaml` - **SINGLE SOURCE OF TRUTH** for all project configuration
 - `INSTRUCTIONS.md` - Project context and agent coordination
-- `GEMINI.md` - This file - Your operational manual
+- `CLAUDE.md` - This file - Your operational manual
 - `README.md` - Project front door and comprehensive overview  
 - `CHANGELOG.md` - Release notes and version history
 
@@ -193,9 +243,9 @@ npm run dev
 - **CRITICAL**: Always build and test Docker locally before committing to prevent deployment failures
 - Use branches for new features or bug fixes, merging into `master` when complete
 - Ensure all code is well-documented and follows best practices for readability and maintainability
-- Document all new features in GEMINI.md and Version History section of README.md
+- Document all new features in CLAUDE.md and Version History section of README.md
 - Use clear, descriptive commit messages following the established pattern
-- Each commit should include the Gemini GLI attribution footer
+- Each commit should include the Claude Code attribution footer
 
 ## Current Implementation Status
 
@@ -306,7 +356,7 @@ When seeded, creates:
 3. **Local Testing**: ALWAYS test locally (npm run dev, docker-compose up) before committing
 4. **Build Verification**: Ensure TypeScript compilation passes (npm run build)
 5. **Code Review**: Ensure proper error handling and logging
-6. **Documentation**: Update GEMINI.md and README.md for significant changes
+6. **Documentation**: Update CLAUDE.md and README.md for significant changes
 7. **Commit**: Use conventional commit messages with frequent commits
 
 ### CSS and Styling Guidelines
