@@ -1,13 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'sonner';
-import { Eye, EyeOff } from 'lucide-react';
-
-// Pantry Components
-import { Card, CardHeader, CardContent } from '../components/pantry/Card';
-import { Button } from '../components/pantry/Button';
-import { Input } from '../components/pantry/Input';
-import { Alert } from '../components/pantry/Alert';
+import { Eye, EyeOff, Building2, Mail, Lock, Globe, Activity } from 'lucide-react';
 
 interface LoginFormData {
   email: string;
@@ -88,50 +82,131 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'linear-gradient(135deg, var(--color-bg-secondary) 0%, var(--color-brand-light) 100%)',
+      padding: '24px'
+    }}>
+      <div style={{
+        maxWidth: '480px',
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '32px'
+      }}>
         {/* Header */}
-        <div className="text-center">
-          <div className="flex justify-center mb-6">
-            <div className="w-16 h-16 bg-white border border-neutral-200 rounded-lg flex items-center justify-center shadow-sm">
-              <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            marginBottom: '24px'
+          }}>
+            <div style={{
+              width: '80px',
+              height: '80px',
+              background: 'linear-gradient(135deg, var(--color-brand-primary) 0%, var(--color-brand-secondary) 100%)',
+              borderRadius: 'var(--radius-xl)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: 'var(--shadow-xl)',
+              border: '3px solid white'
+            }}>
+              <Activity style={{ 
+                width: '36px', 
+                height: '36px', 
+                color: 'white'
+              }} />
             </div>
           </div>
-          <h2 className="text-2xl font-semibold text-neutral-900 mb-2">
-            Spaghetti Platform
-          </h2>
-          <p className="text-neutral-600 text-base">
-            Sign in to your account
+          <h1 style={{
+            fontSize: 'var(--font-3xl)',
+            fontWeight: '700',
+            color: 'var(--color-text-primary)',
+            marginBottom: '8px',
+            background: 'linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-secondary))',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text'
+          }}>
+            Enterprise Docs Platform
+          </h1>
+          <p style={{
+            fontSize: 'var(--font-lg)',
+            color: 'var(--color-text-secondary)',
+            fontWeight: '500'
+          }}>
+            Secure Document Management & AI Analytics
           </p>
         </div>
 
-        {/* Login Form - Microsoft Style Card */}
-        <div className="bg-white rounded-lg border border-neutral-200 shadow-sm">
-          <div className="p-8">
-            <form className="space-y-6" onSubmit={handleSubmit}>
-              {/* General Error */}
-              {errors.general && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                  <div className="flex items-start">
-                    <div className="flex-shrink-0">
-                      <svg className="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    <div className="ml-3">
-                      <p className="text-sm font-medium text-red-800">{errors.general}</p>
-                    </div>
-                  </div>
-                </div>
-              )}
+        {/* Login Form */}
+        <div style={{
+          background: 'linear-gradient(145deg, var(--color-bg-primary) 0%, var(--color-bg-tertiary) 100%)',
+          borderRadius: 'var(--radius-xl)',
+          boxShadow: 'var(--shadow-xl)',
+          border: '1px solid var(--color-border-primary)',
+          backdropFilter: 'blur(10px)',
+          padding: '32px'
+        }}>
+          <form style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '24px'
+          }} onSubmit={handleSubmit}>
+            {/* General Error */}
+            {errors.general && (
+              <div style={{
+                background: 'var(--color-error-light)',
+                border: '1px solid var(--color-error-primary)',
+                borderRadius: 'var(--radius-lg)',
+                padding: '16px',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '12px'
+              }}>
+                <AlertCircle style={{
+                  width: '20px',
+                  height: '20px',
+                  color: 'var(--color-error-primary)',
+                  flexShrink: 0
+                }} />
+                <p style={{
+                  fontSize: 'var(--font-sm)',
+                  fontWeight: '500',
+                  color: 'var(--color-error-primary)',
+                  margin: 0
+                }}>
+                  {errors.general}
+                </p>
+              </div>
+            )}
 
-              {/* Email Field */}
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-neutral-700 mb-2">
-                  Email address
-                </label>
+            {/* Email Field */}
+            <div>
+              <label style={{
+                display: 'block',
+                fontSize: 'var(--font-sm)',
+                fontWeight: '600',
+                color: 'var(--color-text-primary)',
+                marginBottom: '8px'
+              }}>
+                Email Address
+              </label>
+              <div style={{ position: 'relative' }}>
+                <Mail style={{
+                  position: 'absolute',
+                  left: '16px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  width: '20px',
+                  height: '20px',
+                  color: errors.email ? 'var(--color-error-primary)' : 'var(--color-text-tertiary)',
+                  zIndex: 1
+                }} />
                 <input
                   id="email"
                   type="email"
@@ -140,14 +215,47 @@ export default function Login() {
                   onChange={handleInputChange('email')}
                   placeholder="Enter your email address"
                   disabled={isLoading}
-                  className={`w-full px-3 py-3 border rounded-lg text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.email ? 'border-red-300 bg-red-50' : 'border-neutral-300 bg-white hover:border-neutral-400'
-                  } ${isLoading ? 'cursor-not-allowed opacity-60' : ''}`}
+                  style={{
+                    width: '100%',
+                    paddingLeft: '48px',
+                    paddingRight: '16px',
+                    paddingTop: '14px',
+                    paddingBottom: '14px',
+                    border: `2px solid ${errors.email ? 'var(--color-error-primary)' : 'var(--color-border-primary)'}`,
+                    borderRadius: 'var(--radius-lg)',
+                    fontSize: 'var(--font-base)',
+                    background: errors.email ? 'var(--color-error-light)' : 'var(--color-bg-primary)',
+                    color: 'var(--color-text-primary)',
+                    transition: 'all var(--transition-base)',
+                    outline: 'none',
+                    opacity: isLoading ? '0.6' : '1',
+                    cursor: isLoading ? 'not-allowed' : 'text'
+                  }}
+                  onFocus={(e) => {
+                    if (!errors.email) {
+                      e.target.style.borderColor = 'var(--color-brand-primary)';
+                      e.target.style.boxShadow = 'var(--shadow-md)';
+                    }
+                  }}
+                  onBlur={(e) => {
+                    if (!errors.email) {
+                      e.target.style.borderColor = 'var(--color-border-primary)';
+                      e.target.style.boxShadow = 'none';
+                    }
+                  }}
                 />
-                {errors.email && (
-                  <p className="mt-2 text-sm text-red-600">{errors.email}</p>
-                )}
               </div>
+              {errors.email && (
+                <p style={{
+                  marginTop: '8px',
+                  fontSize: 'var(--font-sm)',
+                  color: 'var(--color-error-primary)',
+                  fontWeight: '500'
+                }}>
+                  {errors.email}
+                </p>
+              )}
+            </div>
 
               {/* Password Field */}
               <div>

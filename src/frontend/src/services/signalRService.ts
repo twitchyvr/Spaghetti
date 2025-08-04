@@ -39,6 +39,19 @@ export interface DocumentLockInfo {
   isActive: boolean;
 }
 
+export interface DocumentComment {
+  id: string;
+  documentId: string;
+  userId: string;
+  userName: string;
+  content: string;
+  timestamp: Date;
+  position: number;
+  line?: number;
+  isResolved: boolean;
+  replies?: DocumentComment[];
+}
+
 // SignalR connection management
 let connection: signalR.HubConnection | null = null;
 let joinedDocuments: Set<string> = new Set();
@@ -144,6 +157,21 @@ export async function releaseDocumentLock(documentId: string): Promise<void> {
   } catch (error) {
     console.error('Error releasing document lock:', error);
   }
+}
+
+export async function sendComment(documentId: string, comment: DocumentComment): Promise<void> {
+  if (!connection || !documentId || !comment) return;
+
+  try {
+    await connection.invoke('SendComment', documentId, comment);
+  } catch (error) {
+    console.error('Error sending comment:', error);
+    throw error;
+  }
+}
+
+export function getConnectionState(): string {
+  return connection?.state ? signalR.HubConnectionState[connection.state] : 'Disconnected';
 }
 
 // Event handlers

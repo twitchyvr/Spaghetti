@@ -20,6 +20,9 @@ const AIDocuments = React.lazy(() => import('./pages/AIDocuments'));
 const Login = React.lazy(() => import('./pages/Login'));
 const Settings = React.lazy(() => import('./pages/Settings'));
 const Profile = React.lazy(() => import('./pages/Profile'));
+const Notifications = React.lazy(() => import('./pages/Notifications'));
+const ClientEdit = React.lazy(() => import('./pages/ClientEdit'));
+const ClientManage = React.lazy(() => import('./pages/ClientManage'));
 const NotFound = React.lazy(() => import('./pages/NotFound'));
 
 // Sprint 7: Advanced Enterprise Features
@@ -151,7 +154,9 @@ function App() {
                       element={<PlatformAdminDashboard />}
                     />
                     <Route path="/client-dashboard" element={<Dashboard />} />
-                    <Route path="/clients/*" element={<ClientManagement />} />
+                    <Route path="/clients" element={<ClientManagement />} />
+                    <Route path="/clients/:clientId/edit" element={<ClientEdit />} />
+                    <Route path="/clients/:clientId/manage" element={<ClientManage />} />
                     <Route path="/monitoring/*" element={<PlatformMonitoringDashboard />} />
                     <Route path="/documents/*" element={<Noodles />} />
                     <Route path="/collections/*" element={<Collections />} />
@@ -182,6 +187,7 @@ function App() {
                     <Route path="/performance-monitoring" element={<PerformanceMonitoring />} />
                     <Route path="/settings/*" element={<Settings />} />
                     <Route path="/profile" element={<Profile />} />
+                    <Route path="/notifications" element={<Notifications />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </AppLayout>

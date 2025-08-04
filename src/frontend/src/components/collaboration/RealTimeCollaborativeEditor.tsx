@@ -455,13 +455,26 @@ const RealTimeCollaborativeEditor: React.FC = () => {
     };
 
     try {
-      // TODO: Implement sendComment in signalRService
-      // await signalRService.sendComment(documentId, comment);
-      console.log('Comment feature not yet implemented:', comment);
+      // Add comment to local state immediately for optimistic UI
+      const newComment: Comment = {
+        ...comment,
+        timestamp: new Date(),
+        replies: []
+      };
+      
+      setComments(prev => [...prev, newComment]);
+      
+      // Send comment via SignalR if connected, otherwise store locally
+      if (signalRService.getConnectionState() === 'Connected') {
+        await signalRService.sendComment(documentId, comment);
+      }
+      
       setNewCommentContent('');
       setSelectedText(null);
     } catch (error) {
       console.error('Failed to send comment:', error);
+      // Remove optimistically added comment on error
+      setComments(prev => prev.filter(c => c.id !== comment.id));
     }
   };
 
