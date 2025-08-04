@@ -1,13 +1,24 @@
 
 import React from 'react';
 
-const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={`rounded-lg border bg-card text-card-foreground shadow-sm ${className}`}
-    {...props}
-  />
-));
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: string;
+  padding?: string;
+}
+
+const Card = React.forwardRef<HTMLDivElement, CardProps>(({ className, variant, padding, ...props }, ref) => {
+  // Handle legacy variant and padding props by ignoring them for now, or apply basic styling
+  const variantClass = variant ? '' : ''; // placeholder for variant styling if needed
+  const paddingClass = padding ? '' : ''; // placeholder for padding styling if needed
+  
+  return (
+    <div
+      ref={ref}
+      className={`rounded-lg border bg-card text-card-foreground shadow-sm ${variantClass} ${paddingClass} ${className || ''}`}
+      {...props}
+    />
+  );
+});
 Card.displayName = 'Card';
 
 const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (

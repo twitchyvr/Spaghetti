@@ -8,6 +8,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: 'bg-primary text-primary-foreground hover:bg-primary/90',
+        primary: 'bg-primary text-primary-foreground hover:bg-primary/90',
         destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
         outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
         secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
@@ -32,17 +33,40 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
+  icon?: React.ReactNode;
+  iconPosition?: 'left' | 'right';
+  loading?: boolean;
+  fullWidth?: boolean;
 }
 
+import { twMerge } from 'tailwind-merge';
+
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  ({ className, variant, size, asChild = false, icon, iconPosition = 'left', loading = false, fullWidth = false, children, ...props }, ref) => {
     const Comp = asChild ? 'span' : 'button';
+    
+    const fullWidthClass = fullWidth ? 'w-full' : '';
+    const combinedClassName = twMerge(buttonVariants({ variant, size }), fullWidthClass, className);
+    
+    const iconElement = loading ? (
+      <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent" />
+    ) : icon;
+    
     return (
       <Comp
-        className={buttonVariants({ variant, size, className })}
+        className={combinedClassName}
         ref={ref}
+        disabled={loading || props.disabled}
         {...props}
-      />
+      >
+        {iconElement && iconPosition === 'left' && (
+          <span className={children ? 'mr-2' : ''}>{iconElement}</span>
+        )}
+        {children}
+        {iconElement && iconPosition === 'right' && (
+          <span className={children ? 'ml-2' : ''}>{iconElement}</span>
+        )}
+      </Comp>
     );
   }
 );

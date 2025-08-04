@@ -5,7 +5,7 @@
 
 import React from 'react';
 
-export type BadgeVariant = 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info';
+export type BadgeVariant = 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info' | 'destructive' | 'outline';
 export type BadgeSize = 'sm' | 'md' | 'lg';
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
@@ -34,6 +34,8 @@ const getBadgeClasses = (variant: BadgeVariant, size: BadgeSize, dot: boolean) =
     warning: 'bg-yellow-100 text-yellow-800 border border-yellow-200',
     error: 'bg-red-100 text-red-800 border border-red-200',
     info: 'bg-blue-100 text-blue-800 border border-blue-200',
+    destructive: 'bg-red-100 text-red-800 border border-red-200',
+    outline: 'bg-white text-gray-800 border border-gray-300',
   };
   
   return `${baseClasses} ${sizeClasses[size]} ${variantClasses[variant]}`.trim();
@@ -48,6 +50,8 @@ const getDotColor = (variant: BadgeVariant) => {
     warning: 'bg-yellow-500',
     error: 'bg-red-500',
     info: 'bg-blue-500',
+    destructive: 'bg-red-500',
+    outline: 'bg-gray-400',
   };
   
   return dotColors[variant];
