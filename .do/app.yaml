@@ -40,9 +40,9 @@ services:
   - key: PORT
     value: "8080"
   - key: ConnectionStrings__DefaultConnection
-    value: ${postgres-db.DATABASE_URL}
+    value: "${DATABASE_URL}"
   - key: ConnectionStrings__RedisConnection
-    value: ${redis-cache.REDIS_URL}
+    value: "localhost:6379"  # Update this with your Redis connection if needed
   - key: Authentication__SecretKey
     value: "Sprint6-Enterprise-JWT-Secret-Key-For-Production-Deployment-2025"
   - key: Authentication__Issuer
@@ -80,14 +80,6 @@ services:
   - key: PORT
     value: "8080"
 
-databases:
-- name: postgres-db
-  engine: PG
-  version: "14"
-  size: db-s-1vcpu-1gb
-  num_nodes: 1
-
-- name: redis-cache
-  engine: REDIS
-  version: "7"
-  size: db-s-1vcpu-1gb
+# Using external managed databases - no need to create new ones
+# PostgreSQL: db-postgresql-nyc1-09943 (already created and configured above)
+# Redis: You may need to create a separate Redis instance or use the existing one

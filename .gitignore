@@ -332,6 +332,12 @@ yarn-error.log*
 .env.production
 .env.development
 
+# DigitalOcean App Platform configuration with secrets
+.do/app.yaml
+.do/app-production.yaml
+.do/*.yaml
+*.secrets.yaml
+
 # IDE
 .vscode/
 .idea/
