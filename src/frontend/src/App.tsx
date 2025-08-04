@@ -139,7 +139,7 @@ function App() {
             path="/*"
             element={
               <ProtectedRoute>
-                <AppLayout sidebarOpen={sidebarOpen}>
+                <AppLayout sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}>
                   <Routes>
                     <Route path="/" element={<Navigate to="/dashboard" replace />} />
                     <Route 

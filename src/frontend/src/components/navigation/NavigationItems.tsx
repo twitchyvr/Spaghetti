@@ -224,7 +224,11 @@ const navigationSections: NavigationSection[] = [
   }
 ];
 
-export const NavigationItems: React.FC = () => {
+interface NavigationItemsProps {
+  onNavigate?: () => void;
+}
+
+export const NavigationItems: React.FC<NavigationItemsProps> = ({ onNavigate }) => {
   const location = useLocation();
   const [expandedSections, setExpandedSections] = useState<string[]>(
     navigationSections
@@ -321,6 +325,7 @@ export const NavigationItems: React.FC = () => {
                     <Link
                       key={item.id}
                       to={item.path}
+                      onClick={onNavigate}
                       style={{
                         position: 'relative',
                         display: 'flex',

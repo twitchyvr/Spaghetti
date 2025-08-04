@@ -1,20 +1,64 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Logo } from '../Logo';
-import { NavigationItems } from '../navigation/NavigationItems';
+import { NavigationItems } from '../../navigation/NavigationItems';
 import { UserProfile } from '../user/UserProfile';
 import { Header } from './Header';
 
 interface AppLayoutProps {
   children: React.ReactNode;
   sidebarOpen: boolean;
+  setSidebarOpen: (open: boolean) => void;
 }
 
-const AppLayout: React.FC<AppLayoutProps> = ({ children, sidebarOpen }) => {
+const AppLayout: React.FC<AppLayoutProps> = ({ children, sidebarOpen, setSidebarOpen }) => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   return (
-    <div className="app-layout">
+    <div className="app-layout" style={{
+      display: 'flex',
+      minHeight: '100vh',
+      position: 'relative'
+    }}>
+      {/* Mobile Overlay */}
+      {sidebarOpen && (
+        <div 
+          onClick={() => setSidebarOpen(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            zIndex: 998,
+            display: isMobile ? 'block' : 'none'
+          }}
+        />
+      )}
+      
       {/* Sidebar - Using Theme System */}
-      <aside className={`app-sidebar ${sidebarOpen ? 'open' : ''}`}>
+      <aside style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        height: '100vh',
+        width: '280px',
+        display: 'flex',
+        flexDirection: 'column',
+        background: 'var(--color-bg-primary)',
+        borderRight: '1px solid var(--color-border-primary)',
+        zIndex: 999,
+        transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
+        transition: 'transform var(--transition-base)',
+        boxShadow: sidebarOpen ? 'var(--shadow-xl)' : 'none'
+      }}>
         {/* Header - Fixed */}
         <div className="sidebar-header flex-shrink-0 p-6 border-b" style={{
           borderColor: 'var(--color-border-primary)',
@@ -27,10 +71,9 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, sidebarOpen }) => {
         
         {/* SCROLLABLE NAVIGATION */}
         <nav className="flex-1 px-4 py-6 overflow-y-auto" style={{
-          background: 'var(--color-bg-primary)',
-          borderRight: '1px solid var(--color-border-primary)'
+          background: 'var(--color-bg-primary)'
         }}>
-          <NavigationItems />
+          <NavigationItems onNavigate={() => isMobile && setSidebarOpen(false)} />
         </nav>
         
         {/* Footer - Fixed */}
@@ -43,12 +86,22 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, sidebarOpen }) => {
       </aside>
 
       {/* Main Content */}
-      <div className="app-main">
-        <Header />
-        <main className="app-content">
-          <div className="content-container">
-            {children}
-          </div>
+      <div style={{
+        flex: 1,
+        marginLeft: sidebarOpen && !isMobile ? '280px' : '0',
+        transition: 'margin-left var(--transition-base)',
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: '100vh'
+      }}>
+        <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        <main style={{
+          flex: 1,
+          padding: '24px',
+          background: 'var(--color-bg-secondary)',
+          overflow: 'auto'
+        }}>
+          {children}
         </main>
       </div>
     </div>

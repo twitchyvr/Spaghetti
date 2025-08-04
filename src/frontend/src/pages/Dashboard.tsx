@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { 
   Activity, 
@@ -31,6 +32,7 @@ interface DashboardStats {
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -164,8 +166,25 @@ export default function Dashboard() {
             </div>
             <button 
               onClick={fetchDashboardData}
-              className="btn btn-secondary"
-              style={{ fontSize: 'var(--font-sm)' }}
+              style={{
+                fontSize: 'var(--font-sm)',
+                padding: '8px 16px',
+                borderRadius: 'var(--radius-md)',
+                background: 'var(--color-bg-primary)',
+                border: '1px solid var(--color-error)',
+                color: 'var(--color-error)',
+                cursor: 'pointer',
+                transition: 'all var(--transition-base)',
+                fontWeight: '500'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--color-error)';
+                e.currentTarget.style.color = 'white';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'var(--color-bg-primary)';
+                e.currentTarget.style.color = 'var(--color-error)';
+              }}
             >
               Retry
             </button>
@@ -229,43 +248,101 @@ export default function Dashboard() {
                 <button 
                   onClick={handleSeedData}
                   disabled={isLoading}
-                  className="btn btn-secondary"
                   style={{
                     padding: '12px 24px',
                     fontSize: 'var(--font-base)',
                     fontWeight: '500',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '8px'
+                    gap: '8px',
+                    borderRadius: 'var(--radius-lg)',
+                    background: isLoading ? 'var(--color-bg-tertiary)' : 'var(--color-bg-primary)',
+                    border: '1px solid var(--color-border-primary)',
+                    color: isLoading ? 'var(--color-text-tertiary)' : 'var(--color-text-primary)',
+                    cursor: isLoading ? 'not-allowed' : 'pointer',
+                    transition: 'all var(--transition-base)',
+                    boxShadow: 'var(--shadow-sm)',
+                    opacity: isLoading ? 0.6 : 1
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isLoading) {
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
+                      e.currentTarget.style.background = 'var(--color-brand-light)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isLoading) {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                      e.currentTarget.style.background = 'var(--color-bg-primary)';
+                    }
                   }}
                 >
                   <Database style={{ width: '20px', height: '20px' }} />
-                  Seed Sample Data
+                  {isLoading ? 'Seeding...' : 'Seed Sample Data'}
                 </button>
               )}
               <button 
-                className="btn btn-secondary"
+                onClick={() => {
+                  toast.success('Report export started');
+                  console.log('Export functionality would go here');
+                }}
                 style={{
                   padding: '12px 24px',
                   fontSize: 'var(--font-base)',
                   fontWeight: '500',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px'
+                  gap: '8px',
+                  borderRadius: 'var(--radius-lg)',
+                  background: 'var(--color-bg-primary)',
+                  border: '1px solid var(--color-border-primary)',
+                  color: 'var(--color-text-primary)',
+                  cursor: 'pointer',
+                  transition: 'all var(--transition-base)',
+                  boxShadow: 'var(--shadow-sm)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
+                  e.currentTarget.style.background = 'var(--color-brand-light)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                  e.currentTarget.style.background = 'var(--color-bg-primary)';
                 }}
               >
                 <Download style={{ width: '20px', height: '20px' }} />
                 Export Report
               </button>
               <button 
-                className="btn btn-primary"
+                onClick={() => navigate('/documents')}
                 style={{
                   padding: '12px 24px',
                   fontSize: 'var(--font-base)',
                   fontWeight: '500',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px'
+                  gap: '8px',
+                  borderRadius: 'var(--radius-lg)',
+                  background: 'linear-gradient(135deg, var(--color-brand-primary) 0%, var(--color-brand-secondary) 100%)',
+                  border: 'none',
+                  color: 'white',
+                  cursor: 'pointer',
+                  transition: 'all var(--transition-base)',
+                  boxShadow: 'var(--shadow-md)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = 'var(--shadow-xl)';
+                  e.currentTarget.style.filter = 'brightness(1.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                  e.currentTarget.style.filter = 'brightness(1)';
                 }}
               >
                 <Plus style={{ width: '20px', height: '20px' }} />
@@ -537,13 +614,31 @@ export default function Dashboard() {
                   Seed Sample Data
                 </button>
                 <button 
-                  className="btn btn-primary"
+                  onClick={() => navigate('/documents')}
                   style={{
                     padding: '12px 24px',
                     fontSize: 'var(--font-base)',
+                    fontWeight: '500',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '8px'
+                    gap: '8px',
+                    borderRadius: 'var(--radius-lg)',
+                    background: 'linear-gradient(135deg, var(--color-brand-primary) 0%, var(--color-brand-secondary) 100%)',
+                    border: 'none',
+                    color: 'white',
+                    cursor: 'pointer',
+                    transition: 'all var(--transition-base)',
+                    boxShadow: 'var(--shadow-md)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = 'var(--shadow-xl)';
+                    e.currentTarget.style.filter = 'brightness(1.1)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                    e.currentTarget.style.filter = 'brightness(1)';
                   }}
                 >
                   <Plus style={{ width: '20px', height: '20px' }} />
