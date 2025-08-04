@@ -40,11 +40,12 @@ const MobileApp = React.lazy(() => import('./pages/MobileApp'));
 const PerformanceMonitoring = React.lazy(() => import('./pages/PerformanceMonitoring'));
 
 // Layout components
-const AppLayout = React.lazy(() => import('./components/layout/AppLayout'));
+const AppLayout = React.lazy(() => import('./components/pantry/layout/AppLayout'));
 const AuthLayout = React.lazy(() => import('./components/layout/AuthLayout'));
 
 function App() {
   const { isAuthenticated, isLoading } = useAuth();
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const { showInstallPrompt } = usePWA();
   const [showPWAInstallPrompt, setShowPWAInstallPrompt] = useState(false);
   const [showPWANotificationBar, setShowPWANotificationBar] = useState(false);
@@ -138,7 +139,7 @@ function App() {
             path="/*"
             element={
               <ProtectedRoute>
-                <AppLayout>
+                <AppLayout sidebarOpen={sidebarOpen}>
                   <Routes>
                     <Route path="/" element={<Navigate to="/dashboard" replace />} />
                     <Route 

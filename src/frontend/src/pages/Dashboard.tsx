@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
-import { Card, StatsCard } from '../components/pantry/Card';
-import { Button } from '../components/pantry/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/pantry/data/Card';
+import { Button } from '../components/pantry/forms/Button';
 import { Alert } from '../components/pantry/Alert';
 import { 
   Activity, 

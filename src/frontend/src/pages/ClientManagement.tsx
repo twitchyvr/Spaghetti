@@ -19,8 +19,8 @@ import {
   Pause,
   X
 } from 'lucide-react';
-import { Card, CardHeader, CardContent, CardFooter, StatsCard } from '../components/pantry/Card';
-import { Button } from '../components/pantry/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/pantry/data/Card';
+import { Button } from '../components/pantry/forms/Button';
 import { Input } from '../components/pantry/Input';
 import { Badge, StatusBadge } from '../components/pantry/Badge';
 import { Alert } from '../components/pantry/Alert';
