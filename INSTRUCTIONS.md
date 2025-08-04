@@ -1,7 +1,7 @@
 # INSTRUCTIONS.md - Project Context & Coordination
 
 **Version**: 0.0.16-alpha
-**Status**: 🚀 Sprint 6 Active - Source of Truth Migrated to YAML
+**Status**: 🚀 Sprint 6 Active - Major UI Overhaul Complete
 
 ## ❗ CRITICAL UPDATE: Project Source of Truth
 
@@ -120,6 +120,15 @@ Our documentation follows a three-tier system to ensure clarity for all agents a
 - Context API for state management
 - Professional dashboard with responsive design
 - Component-based architecture ("The Pantry")
+
+### UI Architecture: The Pantry Design System
+- **Component Organization**: Modern pantry/ directory structure with categorized components
+- **Layout System**: Microsoft-inspired clean design with fixed sidebar and responsive header
+- **Component Variants**: Using class-variance-authority (cva) for type-safe component variations
+- **Modern Components**: Simplified Card (CardHeader, CardContent, CardTitle) and Button architecture
+- **Theme**: Light, professional theme replacing previous dark UI with improved accessibility
+- **Navigation**: Centralized NavigationItems component with UserProfile integration
+- **Responsive Design**: Mobile-first approach with collapsible sidebar and adaptive layouts
 
 ### Infrastructure
 - Docker containerization
