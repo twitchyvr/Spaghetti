@@ -15,20 +15,26 @@ export type {
 } from './DesignTokens';
 
 // Button Components
-export { Button, ButtonGroup } from './Button';
-export type { ButtonProps, ButtonVariant, ButtonSize, ButtonGroupProps } from './Button';
+export { Button, buttonVariants } from './Button';
+export type { ButtonProps } from './Button';
 
 // Card Components
-export { Card, CardHeader, CardContent, CardFooter, StatsCard } from './Card';
-export type {
-  CardProps,
-  CardVariant,
-  CardPadding,
-  CardHeaderProps,
-  CardContentProps,
-  CardFooterProps,
-  StatsCardProps,
-} from './Card';
+export { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription } from './Card';
+
+// Data Components
+export { StatsCard } from './data/StatsCard';
+export type { StatsCardProps } from './data/StatsCard';
+
+// Form Components
+export { Button as FormsButton } from './forms/Button';
+
+// Feedback Components
+export { LoadingSpinner } from './feedback/LoadingSpinner';
+export { Tooltip } from './feedback/Tooltip';
+
+// Navigation Components
+export { Tabs, TabsList, TabsTrigger, TabsContent } from './navigation/Tabs';
+export { NavigationItems } from './navigation/NavigationItems';
 
 // Input Components
 export { Input, Textarea, Select } from './Input';
@@ -52,14 +58,7 @@ export type {
 } from './Badge';
 
 // Alert Components
-export { Alert, ToastAlert, InlineAlert } from './Alert';
-export type {
-  AlertProps,
-  AlertVariant,
-  AlertSize,
-  ToastAlertProps,
-  InlineAlertProps,
-} from './Alert';
+export { Alert, ToastAlert, InlineAlert, AlertTitle, AlertDescription } from './Alert';
 
 // Modal Components
 export { Modal, ModalHeader, ModalBody, ModalFooter, ConfirmationModal } from './Modal';
@@ -72,15 +71,8 @@ export type {
   ConfirmationModalProps,
 } from './Modal';
 
-// Navigation Components
-export { Tabs, Breadcrumbs, Pagination } from './Navigation';
-export type {
-  TabsProps,
-  TabItem,
-  BreadcrumbsProps,
-  BreadcrumbItem,
-  PaginationProps,
-} from './Navigation';
+// Navigation Components (Legacy)
+export { Breadcrumbs, Pagination } from './Navigation';
 
 // Table Components
 export { Table, TablePagination } from './Table';
