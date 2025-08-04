@@ -70,8 +70,13 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, sidebarOpen, setSidebar
         </div>
         
         {/* SCROLLABLE NAVIGATION */}
-        <nav className="flex-1 px-4 py-6 overflow-y-auto" style={{
-          background: 'var(--color-bg-primary)'
+        <nav style={{
+          flex: 1,
+          padding: '24px 16px',
+          background: 'var(--color-bg-primary)',
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          minHeight: 0 // Critical for flexbox scrolling
         }}>
           <NavigationItems onNavigate={() => isMobile && setSidebarOpen(false)} />
         </nav>

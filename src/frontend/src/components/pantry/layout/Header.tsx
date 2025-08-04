@@ -1,5 +1,7 @@
 import React from 'react';
 import { Bell, Search, Settings, User, Menu, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../contexts/AuthContext';
 
 interface HeaderProps {
   sidebarOpen: boolean;
@@ -7,6 +9,30 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) => {
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+
+  const handleNotifications = () => {
+    // TODO: Implement notifications panel
+    console.log('Opening notifications panel');
+  };
+
+  const handleSettings = () => {
+    navigate('/settings');
+  };
+
+  const handleProfile = () => {
+    navigate('/profile');
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
   return (
     <header style={{
       background: 'linear-gradient(135deg, var(--color-bg-primary) 0%, var(--color-brand-light) 100%)',
@@ -102,7 +128,7 @@ export const Header: React.FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) =
           gap: '12px'
         }}>
           <button 
-            onClick={() => console.log('Notifications clicked')}
+            onClick={handleNotifications}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -131,7 +157,7 @@ export const Header: React.FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) =
           </button>
           
           <button 
-            onClick={() => console.log('Settings clicked')}
+            onClick={handleSettings}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -160,7 +186,7 @@ export const Header: React.FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) =
           </button>
           
           <button 
-            onClick={() => console.log('Profile clicked')}
+            onClick={handleProfile}
             style={{
               display: 'flex',
               alignItems: 'center',
