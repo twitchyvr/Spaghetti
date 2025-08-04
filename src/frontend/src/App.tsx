@@ -1,7 +1,7 @@
 import React, { Suspense, useEffect, useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
-import { LoadingSpinner } from './components/ui/LoadingSpinner';
+import { LoadingSpinner } from './components/pantry/feedback/LoadingSpinner';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { PWAStatus } from './components/pwa/PWAStatus';
 import { PWAInstallPrompt } from './components/pwa/PWAInstallPrompt';

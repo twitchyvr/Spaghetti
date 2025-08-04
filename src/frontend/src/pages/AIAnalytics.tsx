@@ -126,7 +126,7 @@ const AIAnalytics: React.FC = () => {
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'contract': return <FileText className="w-4 h-4" />;
-      case 'compliance': return <Badge className="w-4 h-4" />;
+      case 'compliance': return <Badge className="w-4 h-4"> </Badge>;
       case 'analysis': return <BarChart3 className="w-4 h-4" />;
       default: return <FileText className="w-4 h-4" />;
     }

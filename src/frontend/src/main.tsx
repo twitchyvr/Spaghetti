@@ -5,7 +5,7 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
-import { ErrorBoundary } from './components/ui/ErrorBoundary';
+
 
 import './styles/globals.css';
 
@@ -39,7 +39,6 @@ const root = ReactDOM.createRoot(rootElement);
 
 root.render(
   <React.StrictMode>
-    <ErrorBoundary>
       <BrowserRouter>
         <ThemeProvider>
           <AuthProvider>
@@ -47,6 +46,5 @@ root.render(
           </AuthProvider>
         </ThemeProvider>
       </BrowserRouter>
-    </ErrorBoundary>
   </React.StrictMode>
 );

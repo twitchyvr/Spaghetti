@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/pantry/data/Card';
+import { StatsCard } from '../components/pantry/data/StatsCard';
 import { Button } from '../components/pantry/forms/Button';
 import { Alert } from '../components/pantry/Alert';
 import { 
