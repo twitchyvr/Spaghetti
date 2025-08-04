@@ -67,6 +67,7 @@ projectConfiguration:
       - "Aesthetic Professionalism"
       - "Scalable Intuition"
       - "Security & Auditability by Design"
+      - "Functional Beauty - Never sacrifice working features for aesthetics"
     componentLibraryName: "The Pantry"
     componentLibrary:
       - name: "TopNav"
@@ -86,6 +87,76 @@ projectConfiguration:
       Chefs: "Administrative roles with system management privileges"
       Diners: "End users who consume and interact with documents"
       Stewards: "Content maintainers and document managers"
+    uiuxProtectionGuidelines:
+      criticalPrinciples:
+        - "NEVER remove functionality when improving aesthetics"
+        - "Test all interactive elements after UI changes"
+        - "Maintain end-to-end navigation flows"
+        - "Preserve responsive design across all screen sizes"
+        - "Verify scrolling functionality in all containers"
+      coreComponents:
+        navigationSystem:
+          location: "src/components/navigation/NavigationItems.tsx"
+          criticalFeatures:
+            - "All navigation links must be functional React Router Links"
+            - "Mobile navigation must auto-close on navigation"
+            - "onNavigate prop must be properly handled"
+            - "Active state styling must be preserved"
+          forbiddenChanges:
+            - "Replacing Link components with divs or spans"
+            - "Removing onClick handlers without replacement"
+            - "Breaking mobile responsive behavior"
+        sidebarLayout:
+          location: "src/components/pantry/layout/AppLayout.tsx"
+          criticalFeatures:
+            - "Sidebar must be scrollable with overflow-y: auto"
+            - "Mobile overlay must close sidebar on backdrop click"
+            - "setSidebarOpen prop must be properly passed down"
+            - "Responsive breakpoints must be maintained"
+          criticalCSS:
+            - "minHeight: 0 required for flex container scrolling"
+            - "position: fixed for sidebar overlay behavior"
+            - "transform transitions for mobile slide animations"
+        headerActions:
+          location: "src/components/pantry/layout/Header.tsx"
+          criticalFeatures:
+            - "Settings button must navigate to /settings"
+            - "Profile button must navigate to /profile"
+            - "Logout functionality must be preserved"
+            - "Mobile menu toggle must work across screen sizes"
+          forbiddenChanges:
+            - "Replacing navigation with console.log statements"
+            - "Removing useNavigate or useAuth hooks"
+            - "Breaking authentication flows"
+      stylingArchitecture:
+        primaryApproach: "CSS Custom Properties (CSS Variables)"
+        themeFile: "src/styles/theme.css"
+        principles:
+          - "Use CSS variables for all colors, spacing, and typography"
+          - "No mixing of inline styles with CSS classes"
+          - "Maintain Microsoft-inspired professional color palette"
+          - "Preserve enterprise-safe animations and interactions"
+        colorSystem:
+          primary: "--color-brand-primary: #0078d4 (Microsoft Blue)"
+          backgrounds: "--color-bg-primary/secondary/tertiary for layered design"
+          text: "--color-text-primary/secondary/tertiary for typography hierarchy"
+          semantics: "--color-success/warning/error/info for status indication"
+      mobileDevelopment:
+        breakpoints:
+          mobile: "< 768px"
+          tablet: "768px - 1024px"
+          desktop: "> 1024px"
+        requirements:
+          - "Sidebar must slide in/out on mobile"
+          - "Overlay backdrop must work on touch devices"
+          - "Touch targets must be minimum 44px"
+          - "Text must be readable without zooming"
+      commonMistakesToAvoid:
+        simplificationTrap: "Do not 'simplify' by removing functionality"
+        placeholderCode: "Never commit console.log where real functionality should exist"
+        piecemealUpdates: "Test entire user flows, not just individual components"
+        responsiveNeglect: "Always test mobile, tablet, and desktop layouts"
+        functionalityRegression: "Preserve existing working features during aesthetic improvements"
   developmentWorkflow:
     branchingStrategy:
       main: "Protected. Represents production. Every merge triggers an automatic deployment to DigitalOcean."

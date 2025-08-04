@@ -44,6 +44,56 @@ On every task you are assigned, you MUST follow this sequence:
 -   **NEVER** generate code that violates the `securityAndCompliance` standards.
 -   **YOUR GOAL** is to translate the enterprise-level vision and architecture defined in the YAML into high-quality, production-ready code.
 
+## 🚨 CRITICAL: UI/UX Protection Guidelines
+
+### The "Simplification Trap" - Never Fall Into This
+
+After a major UI transformation in Sprint 6, we identified a critical anti-pattern: **NEVER sacrifice functionality for aesthetics**. The following rules are non-negotiable:
+
+#### Functionality-First Development
+1. **ALWAYS** verify existing functionality before making UI changes
+2. **NEVER** replace working navigation with placeholder code (`console.log`)
+3. **ALWAYS** test complete user flows, not just individual components
+4. **NEVER** commit non-functional code to main branch
+
+#### Protected Components (DO NOT BREAK)
+- **Navigation**: `src/components/navigation/NavigationItems.tsx`
+  - All Link components must remain functional
+  - `onNavigate` prop must be properly handled
+  - Test: Click every nav item, verify mobile auto-close works
+  
+- **Sidebar**: `src/components/pantry/layout/AppLayout.tsx`
+  - `setSidebarOpen` prop must be passed correctly
+  - Mobile overlay must close on backdrop click
+  - Critical CSS: `minHeight: 0` required for flex scrolling
+  - Test: Verify scrolling works on all screen sizes
+  
+- **Header**: `src/components/pantry/layout/Header.tsx`
+  - Settings button must navigate to `/settings`
+  - Profile button must navigate to `/profile`
+  - Never replace `useNavigate` with `console.log`
+  - Test: Click all buttons, verify they navigate correctly
+
+#### UI Development Checklist
+Before committing ANY UI changes:
+- [ ] All navigation links work correctly
+- [ ] Mobile responsiveness functions properly
+- [ ] Scrolling works in all containers
+- [ ] Authentication flows remain intact
+- [ ] All buttons perform their intended actions
+- [ ] End-to-end user flows are tested
+
+#### Emergency Procedures
+If functionality is accidentally broken:
+1. **Immediately** create hotfix branch
+2. **Restore** working functionality before aesthetic improvements
+3. **Test** entire user flows before deployment
+4. **Document** what was broken and how it was fixed
+
+### Reference Documents
+- **Lessons Learned**: `docs/ui-transformation-lessons-learned.md`
+- **Protection Guidelines**: `project-architecture.yaml` → `designSystem.uiuxProtectionGuidelines`
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Your Primary Responsibility: Three-Tier Documentation System
