@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, Search, Settings, User, Menu, X } from 'lucide-react';
+import { Bell, Search, Settings, User, Menu, X, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 
@@ -212,6 +212,37 @@ export const Header: React.FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) =
             }}
           >
             <User style={{ width: '20px', height: '20px' }} />
+          </button>
+          
+          <button 
+            onClick={handleLogout}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '44px',
+              height: '44px',
+              padding: '12px',
+              borderRadius: 'var(--radius-lg)',
+              background: 'var(--color-bg-primary)',
+              border: '1px solid var(--color-border-primary)',
+              color: 'var(--color-text-secondary)',
+              boxShadow: 'var(--shadow-sm)',
+              cursor: 'pointer',
+              transition: 'all var(--transition-base)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'scale(1.05)';
+              e.currentTarget.style.color = 'var(--color-error-primary)';
+              e.currentTarget.style.borderColor = 'var(--color-error-primary)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.color = 'var(--color-text-secondary)';
+              e.currentTarget.style.borderColor = 'var(--color-border-primary)';
+            }}
+          >
+            <LogOut style={{ width: '20px', height: '20px' }} />
           </button>
         </div>
       </div>

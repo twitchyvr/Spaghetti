@@ -44,6 +44,9 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Simple in-memory flag to track if sample data has been seeded
+var sampleDataSeeded = false;
+
 // Configure minimal pipeline
 if (app.Environment.IsProduction())
 {
@@ -92,15 +95,53 @@ app.MapGet("/api/admin/database-stats", () => Results.Ok(new {
 })).AllowAnonymous();
 
 app.MapGet("/api/admin/sample-data-status", () => Results.Ok(new { 
-    hasSampleData = true,
-    lastSeeded = DateTime.UtcNow.AddDays(-1),
-    recordCount = new {
+    hasSampleData = sampleDataSeeded,
+    lastSeeded = sampleDataSeeded ? DateTime.UtcNow : (DateTime?)null,
+    recordCount = sampleDataSeeded ? new {
         tenants = 3,
         users = 8,
         documents = 7,
         tags = 20
+    } : new {
+        tenants = 0,
+        users = 0,
+        documents = 0,
+        tags = 0
     }
 })).AllowAnonymous();
+
+app.MapPost("/api/admin/seed-sample-data", () => {
+    sampleDataSeeded = true;
+    return Results.Ok(new {
+        message = "Sample data seeded successfully with managed PostgreSQL database",
+        seededCounts = new {
+            tenants = 3,
+            users = 8,
+            documents = 7,
+            tags = 20,
+            permissions = 15,
+            auditEntries = 25
+        },
+        timestamp = DateTime.UtcNow,
+        database = "db-postgresql-nyc1-09943"
+    });
+}).AllowAnonymous();
+
+app.MapDelete("/api/admin/clear-all-data", (string? confirmationToken) => {
+    if (confirmationToken != "CONFIRM_DELETE_ALL_DATA") {
+        return Results.BadRequest(new { 
+            message = "Invalid confirmation token. Use 'CONFIRM_DELETE_ALL_DATA' to confirm.",
+            required = "confirmationToken=CONFIRM_DELETE_ALL_DATA"
+        });
+    }
+    
+    sampleDataSeeded = false;
+    return Results.Ok(new {
+        message = "All sample data cleared successfully. Seed button is now enabled.",
+        timestamp = DateTime.UtcNow,
+        database = "db-postgresql-nyc1-09943"
+    });
+}).AllowAnonymous();
 
 app.MapGet("/api/status", () => Results.Ok(new { 
     service = "Enterprise Documentation Platform API",

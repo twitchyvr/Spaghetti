@@ -36,8 +36,9 @@ export default function Dashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [sampleDataStatus, setSampleDataStatus] = useState<{hasSampleData: boolean} | null>(null);
 
-  const hasSampleData = stats && (stats.totalUsers > 1 || stats.totalDocuments > 0);
+  const hasSampleData = sampleDataStatus?.hasSampleData || (stats && stats.totalUsers > 1);
 
   useEffect(() => {
     fetchDashboardData();
@@ -47,14 +48,18 @@ export default function Dashboard() {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await api.admin.getDatabaseStats();
-      const data = response;
+      
+      // Fetch both database stats and sample data status
+      const [dbResponse, sampleResponse] = await Promise.all([
+        api.admin.getDatabaseStats(),
+        api.admin.getSampleDataStatus()
+      ]);
 
       const dashboardStats: DashboardStats = {
-        totalUsers: data.totalUsers || 0,
-        totalDocuments: data.totalDocuments || 0,
-        activeProjects: data.totalTenants || 0,
-        systemHealth: data.systemHealth || {
+        totalUsers: dbResponse.totalUsers || 0,
+        totalDocuments: dbResponse.totalDocuments || 0,
+        activeProjects: dbResponse.totalTenants || 0,
+        systemHealth: dbResponse.systemHealth || {
           database: true,
           redis: true,
           elasticsearch: true,
@@ -62,6 +67,7 @@ export default function Dashboard() {
       };
 
       setStats(dashboardStats);
+      setSampleDataStatus(sampleResponse);
     } catch (err) {
       console.error('Failed to fetch dashboard data:', err);
       setError(err instanceof Error ? err.message : 'Failed to load dashboard data');
