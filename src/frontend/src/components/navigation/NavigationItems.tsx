@@ -22,8 +22,7 @@ import {
   Monitor,
   PieChart,
   Lock,
-  ChevronRight,
-  ChevronDown
+  ChevronRight
 } from 'lucide-react';
 
 interface NavigationItem {
@@ -33,7 +32,6 @@ interface NavigationItem {
   icon: React.ComponentType<any>;
   badge?: string;
   description?: string;
-  requiredRoles?: string[];
 }
 
 interface NavigationSection {
@@ -247,90 +245,189 @@ export const NavigationItems: React.FC = () => {
   };
 
   return (
-    <nav className="flex-1 px-4 py-6 space-y-8 overflow-y-auto">
+    <nav style={{
+      flex: 1,
+      padding: '24px 16px',
+      overflowY: 'auto',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '32px'
+    }}>
       {navigationSections.map((section) => {
         const isExpanded = expandedSections.includes(section.id);
         
         return (
-          <div key={section.id} className="space-y-3">
+          <div key={section.id} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {/* Section Header */}
             {section.collapsible ? (
               <button
                 onClick={() => toggleSection(section.id)}
-                className="flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-gray-600 uppercase tracking-wider hover:text-gray-800 transition-colors duration-200 group"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  width: '100%',
+                  padding: '8px 12px',
+                  fontSize: 'var(--font-xs)',
+                  fontWeight: '600',
+                  color: 'var(--color-text-tertiary)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'color var(--transition-base)',
+                  textAlign: 'left'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = 'var(--color-text-primary)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = 'var(--color-text-tertiary)';
+                }}
               >
                 <span>{section.label}</span>
                 <ChevronRight 
-                  className={`w-4 h-4 transition-transform duration-200 ${
-                    isExpanded ? 'rotate-90' : ''
-                  }`}
+                  style={{
+                    width: '16px',
+                    height: '16px',
+                    transition: 'transform var(--transition-base)',
+                    transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)'
+                  }}
                 />
               </button>
             ) : (
-              <h3 className="px-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+              <h3 style={{
+                padding: '8px 12px',
+                fontSize: 'var(--font-xs)',
+                fontWeight: '600',
+                color: 'var(--color-text-tertiary)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                margin: 0
+              }}>
                 {section.label}
               </h3>
             )}
 
             {/* Navigation Items */}
             {(!section.collapsible || isExpanded) && (
-              <ul className="space-y-1">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 {section.items.map((item) => {
                   const isActive = isActiveItem(item.path);
                   const IconComponent = item.icon;
 
                   return (
-                    <li key={item.id}>
-                      <Link
-                        to={item.path}
-                        className={`
-                          group flex items-center px-3 py-3 text-sm font-medium rounded-xl transition-all duration-200 relative overflow-hidden
-                          ${isActive 
-                            ? 'bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 shadow-sm border border-blue-200/50' 
-                            : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
-                          }
-                        `}
-                      >
-                        {/* Active Indicator */}
-                        {isActive && (
-                          <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-r" />
-                        )}
+                    <Link
+                      key={item.id}
+                      to={item.path}
+                      style={{
+                        position: 'relative',
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '12px',
+                        fontSize: 'var(--font-sm)',
+                        fontWeight: '500',
+                        borderRadius: 'var(--radius-lg)',
+                        textDecoration: 'none',
+                        transition: 'all var(--transition-base)',
+                        overflow: 'hidden',
+                        background: isActive 
+                          ? 'linear-gradient(135deg, var(--color-brand-light) 0%, var(--color-brand-primary)20 100%)' 
+                          : 'transparent',
+                        color: isActive ? 'var(--color-brand-primary)' : 'var(--color-text-secondary)',
+                        border: isActive ? '1px solid var(--color-brand-primary)40' : '1px solid transparent',
+                        boxShadow: isActive ? 'var(--shadow-sm)' : 'none'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.backgroundColor = 'var(--color-bg-tertiary)';
+                          e.currentTarget.style.color = 'var(--color-text-primary)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                          e.currentTarget.style.color = 'var(--color-text-secondary)';
+                        }
+                      }}
+                    >
+                      {/* Active Indicator */}
+                      {isActive && (
+                        <div style={{
+                          position: 'absolute',
+                          left: 0,
+                          top: 0,
+                          bottom: 0,
+                          width: '4px',
+                          background: 'linear-gradient(to bottom, var(--color-brand-primary), var(--color-brand-secondary))',
+                          borderRadius: '0 2px 2px 0'
+                        }} />
+                      )}
 
-                        {/* Icon */}
-                        <div className={`
-                          flex-shrink-0 mr-3 transition-colors duration-200
-                          ${isActive ? 'text-blue-600' : 'text-gray-500 group-hover:text-gray-700'}
-                        `}>
-                          <IconComponent className="w-5 h-5" />
-                        </div>
+                      {/* Icon */}
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        marginRight: '12px',
+                        color: isActive ? 'var(--color-brand-primary)' : 'var(--color-text-tertiary)',
+                        transition: 'color var(--transition-base)'
+                      }}>
+                        <IconComponent style={{ width: '20px', height: '20px' }} />
+                      </div>
 
-                        {/* Content */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <span className="truncate">{item.label}</span>
-                            {item.badge && (
-                              <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">
-                                {item.badge}
-                              </span>
-                            )}
-                          </div>
-                          {item.description && (
-                            <p className={`
-                              text-xs mt-0.5 truncate transition-colors duration-200
-                              ${isActive ? 'text-blue-600/70' : 'text-gray-500 group-hover:text-gray-600'}
-                            `}>
-                              {item.description}
-                            </p>
+                      {/* Content */}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <span style={{ 
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}>{item.label}</span>
+                          {item.badge && (
+                            <span style={{
+                              marginLeft: '8px',
+                              padding: '2px 8px',
+                              fontSize: 'var(--font-xs)',
+                              fontWeight: '500',
+                              backgroundColor: 'var(--color-brand-primary)',
+                              color: 'white',
+                              borderRadius: 'var(--radius-full)'
+                            }}>
+                              {item.badge}
+                            </span>
                           )}
                         </div>
+                        {item.description && (
+                          <p style={{
+                            fontSize: 'var(--font-xs)',
+                            color: isActive ? 'var(--color-brand-secondary)' : 'var(--color-text-muted)',
+                            marginTop: '2px',
+                            marginBottom: 0,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            transition: 'color var(--transition-base)'
+                          }}>
+                            {item.description}
+                          </p>
+                        )}
+                      </div>
 
-                        {/* Hover Glow Effect */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-blue-50/0 via-blue-50/20 to-blue-50/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-                      </Link>
-                    </li>
+                      {/* Hover Glow Effect */}
+                      <div style={{
+                        position: 'absolute',
+                        inset: 0,
+                        background: 'linear-gradient(90deg, transparent 0%, var(--color-brand-light) 50%, transparent 100%)',
+                        opacity: 0,
+                        transition: 'opacity var(--transition-slow)',
+                        pointerEvents: 'none'
+                      }} />
+                    </Link>
                   );
                 })}
-              </ul>
+              </div>
             )}
           </div>
         );
