@@ -112,8 +112,29 @@ export const RevenueAnalytics: React.FC<RevenueAnalyticsProps> = ({ className = 
   };
 
   const handleExportData = () => {
-    // TODO: Implement data export functionality
-    console.log('Exporting revenue analytics data...');
+    // Generate CSV export of revenue analytics data
+    const csvData = [
+      ['Metric', 'Value'],
+      ['Current MRR', `$${metrics.currentMRR.toLocaleString()}`],
+      ['Current ARR', `$${metrics.currentARR.toLocaleString()}`],
+      ['MRR Growth Rate', `${metrics.mrrGrowthRate}%`],
+      ['MRR Growth Amount', `$${metrics.mrrGrowthAmount.toLocaleString()}`],
+      ['Net Revenue Retention', `${metrics.netRevenueRetention}%`],
+      ['Customer LTV', `$${metrics.customerLifetimeValue.toLocaleString()}`],
+      ['ARPU', `$${metrics.averageRevenuePerUser.toLocaleString()}`],
+      ['Export Date', new Date().toISOString()]
+    ];
+    
+    const csvContent = csvData.map(row => row.join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `revenue-analytics-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
   };
 
   if (isLoading) {

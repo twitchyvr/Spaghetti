@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { 
   Building2,
   Users,
@@ -95,6 +97,8 @@ interface CreateClientForm {
 }
 
 export default function ClientManagement() {
+  const navigate = useNavigate();
+  
   // State management
   const [clients, setClients] = useState<ClientOrganization[]>([]);
   const [filteredClients, setFilteredClients] = useState<ClientOrganization[]>([]);
@@ -360,18 +364,15 @@ export default function ClientManagement() {
   };
 
   const handleImpersonateClient = (clientId: string) => {
-    // TODO: Implement secure client impersonation
-    console.log(`Impersonate client: ${clientId}`);
+    toast.info(`Client impersonation feature coming soon`);
   };
 
   const handleManageClient = (clientId: string) => {
-    // TODO: Open client management interface
-    console.log(`Manage client: ${clientId}`);
+    navigate(`/clients/${clientId}/manage`);
   };
 
   const handleEditClient = (clientId: string) => {
-    // TODO: Open client edit modal
-    console.log(`Edit client: ${clientId}`);
+    navigate(`/clients/${clientId}/edit`);
   };
 
 

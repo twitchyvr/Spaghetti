@@ -291,8 +291,30 @@ export default function Dashboard() {
               )}
               <button 
                 onClick={() => {
-                  toast.success('Report export started');
-                  console.log('Export functionality would go here');
+                  // Generate and download a CSV report with current dashboard data
+                  const csvData = [
+                    ['Metric', 'Value'],
+                    ['Total Users', stats?.totalUsers?.toString() || '0'],
+                    ['Total Documents', stats?.totalDocuments?.toString() || '0'],
+                    ['Active Projects', stats?.activeProjects?.toString() || '0'],
+                    ['Database Health', stats?.systemHealth?.database ? 'Healthy' : 'Warning'],
+                    ['Redis Health', stats?.systemHealth?.redis ? 'Healthy' : 'Warning'],
+                    ['Elasticsearch Health', stats?.systemHealth?.elasticsearch ? 'Healthy' : 'Warning'],
+                    ['Export Date', new Date().toISOString()]
+                  ];
+                  
+                  const csvContent = csvData.map(row => row.join(',')).join('\n');
+                  const blob = new Blob([csvContent], { type: 'text/csv' });
+                  const url = window.URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `dashboard-report-${new Date().toISOString().split('T')[0]}.csv`;
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  window.URL.revokeObjectURL(url);
+                  
+                  toast.success('Dashboard report exported successfully');
                 }}
                 style={{
                   padding: '12px 24px',

@@ -13,8 +13,8 @@ export const Header: React.FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) =
   const { logout } = useAuth();
 
   const handleNotifications = () => {
-    // TODO: Implement notifications panel
-    console.log('Opening notifications panel');
+    // Navigate to notifications page
+    navigate('/notifications');
   };
 
   const handleSettings = () => {

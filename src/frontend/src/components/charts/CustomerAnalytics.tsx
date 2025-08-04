@@ -127,7 +127,29 @@ export const CustomerAnalytics: React.FC<CustomerAnalyticsProps> = ({ className 
   };
 
   const handleExportData = () => {
-    console.log('Exporting customer analytics data...');
+    // Generate CSV export of customer analytics data
+    const csvData = [
+      ['Metric', 'Value'],
+      ['Total Customers', metrics.totalCustomers.toString()],
+      ['New Customers This Period', metrics.newCustomersThisPeriod.toString()],
+      ['Churned Customers This Period', metrics.churnedCustomersThisPeriod.toString()],
+      ['Customer Growth Rate', `${metrics.customerGrowthRate}%`],
+      ['Churn Rate', `${metrics.churnRate}%`],
+      ['Retention Rate', `${metrics.retentionRate}%`],
+      ['Customer LTV', `$${metrics.customerLifetimeValue.toLocaleString()}`],
+      ['Export Date', new Date().toISOString()]
+    ];
+    
+    const csvContent = csvData.map(row => row.join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `customer-analytics-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
   };
 
   if (isLoading) {
