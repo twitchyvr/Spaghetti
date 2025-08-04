@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Badge } from '../ui/badge';
-import { Button } from '../ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../pantry/Card';
+import { Badge } from '../pantry/Badge';
+import { Button } from '../pantry/Button';
 
 /**
  * Sprint 9: Advanced Mobile & Cross-Platform Experience

@@ -12,8 +12,8 @@ import {
   EyeOff
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { Alert, AlertDescription } from '../ui/alert';
-import { Badge } from '../ui/badge';
+import { Alert, AlertDescription, AlertTitle } from '../pantry/Alert';
+import { Badge } from '../pantry/Badge';
 import { toast } from 'sonner';
 
 interface SessionInfo {

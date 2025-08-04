@@ -12,10 +12,10 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { toast } from 'sonner';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '../ui/tabs';
-import { Alert, AlertDescription } from '../ui/alert';
+import { Button } from '../pantry/Button';
+import { Badge } from '../pantry/Badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../pantry/navigation/Tabs';
+import { Alert, AlertDescription, AlertTitle } from '../pantry/Alert';
 
 interface MFASetupProps {
   onComplete?: () => void;

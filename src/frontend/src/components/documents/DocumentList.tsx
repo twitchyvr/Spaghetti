@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { documentApi } from '../../services/api';
-import { LoadingSpinner } from '../ui/LoadingSpinner';
+import { LoadingSpinner } from '../pantry/feedback/LoadingSpinner';
 
 interface Document {
   id: string;
