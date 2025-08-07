@@ -1,0 +1,720 @@
+# UI/UX Overhaul Requirements & Design System Specifications
+
+This document contains the complete UI/UX overhaul requirements identified during Sprint 6. For general project information, see [INSTRUCTIONS.md](../INSTRUCTIONS.md).
+
+## Critical UI/UX Overhaul Required - Design System Specifications
+
+### 🚨 IMMEDIATE ACTION REQUIRED: Complete UI Redesign
+
+Based on critical audit findings, the current UI has fundamental issues requiring immediate attention:
+
+**CRITICAL ISSUES IDENTIFIED:**
+- Navigation sidebar doesn't scroll (content hidden/inaccessible)
+- Poor responsive design (users need 33% zoom to see content properly)
+- No standardized component library
+- Mixed styling approaches causing maintenance issues
+- Not scalable or modular for enterprise use
+
+### 📋 COMPREHENSIVE DESIGN SYSTEM OVERHAUL
+
+#### 1. **Design System Architecture**
+
+**Modern Component Library Structure:**
+- **Framework**: React 18 + TypeScript + Tailwind CSS (eliminate mixed styling)
+- **Component Library Name**: "The Pantry" (maintain existing branding)
+- **Architecture Pattern**: Atomic Design with compound components
+- **Styling Approach**: Pure Tailwind CSS utility classes (eliminate custom CSS mixing)
+
+**Design Token System:**
+```typescript
+// Design Tokens - /src/design-tokens/index.ts
+export const tokens = {
+  spacing: {
+    xs: '0.25rem',   // 4px
+    sm: '0.5rem',    // 8px  
+    md: '1rem',      // 16px
+    lg: '1.5rem',    // 24px
+    xl: '2rem',      // 32px
+    '2xl': '3rem',   // 48px
+    '3xl': '4rem'    // 64px
+  },
+  colors: {
+    brand: {
+      50: '#eff6ff',
+      100: '#dbeafe', 
+      500: '#3b82f6',
+      600: '#2563eb',
+      900: '#1e3a8a'
+    },
+    gray: {
+      50: '#f8fafc',
+      100: '#f1f5f9',
+      200: '#e2e8f0',
+      300: '#cbd5e1',
+      400: '#94a3b8',
+      500: '#64748b',
+      600: '#475569',
+      700: '#334155',
+      800: '#1e293b',
+      900: '#0f172a'
+    }
+  },
+  typography: {
+    xs: ['0.75rem', { lineHeight: '1rem' }],
+    sm: ['0.875rem', { lineHeight: '1.25rem' }],
+    base: ['1rem', { lineHeight: '1.5rem' }],
+    lg: ['1.125rem', { lineHeight: '1.75rem' }],
+    xl: ['1.25rem', { lineHeight: '1.75rem' }],
+    '2xl': ['1.5rem', { lineHeight: '2rem' }],
+    '3xl': ['1.875rem', { lineHeight: '2.25rem' }]
+  }
+}
+```
+
+#### 2. **Layout System Redesign - CRITICAL FIX**
+
+**FIXED SIDEBAR ARCHITECTURE:**
+```typescript
+// /src/components/layout/AppLayout.tsx - CORRECTED VERSION
+const AppLayout = () => {
+  return (
+    <div className="flex h-screen bg-gray-50">
+      {/* FIXED SIDEBAR - Proper Scrolling */}
+      <aside className={`
+        fixed inset-y-0 left-0 z-50
+        w-80 bg-white border-r border-gray-200
+        flex flex-col
+        transition-transform duration-300 ease-in-out
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        lg:translate-x-0 lg:static lg:inset-0
+      `}>
+        {/* Header - Fixed */}
+        <div className="flex-shrink-0 px-6 py-4 border-b border-gray-200">
+          <Logo />
+        </div>
+        
+        {/* SCROLLABLE NAVIGATION - KEY FIX */}
+        <nav className="flex-1 px-4 py-6 overflow-y-auto scrollbar-thin">
+          <NavigationItems />
+        </nav>
+        
+        {/* Footer - Fixed */}
+        <div className="flex-shrink-0 px-6 py-4 border-t border-gray-200">
+          <UserProfile />
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col lg:ml-80">
+        <Header />
+        <main className="flex-1 overflow-y-auto p-6">
+          {children}
+        </main>
+      </div>
+    </div>
+  )
+}
+```
+
+**Responsive Breakpoint Strategy:**
+- **Mobile First**: 320px base
+- **Tablet**: 768px (sidebar becomes overlay)  
+- **Desktop**: 1024px (sidebar persistent)
+- **Large Desktop**: 1440px+ (expanded content area)
+
+#### 3. **Component Library Specifications - "The Pantry"**
+
+**Core Navigation Components:**
+
+```typescript
+// /src/components/pantry/navigation/Sidebar.tsx
+interface SidebarProps {
+  isOpen: boolean
+  onToggle: () => void
+  isCollapsed?: boolean
+  variant?: 'default' | 'compact'
+}
+
+const Sidebar = ({ isOpen, onToggle, isCollapsed = false, variant = 'default' }: SidebarProps) => {
+  const baseClasses = "fixed inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-gray-200 transition-all duration-300 ease-in-out"
+  const widthClasses = isCollapsed ? "w-16" : "w-80"
+  const transformClasses = isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+  
+  return (
+    <aside className={cn(baseClasses, widthClasses, transformClasses)}>
+      <SidebarHeader collapsed={isCollapsed} />
+      <SidebarNav collapsed={isCollapsed} />
+      <SidebarFooter collapsed={isCollapsed} />
+    </aside>
+  )
+}
+
+// /src/components/pantry/navigation/SidebarNav.tsx  
+const SidebarNav = ({ collapsed }: { collapsed: boolean }) => {
+  return (
+    <nav className="flex-1 px-4 py-6 overflow-y-auto scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-gray-300">
+      <div className="space-y-1">
+        {navigationItems.map((item) => (
+          <SidebarNavItem 
+            key={item.id} 
+            item={item} 
+            collapsed={collapsed}
+          />
+        ))}
+      </div>
+    </nav>
+  )
+}
+```
+
+**Modular Component Patterns:**
+
+```typescript
+// /src/components/pantry/forms/FormField.tsx
+interface FormFieldProps {
+  label: string
+  error?: string
+  required?: boolean
+  children: React.ReactNode
+  variant?: 'default' | 'floating' | 'inline'
+}
+
+// /src/components/pantry/data/DataTable.tsx  
+interface DataTableProps<T> {
+  data: T[]
+  columns: Column<T>[]
+  pagination?: PaginationConfig
+  sorting?: SortingConfig
+  filtering?: FilteringConfig
+  variant?: 'default' | 'compact' | 'cards'
+}
+
+// /src/components/pantry/feedback/Alert.tsx
+interface AlertProps {
+  variant: 'info' | 'success' | 'warning' | 'error'
+  title?: string
+  action?: AlertAction
+  dismissible?: boolean
+  children: React.ReactNode
+}
+```
+
+#### 4. **Accessibility Standards (WCAG 2.1 AA)**
+
+**Mandatory Requirements:**
+- **Color Contrast**: 4.5:1 minimum for normal text, 3:1 for large text
+- **Keyboard Navigation**: Full tab sequence, arrow key navigation for menus
+- **Screen Reader**: Semantic HTML, ARIA labels, live regions for dynamic content
+- **Focus Management**: Visible focus indicators, focus trapping in modals
+- **Text Scaling**: Support up to 200% zoom without horizontal scrolling
+
+**Implementation Standards:**
+```typescript
+// Accessibility-first component design
+const Button = ({ variant, size, disabled, children, ...props }: ButtonProps) => {
+  return (
+    <button
+      className={cn(
+        // Base styles
+        "inline-flex items-center justify-center font-medium transition-colors",
+        "focus:outline-none focus:ring-2 focus:ring-offset-2",
+        "disabled:opacity-50 disabled:cursor-not-allowed",
+        // Variant styles
+        variants[variant],
+        sizes[size]
+      )}
+      disabled={disabled}
+      {...props}  // Includes aria-* attributes
+    >
+      {children}
+    </button>
+  )
+}
+```
+
+#### 5. **Navigation Architecture - Complete Solution**
+
+**Mobile Navigation Drawer:**
+```typescript
+// /src/components/pantry/navigation/MobileNav.tsx
+const MobileNavDrawer = ({ isOpen, onClose }: MobileNavProps) => {
+  return (
+    <>
+      {/* Overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+      
+      {/* Drawer */}
+      <div className={cn(
+        "fixed inset-y-0 left-0 z-50 w-80 bg-white shadow-xl lg:hidden",
+        "transform transition-transform duration-300 ease-in-out",
+        isOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
+        <div className="flex flex-col h-full">
+          <MobileNavHeader onClose={onClose} />
+          <div className="flex-1 overflow-y-auto scrollbar-thin">
+            <MobileNavItems />
+          </div>
+          <MobileNavFooter />
+        </div>
+      </div>
+    </>
+  )
+}
+```
+
+**Search & Favorites Integration:**
+```typescript
+// /src/components/pantry/navigation/NavSearch.tsx
+const NavigationSearch = ({ collapsed }: { collapsed: boolean }) => {
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<NavItem[]>([])
+  
+  return (
+    <div className={cn("px-4 py-3", collapsed && "px-2")}>
+      {!collapsed ? (
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search navigation..."
+            className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      ) : (
+        <button className="w-full p-2 hover:bg-gray-100 rounded-lg">
+          <Search className="w-5 h-5 text-gray-600 mx-auto" />
+        </button>
+      )}
+    </div>
+  )
+}
+```
+
+#### 6. **Enterprise Requirements**
+
+**Multi-Tenant Theming System:**
+```typescript
+// /src/themes/enterprise.ts
+interface EnterpriseThemeConfig {
+  tenant: {
+    id: string
+    name: string
+    domain: string
+  }
+  branding: {
+    primaryColor: string
+    secondaryColor: string
+    accentColor: string
+    logoUrl: string
+    faviconUrl: string
+    customFonts?: FontConfig[]
+  }
+  layout: {
+    sidebarStyle: 'default' | 'compact' | 'minimal'
+    headerHeight: number
+    sidebarWidth: number
+    borderRadius: 'none' | 'small' | 'medium' | 'large'
+  }
+  features: {
+    darkMode: boolean
+    compactMode: boolean
+    customCSS?: string
+    advancedSearch: boolean
+  }
+}
+
+// Theme application with validation
+const applyEnterpriseTheme = (config: EnterpriseThemeConfig) => {
+  // Validate theme colors for accessibility
+  validateColorContrast(config.branding)
+  
+  // Apply CSS custom properties
+  const root = document.documentElement
+  root.style.setProperty('--color-primary', config.branding.primaryColor)
+  root.style.setProperty('--color-secondary', config.branding.secondaryColor)
+  root.style.setProperty('--sidebar-width', `${config.layout.sidebarWidth}px`)
+  
+  // Load custom fonts
+  if (config.branding.customFonts) {
+    loadCustomFonts(config.branding.customFonts)
+  }
+  
+  // Apply layout modifications
+  document.body.className = cn(
+    document.body.className,
+    `theme-${config.tenant.id}`,
+    `layout-${config.layout.sidebarStyle}`
+  )
+}
+```
+
+**Configuration Management:**
+```typescript
+// /src/config/theme-manager.ts
+class EnterpriseThemeManager {
+  private themes: Map<string, EnterpriseThemeConfig> = new Map()
+  
+  async loadTenantTheme(tenantId: string): Promise<void> {
+    const config = await fetchTenantTheme(tenantId)
+    this.themes.set(tenantId, config)
+    applyEnterpriseTheme(config)
+  }
+  
+  getAvailableThemes(tenantId: string): ThemeVariant[] {
+    const config = this.themes.get(tenantId)
+    return config?.availableVariants || ['light', 'dark']
+  }
+  
+  validateThemeCompliance(config: EnterpriseThemeConfig): ValidationResult {
+    return {
+      accessibility: validateAccessibility(config),
+      performance: validatePerformance(config),
+      branding: validateBranding(config)
+    }
+  }
+}
+```
+
+**Performance & Scalability:**
+- **Initial Load**: <2 seconds (including theme loading)
+- **Component Render**: <100ms average
+- **Navigation Transitions**: <300ms
+- **Theme Switching**: <500ms
+- **Bundle Size**: <500KB (gzipped, excluding tenant themes)
+- **Memory Usage**: <50MB for component library
+- **Concurrent Users**: Support 1000+ simultaneous theme loads
+
+### 📋 IMPLEMENTATION PRIORITY (Sprint 7 Focus)
+
+**Phase 1: Critical Fixes (Week 1)**
+1. ✅ Fix sidebar scrolling issue completely
+2. ✅ Implement proper responsive navigation
+3. ✅ Standardize on Tailwind CSS only (eliminate mixed styling)
+4. ✅ Add proper mobile navigation drawer
+
+**Phase 2: Component Library (Week 2)**  
+1. ✅ Build core Pantry components with TypeScript
+2. ✅ Implement design token system
+3. ✅ Add comprehensive accessibility features
+4. ✅ Create component documentation
+
+**Phase 3: Enterprise Features (Week 3-4)**
+1. ✅ Multi-tenant theming system
+2. ✅ Advanced responsive patterns
+3. ✅ Performance optimization
+4. ✅ Integration testing
+
+### Current Status & Recent Updates
+
+### Latest Deployment (August 3, 2025)
+**Status**: 🚀 OPERATIONAL - Ready for UI Overhaul Implementation
+
+#### Production Status
+- **Frontend**: ✅ Operational (217ms load time) - Ready for UI updates
+- **Backend API**: ✅ Fully operational with .NET Core backend
+- **Health Checks**: ✅ All systems operational
+- **SSL Certificate**: ✅ Valid until September 6, 2025
+- **Overall Status**: ✅ STABLE - Ready for Sprint 7 UI overhaul
+
+#### 7. **Error Handling & API Integration - CRITICAL FIXES**
+
+Based on current console errors, implement robust error handling and API fallback mechanisms:
+
+**API Error Management System:**
+```typescript
+// /src/services/api-error-handler.ts
+class APIErrorHandler {
+  private retryAttempts = 3
+  private backoffDelay = 1000
+  
+  async handleAPICall<T>(
+    apiCall: () => Promise<T>,
+    fallbackData?: T,
+    errorContext?: string
+  ): Promise<T> {
+    for (let attempt = 1; attempt <= this.retryAttempts; attempt++) {
+      try {
+        const result = await apiCall()
+        // Check if result is HTML (indicates routing error)
+        if (typeof result === 'string' && result.includes('<!DOCTYPE html>')) {
+          throw new APIRoutingError('Received HTML instead of JSON')
+        }
+        return result
+      } catch (error) {
+        if (attempt === this.retryAttempts) {
+          // Log error with context
+          console.error(`API Error (${errorContext}):`, error)
+          
+          // Return fallback data if available
+          if (fallbackData !== undefined) {
+            console.warn(`Using fallback data for ${errorContext}`)
+            return fallbackData
+          }
+          
+          // Throw enhanced error
+          throw new EnhancedAPIError(error, errorContext, attempt)
+        }
+        
+        // Wait before retry with exponential backoff
+        await new Promise(resolve => setTimeout(resolve, this.backoffDelay * attempt))
+      }
+    }
+    
+    throw new Error('Unreachable code')
+  }
+}
+```
+
+**Graceful Degradation Components:**
+```typescript
+// /src/components/pantry/feedback/ErrorFallback.tsx
+interface ErrorFallbackProps {
+  error: Error
+  resetError: () => void
+  context?: string
+  showRetry?: boolean
+  fallbackContent?: React.ReactNode
+}
+
+const ErrorFallback = ({ 
+  error, 
+  resetError, 
+  context = 'component',
+  showRetry = true,
+  fallbackContent 
+}: ErrorFallbackProps) => {
+  const isAPIError = error.message.includes('API') || error.message.includes('HTTP')
+  
+  return (
+    <div className="bg-red-50 border border-red-200 rounded-lg p-6 m-4">
+      <div className="flex items-start">
+        <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5 mr-3 flex-shrink-0" />
+        <div className="flex-1">
+          <h3 className="text-sm font-medium text-red-800">
+            {isAPIError ? 'Connection Issue' : 'Something went wrong'}
+          </h3>
+          <p className="text-sm text-red-700 mt-1">
+            {isAPIError 
+              ? 'Unable to connect to the server. Using cached data where available.'
+              : `An error occurred in the ${context}.`
+            }
+          </p>
+          
+          {fallbackContent && (
+            <div className="mt-4 p-3 bg-white rounded border border-red-200">
+              {fallbackContent}
+            </div>
+          )}
+          
+          {showRetry && (
+            <button
+              onClick={resetError}
+              className="mt-3 text-sm bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition-colors"
+            >
+              Try Again
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+```
+
+**Data Validation & Type Safety:**
+```typescript
+// /src/utils/data-validation.ts
+export const validateAPIResponse = <T>(
+  data: unknown,
+  validator: (data: unknown) => data is T,
+  fallback: T
+): T => {
+  if (validator(data)) {
+    return data
+  }
+  
+  console.warn('Invalid API response, using fallback data:', data)
+  return fallback
+}
+
+// Specific validators for common data types
+export const isValidMetrics = (data: unknown): data is PlatformMetrics => {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'totalUsers' in data &&
+    'activeUsers' in data &&
+    typeof (data as any).totalUsers === 'number'
+  )
+}
+
+export const isValidClientArray = (data: unknown): data is Client[] => {
+  return Array.isArray(data) && data.every(item => 
+    typeof item === 'object' && 
+    item !== null && 
+    'id' in item && 
+    'name' in item
+  )
+}
+```
+
+#### 8. **Accessibility Implementation Guide**
+
+**WCAG 2.1 AA Compliance Requirements:**
+```typescript
+// /src/utils/accessibility.ts
+export const a11yProps = {
+  // Form accessibility
+  formField: (id: string, label: string, required?: boolean) => ({
+    id,
+    'aria-labelledby': `${id}-label`,
+    'aria-required': required,
+    'aria-invalid': false, // Update based on validation
+  }),
+  
+  // Navigation accessibility
+  navItem: (label: string, current?: boolean) => ({
+    role: 'menuitem',
+    'aria-label': label,
+    'aria-current': current ? 'page' : undefined,
+    tabIndex: current ? 0 : -1,
+  }),
+  
+  // Interactive elements
+  button: (label: string, pressed?: boolean) => ({
+    'aria-label': label,
+    'aria-pressed': pressed,
+    type: 'button',
+  }),
+  
+  // Data tables
+  table: () => ({
+    role: 'table',
+    'aria-label': 'Data table',
+  }),
+  
+  // Live regions for dynamic content
+  liveRegion: (polite: boolean = true) => ({
+    'aria-live': polite ? 'polite' : 'assertive',
+    'aria-atomic': true,
+  }),
+}
+
+// Color contrast validation
+export const validateColorContrast = (
+  foreground: string,
+  background: string,
+  level: 'AA' | 'AAA' = 'AA'
+): boolean => {
+  // Implementation of WCAG color contrast algorithm
+  const ratio = calculateContrastRatio(foreground, background)
+  return level === 'AA' ? ratio >= 4.5 : ratio >= 7
+}
+```
+
+**Keyboard Navigation System:**
+```typescript
+// /src/hooks/useKeyboardNavigation.ts
+export const useKeyboardNavigation = (
+  items: NavItem[],
+  onSelect: (item: NavItem) => void
+) => {
+  const [focusedIndex, setFocusedIndex] = useState(0)
+  
+  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault()
+        setFocusedIndex((prev) => (prev + 1) % items.length)
+        break
+      case 'ArrowUp':
+        event.preventDefault()
+        setFocusedIndex((prev) => (prev - 1 + items.length) % items.length)
+        break
+      case 'Enter':
+      case ' ':
+        event.preventDefault()
+        onSelect(items[focusedIndex])
+        break
+      case 'Home':
+        event.preventDefault()
+        setFocusedIndex(0)
+        break
+      case 'End':
+        event.preventDefault()
+        setFocusedIndex(items.length - 1)
+        break
+    }
+  }, [items, focusedIndex, onSelect])
+  
+  return { focusedIndex, handleKeyDown }
+}
+```
+
+### 🚨 IMMEDIATE IMPLEMENTATION REQUIREMENTS
+
+#### Critical Issues to Address First:
+
+1. **API Routing Problems (HTTP 405 Errors)**
+   - Backend API endpoints returning HTML instead of JSON
+   - Method Not Allowed errors on POST requests
+   - API service startup and routing configuration issues
+
+2. **Frontend Error Handling**
+   - Implement comprehensive error boundaries
+   - Add fallback UI for failed API calls
+   - Fix data validation errors (undefined properties, non-iterable arrays)
+
+3. **Accessibility Compliance**
+   - Add missing autocomplete attributes to form inputs
+   - Implement proper ARIA labels and roles
+   - Ensure keyboard navigation works throughout the application
+
+4. **Navigation Scrolling Fix**
+   - Implement proper overflow handling in sidebar
+   - Add scrollable navigation container
+   - Fix responsive mobile navigation
+
+#### Development Priorities:
+
+**Week 1: Foundation Fixes**
+- Fix all API routing and backend connectivity issues
+- Implement error handling and fallback mechanisms
+- Add proper data validation and type safety
+- Fix sidebar scrolling with overflow-y-auto implementation
+
+**Week 2: Component Library**
+- Build standardized Pantry components using Tailwind CSS only
+- Implement design token system
+- Add comprehensive accessibility features
+- Create mobile-responsive navigation patterns
+
+**Week 3: Enterprise Features**
+- Multi-tenant theming system implementation
+- Advanced responsive design patterns
+- Performance optimization and bundle size reduction
+- Integration testing and quality assurance
+
+**Week 4: Polish & Documentation**
+- Component documentation and usage examples
+- Accessibility testing and compliance verification
+- Performance benchmarking and optimization
+- User experience testing and refinement
+
+### Current Focus Areas
+The platform is now focused on:
+- **PRIORITY 1**: Fix API connectivity and routing issues (HTTP 405 errors)
+- **PRIORITY 2**: Complete UI/UX overhaul with proper navigation scrolling
+- **PRIORITY 3**: Implement comprehensive error handling and fallback mechanisms
+- **PRIORITY 4**: Standardized component library ("The Pantry") with TypeScript + Tailwind
+- **PRIORITY 5**: Accessibility compliance (WCAG 2.1 AA) and keyboard navigation
+- **PRIORITY 6**: Multi-tenant theming system and enterprise responsive patterns
+
+For current sprint status and agent assignments, refer to `project-architecture.yaml`.

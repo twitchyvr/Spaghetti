@@ -315,7 +315,9 @@ projectConfiguration:
   documentation:
     structure:
       - file: "INSTRUCTIONS.md"
-        purpose: "Main project context, team structure, and agent coordination guidelines."
+        purpose: "Main project context, team structure, and high-level coordination guidelines."
+      - file: "AGENTS.md"
+        purpose: "Complete agent instructions, code quality checklists, and agent-specific behaviors."
       - file: "CLAUDE.md"
         purpose: "Comprehensive development standards, workflow, technology stack details, and status for Anthropic AI agents."
       - file: "GEMINI.md"
@@ -324,6 +326,8 @@ projectConfiguration:
         purpose: "High-level project overview, quick start guide, architecture summary, and key links."
       - file: "docs/ui-design-system.md"
         purpose: "Complete UI/UX specifications, component library ('The Pantry'), and product terminology."
+      - file: "docs/ui-overhaul-requirements.md"
+        purpose: "Detailed UI/UX overhaul requirements and design system specifications."
       - file: "docs/sprint-planning.md"
         purpose: "Sprint coordination framework, story point allocation, and agent coordination."
       - file: "project-architecture.yaml"

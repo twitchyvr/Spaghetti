@@ -349,15 +349,46 @@ When seeded, creates:
   - Update all relevant files in the `docs/` directory
   - **Execute these steps EVERY SINGLE TIME you make updates**
 
-### Code Quality Standards
+### Code Quality Standards - ZERO TOLERANCE POLICY
 
-1. **Before Coding**: Update todo list and mark tasks as in_progress
-2. **During Development**: Follow repository patterns and clean architecture
-3. **Local Testing**: ALWAYS test locally (npm run dev, docker-compose up) before committing
-4. **Build Verification**: Ensure TypeScript compilation passes (npm run build)
-5. **Code Review**: Ensure proper error handling and logging
-6. **Documentation**: Update CLAUDE.md and README.md for significant changes
-7. **Commit**: Use conventional commit messages with frequent commits
+1. **Before Coding**: 
+   - Update todo list and mark tasks as in_progress
+   - Search for existing type definitions and similar code
+   - Read and understand current patterns - NO ASSUMPTIONS
+
+2. **During Development**: 
+   - Follow repository patterns and clean architecture
+   - Use centralized types from `src/frontend/src/types/` - NO DUPLICATES
+   - Add null checks for ALL nullable states
+   - Use TypeScript strict features (optional chaining ?., nullish coalescing ??)
+
+3. **Local Testing**: 
+   - **MANDATORY**: Run `npm run build` before EVERY commit
+   - **MANDATORY**: Fix ALL TypeScript errors - NO WORKAROUNDS
+   - Test locally (npm run dev, docker-compose up) before committing
+
+4. **Build Verification**: 
+   - TypeScript compilation MUST pass with ZERO errors
+   - Remove ALL console.log statements
+   - Delete ALL commented-out code
+   - No TODO comments without issue numbers
+
+5. **Code Cleanup**: 
+   - Check for duplicate functions or type definitions
+   - Ensure all imports are from correct locations
+   - Verify no temporary fixes or workarounds remain
+   - Use IDE refactoring tools - NO manual find/replace
+
+6. **Documentation**: 
+   - Update CLAUDE.md and README.md for significant changes
+   - Document all type changes in commit messages
+   - Maintain accurate API documentation
+
+7. **Commit Requirements**: 
+   - Use conventional commit messages
+   - Include all refactoring in atomic commits
+   - Never commit with failing builds
+   - Reference issue numbers in commits
 
 ### CSS and Styling Guidelines
 
@@ -369,6 +400,52 @@ When seeded, creates:
 4. **Consistency**: All components should follow the same styling methodology
 5. **Variables**: Use CSS custom properties (variables) only in dedicated CSS files, not inline
 6. **Theme System**: Respect the existing theme.css variable system when using custom CSS
+
+### Preventing Rapid Iteration - Full Cleanup Protocol
+
+**Problem**: Rapid iteration without cleanup leads to:
+- Duplicate type definitions across files
+- Inconsistent naming (isResolved vs resolved)
+- Multiple versions of similar functions
+- Incomplete refactoring leaving old code
+- Type mismatches between frontend and backend
+
+**Solution - Mandatory Cleanup Process**:
+
+1. **Type Consolidation Check**:
+   ```bash
+   # Before creating ANY new type
+   grep -r "interface.*YourTypeName" src/
+   grep -r "type.*YourTypeName" src/
+   ```
+
+2. **Import Verification**:
+   ```bash
+   # After moving/renaming exports
+   grep -r "import.*OldName" src/
+   ```
+
+3. **Function Duplication Check**:
+   ```bash
+   # Before adding new functions
+   grep -r "function.*functionName" src/
+   grep -r "const.*functionName" src/
+   ```
+
+4. **Cleanup Checklist** (MUST complete before pushing):
+   - [ ] No duplicate interfaces or types
+   - [ ] All imports updated after refactoring
+   - [ ] No orphaned exports
+   - [ ] No console.log statements
+   - [ ] No commented code blocks
+   - [ ] All TODOs have issue numbers
+   - [ ] TypeScript builds with zero errors
+
+5. **Refactoring Rules**:
+   - NEVER leave old implementations when adding new ones
+   - ALWAYS use VSCode's "Rename Symbol" for refactoring
+   - ALWAYS run "Find All References" before deleting
+   - ALWAYS update both frontend and backend types together
 
 ### Testing Strategy
 
