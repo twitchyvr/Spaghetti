@@ -7,6 +7,10 @@ This file contains the active release notes for recent sprints. For historical r
 ### Current Sprint Status
 See `project-status.yaml` for real-time sprint progress and agent status.
 
+### Fixed
+- Corrected login page syntax error and restyled screen using Pantry design system components.
+- Configured database connection via environment variables with health check endpoint.
+
 ## [0.0.15-alpha] - Sprint 6: Advanced Collaboration Infrastructure (2025-08-01)
 
 ### Added
