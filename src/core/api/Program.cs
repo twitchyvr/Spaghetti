@@ -1,5 +1,8 @@
 using EnterpriseDocsCore.API;
+using EnterpriseDocsCore.Infrastructure.Data;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +14,20 @@ builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
+
+// Configure database connection
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? BuildConnectionStringFromEnvironment();
+
+if (!string.IsNullOrEmpty(connectionString))
+{
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseNpgsql(connectionString));
+}
+else
+{
+    Console.WriteLine("Warning: No database connection string configured.");
+}
 
 // Add minimal services for a working API
 builder.Services.AddControllers();
@@ -44,6 +61,34 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Verify database connection at startup
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetService<ApplicationDbContext>();
+    if (db != null)
+    {
+        try
+        {
+            if (db.Database.CanConnect())
+            {
+                Console.WriteLine("Database connection established.");
+            }
+            else
+            {
+                Console.WriteLine("Database connection failed.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Database connection error: {ex.Message}");
+        }
+    }
+    else
+    {
+        Console.WriteLine("ApplicationDbContext not configured.");
+    }
+}
+
 // Simple in-memory flag to track if sample data has been seeded
 var sampleDataSeeded = false;
 
@@ -72,8 +117,8 @@ app.MapGet("/health", () => Results.Ok(new {
     deployment = "simplified-architecture"
 })).AllowAnonymous();
 
-app.MapGet("/api/health", () => Results.Ok(new { 
-    status = "healthy", 
+app.MapGet("/api/health", () => Results.Ok(new {
+    status = "healthy",
     timestamp = DateTime.UtcNow, 
     service = "enterprise-docs-api-sprint7",
     version = "0.0.16-alpha",
@@ -81,6 +126,13 @@ app.MapGet("/api/health", () => Results.Ok(new {
     database = "connection-pending",
     deployment = "simplified-architecture"
 })).AllowAnonymous();
+
+// Database health check endpoint
+app.MapGet("/api/db/health", async (ApplicationDbContext db) =>
+{
+    var canConnect = await db.Database.CanConnectAsync();
+    return Results.Ok(new { connected = canConnect });
+}).AllowAnonymous();
 
 // Basic API endpoints for frontend compatibility
 app.MapGet("/api/admin/database-stats", () => Results.Ok(new { 
@@ -320,4 +372,36 @@ catch (Exception ex)
     
     // Re-throw to ensure the process exits with non-zero code
     throw;
+}
+
+static string? BuildConnectionStringFromEnvironment()
+{
+    var host = Environment.GetEnvironmentVariable("dbhost");
+    var port = Environment.GetEnvironmentVariable("dbport");
+    var username = Environment.GetEnvironmentVariable("dbusername");
+    var password = Environment.GetEnvironmentVariable("dbpassword");
+    var database = Environment.GetEnvironmentVariable("dbdatabase");
+    var sslMode = Environment.GetEnvironmentVariable("dbsslmode") ?? "Require";
+
+    if (string.IsNullOrWhiteSpace(host) ||
+        string.IsNullOrWhiteSpace(port) ||
+        string.IsNullOrWhiteSpace(username) ||
+        string.IsNullOrWhiteSpace(password) ||
+        string.IsNullOrWhiteSpace(database))
+    {
+        return null;
+    }
+
+    var connBuilder = new NpgsqlConnectionStringBuilder
+    {
+        Host = host,
+        Port = int.Parse(port),
+        Username = username,
+        Password = password,
+        Database = database,
+        SslMode = Enum.TryParse<Npgsql.SslMode>(sslMode, true, out var mode) ? mode : Npgsql.SslMode.Require,
+        TrustServerCertificate = true
+    };
+
+    return connBuilder.ToString();
 }
