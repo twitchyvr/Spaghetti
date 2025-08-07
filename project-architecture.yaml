@@ -189,6 +189,38 @@ projectConfiguration:
         buildTime: "<2s"
       security:
         vulnerabilities: "0 critical"
+    codeQualityStandards:
+      preventRapidIteration:
+        - "MANDATORY: Full TypeScript compilation must pass before ANY commit"
+        - "MANDATORY: Run 'npm run build' locally before pushing to repository"
+        - "MANDATORY: All type definitions must be consolidated and shared"
+        - "MANDATORY: No duplicate type interfaces across files"
+      typeManagement:
+        centralizedTypes:
+          - location: "src/frontend/src/types/"
+          - rule: "All shared interfaces MUST be defined in centralized type files"
+          - rule: "Import types from central location, never redefine"
+          - rule: "Use type aliases to maintain backwards compatibility during refactors"
+        nullSafety:
+          - "All nullable states must have explicit null checks"
+          - "Use TypeScript strict mode and strictNullChecks"
+          - "Prefer optional chaining (?.) and nullish coalescing (??)"
+      cleanupRequirements:
+        beforeCommit:
+          - "Remove all console.log statements"
+          - "Delete commented-out code"
+          - "Ensure no TODO comments without issue numbers"
+          - "Verify no duplicate functions or exports"
+        codeReview:
+          - "Check for type consistency across related files"
+          - "Ensure proper error handling for all edge cases"
+          - "Verify imports are from correct locations"
+          - "Confirm no temporary workarounds remain"
+      refactoringProtocol:
+        - "When changing function signatures, update ALL usages"
+        - "When moving exports, update ALL imports"
+        - "When renaming types, search entire codebase for usage"
+        - "Use TypeScript's refactoring tools, not manual find/replace"
   securityAndCompliance:
     authentication:
       primary: "JWT with .NET Identity"
@@ -296,4 +328,45 @@ projectConfiguration:
         purpose: "Sprint coordination framework, story point allocation, and agent coordination."
       - file: "project-architecture.yaml"
         purpose: "This file. The machine-readable and human-friendly single source of truth for the project's configuration."
+      - file: "docs/code-quality-standards.md"
+        purpose: "Comprehensive code quality standards and anti-rapid-iteration guidelines."
+  agentConfiguration:
+    codeQualityEnforcement:
+      enabled: true
+      severity: "strict"
+      rules:
+        - name: "TypeConsolidation"
+          description: "All agents must use centralized type definitions"
+          enforcement: "pre-commit"
+          locations:
+            - "src/frontend/src/types/"
+            - "src/backend/Core/DTOs/"
+        - name: "NullSafetyCheck"
+          description: "All nullable values must have explicit checks"
+          enforcement: "build-time"
+        - name: "NoDuplicateDefinitions"
+          description: "No duplicate interfaces, types, or functions"
+          enforcement: "pre-commit"
+        - name: "CleanCodeStandard"
+          description: "No console.log, commented code, or TODOs without issues"
+          enforcement: "pre-commit"
+    agentBehaviors:
+      beforeCoding:
+        - "Search for existing types and similar code"
+        - "Read current patterns - make no assumptions"
+        - "Check project-architecture.yaml for standards"
+      duringDevelopment:
+        - "Use centralized types - create no duplicates"
+        - "Add null checks for all nullable states"
+        - "Follow existing patterns exactly"
+      beforeCommitting:
+        - "Run npm run build - must pass with zero errors"
+        - "Remove all console.log statements"
+        - "Delete all commented-out code"
+        - "Verify all imports are correct"
+      refactoring:
+        - "Use IDE refactoring tools only"
+        - "Update all usages when changing signatures"
+        - "Never leave old implementations"
+        - "Test everything after changes"
     maintenanceSchedule: "Weekly for active sprint documents, quarterly for core architectural and standards documents."

@@ -958,3 +958,114 @@ The platform is now focused on:
 
 For current sprint status and agent assignments, refer to `project-architecture.yaml`.
 
+## Agent-Specific Code Quality Instructions
+
+### ALL AGENTS - Mandatory Code Quality Checklist
+
+**Before ANY code changes:**
+1. ✅ Read existing code and understand current patterns
+2. ✅ Check for existing type definitions before creating new ones
+3. ✅ Search for similar functionality to avoid duplication
+
+**During development:**
+1. ✅ Use centralized type definitions from `src/frontend/src/types/`
+2. ✅ Add null checks for all nullable state variables
+3. ✅ Follow existing code patterns and conventions
+4. ✅ Use TypeScript strict mode features (optional chaining, nullish coalescing)
+
+**Before committing:**
+1. ✅ Run `npm run build` locally - NO EXCEPTIONS
+2. ✅ Fix ALL TypeScript errors - NO WORKAROUNDS
+3. ✅ Remove all console.log statements
+4. ✅ Delete commented-out code
+5. ✅ Check for duplicate functions or type definitions
+6. ✅ Ensure all imports are from correct locations
+7. ✅ Verify no temporary fixes remain
+
+### Developer Agent Instructions
+
+**Type Management Protocol:**
+- NEVER create duplicate interfaces - search first in `src/frontend/src/types/`
+- When types differ slightly, extend or compose existing types
+- Use type aliases for backwards compatibility during refactors
+- Document any type changes in commit messages
+
+**Refactoring Requirements:**
+- Use TypeScript's built-in refactoring tools
+- Update ALL usages when changing function signatures
+- Update ALL imports when moving exports
+- Search entire codebase when renaming types
+
+### Frontend-Lead Agent Instructions
+
+**Component Development Standards:**
+- Check existing components before creating new ones
+- Use shared types from centralized location
+- Implement proper error boundaries and loading states
+- Add null safety checks for all data from APIs
+
+**UI Consistency Requirements:**
+- Follow Pantry Design System strictly
+- Use Tailwind utility classes only - NO inline styles
+- Maintain consistent patterns across similar components
+
+### Backend-Lead Agent Instructions
+
+**API Contract Management:**
+- Define all DTOs in centralized location
+- Keep frontend and backend types synchronized
+- Version APIs when making breaking changes
+- Document all endpoint changes
+
+### QA-Lead Agent Instructions
+
+**Quality Gate Enforcement:**
+- Verify TypeScript compilation passes
+- Check for type consistency across files
+- Ensure null safety in data handling
+- Validate no duplicate code exists
+
+### Scrum-Master Agent Instructions
+
+**Sprint Planning Requirements:**
+- Include "code cleanup" tasks in every sprint
+- Allocate time for refactoring and consolidation
+- Track technical debt explicitly
+- Review type consistency in sprint retrospectives
+
+### GitOps-Orchestrator Agent Instructions
+
+**Pre-Commit Validation:**
+- Block commits if TypeScript compilation fails
+- Require successful local build before push
+- Check for console.log and commented code
+- Validate imports are from correct paths
+
+## Code Quality Enforcement Rules
+
+1. **Zero Tolerance Policy:**
+   - NO commits with TypeScript errors
+   - NO duplicate type definitions
+   - NO console.log in production code
+   - NO commented-out code blocks
+
+2. **Type Safety Requirements:**
+   - ALL nullable states must have explicit checks
+   - ALL API responses must have type guards
+   - ALL component props must be strongly typed
+   - ALL shared types in centralized location
+
+3. **Refactoring Protocol:**
+   - ALWAYS use IDE refactoring tools
+   - ALWAYS update all references
+   - ALWAYS test after refactoring
+   - ALWAYS document breaking changes
+
+4. **Review Checklist:**
+   - ✅ Types are imported from central location
+   - ✅ No duplicate interfaces or types
+   - ✅ Null checks for nullable data
+   - ✅ Clean code with no debug statements
+   - ✅ All tests pass locally
+   - ✅ Build completes without errors
+
