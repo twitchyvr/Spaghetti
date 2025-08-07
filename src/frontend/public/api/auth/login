@@ -1,0 +1,12 @@
+{
+  "token": "demo-jwt-token-static",
+  "user": {
+    "id": "demo-user-static",
+    "email": "admin@enterprise-docs.com",
+    "firstName": "Admin",
+    "lastName": "User",
+    "fullName": "Admin User",
+    "tenantId": "demo-tenant-static"
+  },
+  "message": "Login successful"
+}

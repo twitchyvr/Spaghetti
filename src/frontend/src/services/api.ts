@@ -2,7 +2,7 @@
 import { getMockResponse } from './mockData';
 
 const API_BASE_URL = import.meta.env['VITE_API_BASE_URL'] || 'http://localhost:5001';
-const DEMO_MODE = import.meta.env['VITE_DEMO_MODE'] === 'true' || API_BASE_URL.includes('api-placeholder');
+const DEMO_MODE = import.meta.env['VITE_DEMO_MODE'] === 'true';
 
 // API Error class
 export class ApiError extends Error {

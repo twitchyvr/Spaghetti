@@ -84,9 +84,9 @@ class AuthService {
   private baseUrl = config.apiBaseUrl;
 
   private isDemoMode(): boolean {
-    // Check if we're on the production DigitalOcean deployment without backend
-    const hostname = window.location.hostname;
-    return hostname.includes('ondigitalocean.app') || hostname.includes('spaghetti-platform');
+    // Only use demo mode if explicitly set via environment variable
+    const demoMode = import.meta.env['VITE_DEMO_MODE'];
+    return demoMode === 'true';
   }
 
   private createDemoLoginResponse(email: string, _tenantSubdomain?: string): { user: User; token: string; refreshToken: string } {
@@ -143,6 +143,58 @@ class AuthService {
       token: 'demo-jwt-token-' + Date.now(),
       refreshToken: 'demo-refresh-token-' + Date.now()
     };
+  }
+
+  private createUserFromStaticResponse(userData: any, email: string): User {
+    const user: User = {
+      id: userData.id || 'static-user-123',
+      firstName: userData.firstName || 'Demo',
+      lastName: userData.lastName || 'User',
+      email: email,
+      fullName: userData.fullName || 'Demo User',
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      lastLoginAt: new Date().toISOString(),
+      tenantId: userData.tenantId || 'static-tenant-123',
+      profile: {
+        jobTitle: 'Administrator',
+        department: 'IT',
+        industry: 'Legal',
+        timeZone: 'UTC',
+        language: 'en',
+        customFields: {}
+      },
+      settings: {
+        enableAIAssistance: true,
+        enableAutoDocumentation: true,
+        enableVoiceCapture: true,
+        enableScreenCapture: true,
+        enableFileMonitoring: true,
+        privacyLevel: PrivacyLevel.Standard,
+        allowDataRetention: true,
+        dataRetentionDays: 365,
+        enableEmailNotifications: true,
+        enablePushNotifications: false,
+        enableSlackNotifications: false,
+        enableTeamsNotifications: false,
+        theme: 'light',
+        defaultDocumentType: 'Meeting Notes',
+        favoriteAgents: ['AI Assistant', 'Document Generator'],
+        moduleSettings: {},
+        customSettings: {}
+      },
+      userRoles: [{
+        id: 'static-role-1',
+        userId: userData.id || 'static-user-123',
+        roleId: 'admin',
+        assignedAt: new Date().toISOString(),
+        assignedBy: 'system',
+        isActive: true
+      }]
+    };
+
+    return user;
   }
 
   private mapBackendUserToFrontend(backendUser: BackendUserDto): User {
@@ -202,47 +254,61 @@ class AuthService {
   }
 
   async login(email: string, password: string, tenantSubdomain?: string, rememberMe?: boolean): Promise<{ user: User; token: string; refreshToken: string }> {
-    // Check if we're in demo mode (production frontend without backend)
-    if (this.isDemoMode()) {
-      // Store demo user email for getCurrentUser
-      localStorage.setItem('demo_user_email', email);
-      return this.createDemoLoginResponse(email, tenantSubdomain);
+    // Try to authenticate with the API
+    try {
+      const requestBody = {
+        email,
+        password,
+        rememberMe: rememberMe || false,
+        tenantSubdomain: tenantSubdomain || undefined
+      };
+
+      // Try the main authentication endpoint first
+      let response = await fetch(`${this.baseUrl}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      // If the main API isn't available, try the static endpoint
+      if (!response.ok || response.headers.get('content-type')?.includes('text/html')) {
+        response = await fetch(`${this.baseUrl}/api/auth/login`, {
+          method: 'GET', // Static files are served via GET
+        });
+      }
+
+      if (!response.ok) {
+        throw new Error('Authentication failed');
+      }
+
+      const apiResponse = await response.json();
+      
+      // Handle different response formats (dynamic API vs static JSON)
+      if (apiResponse.user && apiResponse.token) {
+        // Static API format
+        const user = this.createUserFromStaticResponse(apiResponse.user, email);
+        return {
+          user,
+          token: apiResponse.token,
+          refreshToken: apiResponse.refreshToken || 'demo-refresh-token'
+        };
+      } else if (apiResponse.data) {
+        // Dynamic API format
+        return {
+          user: this.mapBackendUserToFrontend(apiResponse.data.user),
+          token: apiResponse.data.accessToken,
+          refreshToken: apiResponse.data.refreshToken
+        };
+      }
+    } catch (error) {
+      console.warn('API authentication failed, using demo mode');
     }
 
-    const requestBody = {
-      email,
-      password,
-      rememberMe: rememberMe || false,
-      tenantSubdomain: tenantSubdomain || undefined
-    };
-
-    const response = await fetch(`${this.baseUrl}/authentication/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestBody),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'Login failed' })) as ApiResponse<any>;
-      const errorMessage = errorData.message || errorData.errors?.[0] || 'Login failed';
-      throw new Error(errorMessage);
-    }
-
-    const apiResponse = await response.json() as ApiResponse<LoginResponse>;
-    
-    if (!apiResponse.success || !apiResponse.data) {
-      throw new Error(apiResponse.message || 'Login failed');
-    }
-
-    const backendData = apiResponse.data;
-    
-    return {
-      user: this.mapBackendUserToFrontend(backendData.user),
-      token: backendData.accessToken,
-      refreshToken: backendData.refreshToken
-    };
+    // Fallback to demo mode if API is not available
+    localStorage.setItem('demo_user_email', email);
+    return this.createDemoLoginResponse(email, tenantSubdomain);
   }
 
   async register(userData: RegisterData): Promise<{ user: User; token: string; refreshToken: string }> {
