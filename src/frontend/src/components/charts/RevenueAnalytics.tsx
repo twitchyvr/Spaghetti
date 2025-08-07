@@ -112,6 +112,8 @@ export const RevenueAnalytics: React.FC<RevenueAnalyticsProps> = ({ className = 
   };
 
   const handleExportData = () => {
+    if (!metrics) return;
+    
     // Generate CSV export of revenue analytics data
     const csvData = [
       ['Metric', 'Value'],

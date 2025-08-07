@@ -170,9 +170,6 @@ export async function sendComment(documentId: string, comment: DocumentComment):
   }
 }
 
-export function getConnectionState(): string {
-  return connection?.state ? signalR.HubConnectionState[connection.state] : 'Disconnected';
-}
 
 // Event handlers
 export function onContentChanged(handler: (change: ContentChange) => void): void {

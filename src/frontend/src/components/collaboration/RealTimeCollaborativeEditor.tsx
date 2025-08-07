@@ -20,7 +20,7 @@ import {
   Unlock
 } from 'lucide-react';
 
-import { signalRService } from '../../services/signalRService';
+import { signalRService, sendComment } from '../../services/signalRService';
 import { useAuth } from '../../contexts/AuthContext';
 import { 
   UserPresence, 
@@ -442,13 +442,13 @@ const RealTimeCollaborativeEditor: React.FC = () => {
   const addComment = async () => {
     if (!newCommentContent.trim() || !selectedText || !documentId || !user) return;
 
-    const comment: DocumentComment = {
+    const comment = {
       id: Date.now().toString(),
       documentId: documentId,
       userId: user.id,
       userName: user.fullName || 'Unknown User',
       content: newCommentContent,
-      createdAt: new Date(),
+      timestamp: new Date(),
       line: Math.floor(selectedText.start / 50), // Approximate line number
       position: selectedText.start,
       isResolved: false
@@ -457,8 +457,13 @@ const RealTimeCollaborativeEditor: React.FC = () => {
     try {
       // Add comment to local state immediately for optimistic UI
       const newComment: Comment = {
-        ...comment,
+        id: comment.id || '',
+        userId: comment.userId,
+        userName: comment.userName,
+        content: comment.content,
         timestamp: new Date(),
+        line: comment.line || 0,
+        resolved: comment.isResolved,
         replies: []
       };
       
@@ -466,7 +471,7 @@ const RealTimeCollaborativeEditor: React.FC = () => {
       
       // Send comment via SignalR if connected, otherwise store locally
       if (signalRService.getConnectionState() === 'Connected') {
-        await signalRService.sendComment(documentId, comment);
+        await sendComment(documentId, comment);
       }
       
       setNewCommentContent('');

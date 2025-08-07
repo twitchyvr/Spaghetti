@@ -127,6 +127,8 @@ export const CustomerAnalytics: React.FC<CustomerAnalyticsProps> = ({ className 
   };
 
   const handleExportData = () => {
+    if (!metrics) return;
+    
     // Generate CSV export of customer analytics data
     const csvData = [
       ['Metric', 'Value'],
