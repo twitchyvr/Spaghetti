@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { documentApi } from '../../services/api';
-import { DocumentService } from '../../services/documentService';
+import { documentService } from '../../services/documentService';
 import { LoadingSpinner } from '../pantry/feedback/LoadingSpinner';
 
 interface Document {
