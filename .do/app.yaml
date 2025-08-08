@@ -30,7 +30,7 @@ services:
     timeout_seconds: 10
     success_threshold: 1
     failure_threshold: 5
-  build_command: dotnet restore WorkingAPI.csproj && dotnet publish WorkingAPI.csproj -c Release -o out --self-contained false
+  build_command: dotnet restore EnterpriseDocsCore.API.csproj && dotnet publish EnterpriseDocsCore.API.csproj -c Release -o out --self-contained false
   run_command: cd out && dotnet EnterpriseDocsCore.API.dll --urls http://0.0.0.0:$PORT
   envs:
   - key: ASPNETCORE_ENVIRONMENT
