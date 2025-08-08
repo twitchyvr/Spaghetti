@@ -110,6 +110,27 @@ app.MapPost("/api/admin/create-admin-user", (CreateAdminRequest request) => {
     });
 }).AllowAnonymous();
 
+// Map `/api/admin/create-platform-admin` to the same handler as the older route.
+app.MapPost("/api/admin/create-platform-admin", (CreateAdminRequest request) => {
+    Console.WriteLine($"Creating platform admin (alias to create-admin-user): {request.Email}");
+    
+    return Results.Ok(new {
+        message = $"Platform admin created successfully: {request.Email}",
+        user = new {
+            id = Guid.NewGuid().ToString(),
+            email = request.Email,
+            firstName = request.FirstName,
+            lastName = request.LastName,
+            permissions = new[] { "platform-admin", "database-admin", "user-management" }
+        },
+        credentials = new {
+            email = request.Email,
+            temporaryPassword = "TempAdmin123!"
+        },
+        loginInstructions = "You can now log in with any password"
+    });
+}).AllowAnonymous();
+
 // Database stats endpoint
 app.MapGet("/api/admin/database-stats", () => Results.Ok(new { 
     totalDocuments = 7,

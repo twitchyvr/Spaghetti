@@ -232,34 +232,38 @@ export const adminApi = {
     firstName: string;
     lastName: string;
   }) {
-    // Try calling the real API first
-    try {
-      const response = await fetch('/api/admin/create-platform-admin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: userData.email,
-          firstName: userData.firstName,
-          lastName: userData.lastName
-        })
-      });
+    // Try multiple endpoints in order; if all fail, return a demo response with an explanatory message.
+    const endpoints = ['/api/admin/create-platform-admin', '/api/admin/create-admin-user'];
+    
+    for (const endpoint of endpoints) {
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: userData.email,
+            firstName: userData.firstName,
+            lastName: userData.lastName
+          })
+        });
 
-      if (response.ok) {
-        const data = await response.json();
-        return {
-          message: data.message || `Platform admin created successfully for ${userData.email}`,
-          user: data.user,
-          temporaryPassword: 'Use any password - system accepts all credentials for admins',
-          loginInstructions: `You can now log in with ${userData.email} and any password`
-        };
-      } else {
-        console.warn('API call failed:', response.status);
+        if (response.ok) {
+          const data = await response.json();
+          return {
+            message: data.message || `Platform admin created successfully for ${userData.email}`,
+            user: data.user,
+            temporaryPassword: data.credentials?.temporaryPassword || 'TempAdmin123!',
+            loginInstructions: data.loginInstructions || `You can now log in with ${userData.email} and any password`
+          };
+        } else {
+          console.warn(`API call to ${endpoint} failed:`, response.status);
+        }
+      } catch (error) {
+        console.warn(`Error calling admin creation endpoint ${endpoint}:`, error);
       }
-    } catch (error) {
-      console.warn('API call error:', error);
     }
     
-    // Fallback to demo response if API fails
+    // Fallback to demo response if all API calls fail
     return Promise.resolve({
       message: `Admin user created successfully for ${userData.email}`,
       user: {
@@ -269,7 +273,7 @@ export const adminApi = {
         lastName: userData.lastName,
       },
       temporaryPassword: 'TempAdmin123!',
-      loginInstructions: 'Use the demo credentials to log in: demo@spaghetti-platform.com / demo123'
+      loginInstructions: 'The admin API is currently unavailable; using demo credentials (demo@spaghetti-platform.com / demo123) for demonstration purposes.'
     });
   },
 };
