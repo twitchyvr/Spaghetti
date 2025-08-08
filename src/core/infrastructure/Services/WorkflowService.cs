@@ -1,8 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
-using EnterpriseDocsCore.API.DTOs;
-using EnterpriseDocsCore.Core.Domain.Entities;
+using EnterpriseDocsCore.Domain.Entities;
 using EnterpriseDocsCore.Domain.Interfaces;
 using EnterpriseDocsCore.Infrastructure.Data;
 

@@ -1,5 +1,4 @@
 using EnterpriseDocsCore.Domain.Interfaces;
-using EnterpriseDocsCore.API.DTOs;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;

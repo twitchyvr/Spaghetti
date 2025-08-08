@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using System.Net.Http;
 using System.Text.Json;
 using EnterpriseDocsCore.Domain.Interfaces;
+using EnterpriseDocsCore.Domain.Entities;
 
 namespace EnterpriseDocsCore.Infrastructure.Services
 {
@@ -35,7 +36,15 @@ namespace EnterpriseDocsCore.Infrastructure.Services
             if (!_regions.ContainsKey(region))
             {
                 _logger.LogWarning("Unknown region requested: {Region}", region);
-                return new RegionHealthStatus { Region = region, IsHealthy = false, ErrorMessage = "Unknown region" };
+                return new RegionHealthStatus 
+                { 
+                    Region = region, 
+                    Status = HealthStatus.Critical, 
+                    ResponseTime = double.MaxValue,
+                    LastChecked = DateTime.UtcNow,
+                    Services = new List<string>(),
+                    Metrics = new Dictionary<string, object> { ["error"] = "Unknown region" }
+                };
             }
 
             try
@@ -47,10 +56,15 @@ namespace EnterpriseDocsCore.Infrastructure.Services
                 return new RegionHealthStatus
                 {
                     Region = region,
-                    IsHealthy = response.IsSuccessStatusCode,
-                    Latency = latency,
-                    LastCheck = DateTime.UtcNow,
-                    ErrorMessage = response.IsSuccessStatusCode ? null : $"HTTP {response.StatusCode}"
+                    Status = response.IsSuccessStatusCode ? HealthStatus.Healthy : HealthStatus.Critical,
+                    ResponseTime = latency,
+                    LastChecked = DateTime.UtcNow,
+                    Services = new List<string> { "api", "database" },
+                    Metrics = new Dictionary<string, object> 
+                    { 
+                        ["http_status"] = (int)response.StatusCode,
+                        ["latency_ms"] = latency
+                    }
                 };
             }
             catch (Exception ex)
@@ -59,9 +73,11 @@ namespace EnterpriseDocsCore.Infrastructure.Services
                 return new RegionHealthStatus
                 {
                     Region = region,
-                    IsHealthy = false,
-                    LastCheck = DateTime.UtcNow,
-                    ErrorMessage = ex.Message
+                    Status = HealthStatus.Critical,
+                    ResponseTime = double.MaxValue,
+                    LastChecked = DateTime.UtcNow,
+                    Services = new List<string>(),
+                    Metrics = new Dictionary<string, object> { ["error"] = ex.Message }
                 };
             }
         }
@@ -73,21 +89,23 @@ namespace EnterpriseDocsCore.Infrastructure.Services
             var regionHealthTasks = _regions.Keys.Select(GetRegionHealthAsync);
             var regionHealthResults = await Task.WhenAll(regionHealthTasks);
 
+            var healthyRegions = regionHealthResults.Where(r => r.Status == HealthStatus.Healthy);
             var globalStatus = new GlobalHealthStatus
             {
-                Regions = regionHealthResults.ToList(),
-                OverallHealth = regionHealthResults.All(r => r.IsHealthy),
-                AverageLatency = regionHealthResults.Where(r => r.IsHealthy).Average(r => r.Latency),
-                LastCheck = DateTime.UtcNow
+                OverallStatus = healthyRegions.Count() == regionHealthResults.Length ? HealthStatus.Healthy : HealthStatus.Degraded,
+                Regions = regionHealthResults.ToDictionary(r => r.Region, r => r),
+                HealthyRegions = healthyRegions.Count(),
+                TotalRegions = regionHealthResults.Length,
+                LastUpdated = DateTime.UtcNow
             };
 
-            _logger.LogInformation("Global health check completed. Overall healthy: {IsHealthy}, Average latency: {Latency}ms",
-                globalStatus.OverallHealth, globalStatus.AverageLatency);
+            _logger.LogInformation("Global health check completed. Overall status: {Status}, Healthy regions: {HealthyRegions}/{TotalRegions}",
+                globalStatus.OverallStatus, globalStatus.HealthyRegions, globalStatus.TotalRegions);
 
             return globalStatus;
         }
 
-        public string GetOptimalRegion(string userLocation, string dataResidencyRequirement = null)
+        public string GetOptimalRegion(string userLocation, string? dataResidencyRequirement = null)
         {
             _logger.LogInformation("Determining optimal region for user location: {Location}, Data residency: {DataResidency}",
                 userLocation, dataResidencyRequirement);
@@ -152,15 +170,15 @@ namespace EnterpriseDocsCore.Infrastructure.Services
 
             var result = new CDNOptimizationResult
             {
-                EdgeLocation = edgeLocation,
-                CacheStrategy = optimizationStrategy.CacheStrategy,
-                CompressionType = optimizationStrategy.CompressionType,
-                OptimizedUrl = GenerateOptimizedUrl(contentType, edgeLocation),
+                OptimalEndpoint = GenerateOptimizedUrl(contentType, edgeLocation),
+                RecommendedCacheStrategy = optimizationStrategy.CacheStrategy,
+                RecommendedTTL = TimeSpan.FromHours(1),
+                EdgeLocations = new List<string> { edgeLocation },
                 EstimatedLatency = CalculateEstimatedLatency(userRegion, edgeLocation)
             };
 
-            _logger.LogInformation("CDN optimization completed. Edge location: {EdgeLocation}, Estimated latency: {Latency}ms",
-                result.EdgeLocation, result.EstimatedLatency);
+            _logger.LogInformation("CDN optimization completed. Optimal endpoint: {Endpoint}, Estimated latency: {Latency}ms",
+                result.OptimalEndpoint, result.EstimatedLatency);
 
             return result;
         }
@@ -182,8 +200,12 @@ namespace EnterpriseDocsCore.Infrastructure.Services
                     return new FailoverResult
                     {
                         Success = false,
-                        ErrorMessage = "Insufficient capacity in target region",
-                        FailoverTime = DateTime.UtcNow
+                        FailedRegion = failedRegion,
+                        TargetRegion = targetRegion,
+                        ExecutedAt = DateTime.UtcNow,
+                        Duration = TimeSpan.Zero,
+                        AffectedServices = new List<string>(),
+                        ErrorMessage = "Insufficient capacity in target region"
                     };
                 }
 
@@ -196,8 +218,12 @@ namespace EnterpriseDocsCore.Infrastructure.Services
                 return new FailoverResult
                 {
                     Success = true,
-                    FailoverTime = DateTime.UtcNow,
-                    NewPrimaryRegion = targetRegion
+                    FailedRegion = failedRegion,
+                    TargetRegion = targetRegion,
+                    ExecutedAt = DateTime.UtcNow,
+                    Duration = TimeSpan.FromSeconds(30),
+                    AffectedServices = new List<string> { "api", "database", "cdn" },
+                    ErrorMessage = null
                 };
             }
             catch (Exception ex)
@@ -206,8 +232,12 @@ namespace EnterpriseDocsCore.Infrastructure.Services
                 return new FailoverResult
                 {
                     Success = false,
-                    ErrorMessage = ex.Message,
-                    FailoverTime = DateTime.UtcNow
+                    FailedRegion = failedRegion,
+                    TargetRegion = targetRegion,
+                    ExecutedAt = DateTime.UtcNow,
+                    Duration = TimeSpan.Zero,
+                    AffectedServices = new List<string>(),
+                    ErrorMessage = ex.Message
                 };
             }
         }
@@ -268,7 +298,7 @@ namespace EnterpriseDocsCore.Infrastructure.Services
             }
         }
 
-        private string GetRegionByDataResidency(string requirement)
+        private string? GetRegionByDataResidency(string requirement)
         {
             return requirement.ToUpper() switch
             {
@@ -382,58 +412,24 @@ namespace EnterpriseDocsCore.Infrastructure.Services
         #endregion
     }
 
-    #region Supporting Classes
+    #region Supporting Internal Classes
 
-    public class RegionConfig
+    internal class RegionConfig
     {
-        public string Name { get; set; }
-        public string BaseUrl { get; set; }
-        public string[] DataSovereigntyRules { get; set; }
-        public string[] SupportedLanguages { get; set; }
-        public string[] EdgeLocations { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string BaseUrl { get; set; } = string.Empty;
+        public string[] DataSovereigntyRules { get; set; } = Array.Empty<string>();
+        public string[] SupportedLanguages { get; set; } = Array.Empty<string>();
+        public string[] EdgeLocations { get; set; } = Array.Empty<string>();
     }
 
-    public class RegionHealthStatus
+    internal class OptimizationStrategy
     {
-        public string Region { get; set; }
-        public bool IsHealthy { get; set; }
-        public double Latency { get; set; }
-        public DateTime LastCheck { get; set; }
-        public string ErrorMessage { get; set; }
+        public string CacheStrategy { get; set; } = string.Empty;
+        public string CompressionType { get; set; } = string.Empty;
     }
 
-    public class GlobalHealthStatus
-    {
-        public List<RegionHealthStatus> Regions { get; set; }
-        public bool OverallHealth { get; set; }
-        public double AverageLatency { get; set; }
-        public DateTime LastCheck { get; set; }
-    }
-
-    public class CDNOptimizationResult
-    {
-        public string EdgeLocation { get; set; }
-        public string CacheStrategy { get; set; }
-        public string CompressionType { get; set; }
-        public string OptimizedUrl { get; set; }
-        public double EstimatedLatency { get; set; }
-    }
-
-    public class FailoverResult
-    {
-        public bool Success { get; set; }
-        public string ErrorMessage { get; set; }
-        public DateTime FailoverTime { get; set; }
-        public string NewPrimaryRegion { get; set; }
-    }
-
-    public class OptimizationStrategy
-    {
-        public string CacheStrategy { get; set; }
-        public string CompressionType { get; set; }
-    }
-
-    public class RegionCapacity
+    internal class RegionCapacity
     {
         public bool CanHandleAdditionalLoad { get; set; }
         public double CurrentUtilization { get; set; }

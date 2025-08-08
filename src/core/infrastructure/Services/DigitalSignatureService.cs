@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using EnterpriseDocsCore.Domain.Interfaces;
-using EnterpriseDocsCore.API.DTOs;
 using EnterpriseDocsCore.Infrastructure.Data;
 
 namespace EnterpriseDocsCore.Infrastructure.Services;

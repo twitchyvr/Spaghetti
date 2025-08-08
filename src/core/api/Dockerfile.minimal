@@ -1,0 +1,298 @@
+# Minimal working API Dockerfile for DigitalOcean deployment
+# This bypasses the complex infrastructure layer to get a basic API running
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+WORKDIR /app
+EXPOSE 5000
+ENV ASPNETCORE_URLS=http://+:5000
+ENV PORT=5000
+ENV ASPNETCORE_ENVIRONMENT=Production
+
+# SDK image for building
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+# Create a minimal API project
+RUN dotnet new webapi -n MinimalAPI --no-https
+WORKDIR /src/MinimalAPI
+
+# Replace Program.cs with our comprehensive API
+COPY <<EOF Program.cs
+using Microsoft.AspNetCore.Mvc;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Configure listening port for DigitalOcean
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+builder.WebHost.UseUrls(\$"http://0.0.0.0:{port}");
+
+// Add logging
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
+// Add services
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins(
+                "http://localhost:3000", 
+                "http://localhost:3001", 
+                "https://localhost:3001",
+                "https://spaghetti-platform-drgev.ondigitalocean.app"
+              )
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
+});
+
+var app = builder.Build();
+
+// Configure pipeline
+if (!app.Environment.IsProduction())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseCors("AllowFrontend");
+
+// Simple flag to track sample data seeding
+var sampleDataSeeded = false;
+
+// Health endpoints
+app.MapGet("/health", () => Results.Ok(new { 
+    status = "healthy", 
+    timestamp = DateTime.UtcNow, 
+    service = "enterprise-docs-api-minimal",
+    version = "0.0.17-alpha",
+    phase = "Minimal API Deployment",
+    database = "not-connected",
+    deployment = "minimal-working-api"
+})).AllowAnonymous();
+
+app.MapGet("/api/health", () => Results.Ok(new {
+    status = "healthy",
+    timestamp = DateTime.UtcNow, 
+    service = "enterprise-docs-api-minimal",
+    version = "0.0.17-alpha",
+    phase = "Minimal API Deployment",
+    database = "not-connected",
+    deployment = "minimal-working-api"
+})).AllowAnonymous();
+
+// Database admin endpoints
+app.MapGet("/api/admin/database-stats", () => Results.Ok(new { 
+    totalDocuments = 7,
+    totalUsers = 8,
+    totalTenants = 3,
+    totalCollections = 5,
+    systemHealth = "optimal",
+    lastBackup = DateTime.UtcNow.AddHours(-12),
+    storageUsed = "245 MB",
+    storageLimit = "10 GB",
+    note = "Mock data - database not connected"
+})).AllowAnonymous();
+
+app.MapGet("/api/admin/sample-data-status", () => Results.Ok(new { 
+    hasSampleData = sampleDataSeeded,
+    lastSeeded = sampleDataSeeded ? DateTime.UtcNow : (DateTime?)null,
+    recordCount = sampleDataSeeded ? new {
+        tenants = 3,
+        users = 8,
+        documents = 7,
+        tags = 20
+    } : new {
+        tenants = 0,
+        users = 0,
+        documents = 0,
+        tags = 0
+    },
+    note = "Mock data - database not connected"
+})).AllowAnonymous();
+
+app.MapPost("/api/admin/seed-sample-data", () => {
+    sampleDataSeeded = true;
+    return Results.Ok(new {
+        message = "Mock sample data seeded successfully (no actual database)",
+        seededCounts = new {
+            tenants = 3,
+            users = 8,
+            documents = 7,
+            tags = 20,
+            permissions = 15,
+            auditEntries = 25
+        },
+        timestamp = DateTime.UtcNow,
+        note = "Mock data - database not connected"
+    });
+}).AllowAnonymous();
+
+app.MapDelete("/api/admin/clear-all-data", (string? confirmationToken) => {
+    if (confirmationToken != "CONFIRM_DELETE_ALL_DATA") {
+        return Results.BadRequest(new { 
+            message = "Invalid confirmation token. Use 'CONFIRM_DELETE_ALL_DATA' to confirm.",
+            required = "confirmationToken=CONFIRM_DELETE_ALL_DATA"
+        });
+    }
+    
+    sampleDataSeeded = false;
+    return Results.Ok(new {
+        message = "Mock sample data cleared successfully. Seed button is now enabled.",
+        timestamp = DateTime.UtcNow,
+        note = "Mock data - database not connected"
+    });
+}).AllowAnonymous();
+
+// Admin user creation endpoints
+app.MapPost("/api/admin/create-admin-user", ([FromBody] CreateAdminRequest request) => {
+    return Results.Ok(new {
+        message = \$"Admin user created successfully for {request.Email}",
+        user = new {
+            id = Guid.NewGuid().ToString(),
+            email = request.Email,
+            firstName = request.FirstName,
+            lastName = request.LastName
+        },
+        temporaryPassword = "TempAdmin123!",
+        loginInstructions = "Mock user created - no actual database"
+    });
+}).AllowAnonymous();
+
+app.MapPost("/api/admin/create-platform-admin", ([FromBody] CreateAdminRequest request) => {
+    return Results.Ok(new {
+        message = \$"Platform admin created successfully: {request.Email}",
+        user = new {
+            id = Guid.NewGuid().ToString(),
+            email = request.Email,
+            firstName = request.FirstName,
+            lastName = request.LastName,
+            permissions = new[] { "platform-admin", "database-admin", "user-management" }
+        },
+        credentials = new {
+            email = request.Email,
+            temporaryPassword = "TempAdmin123!"
+        },
+        loginInstructions = "Mock admin created - no actual database"
+    });
+}).AllowAnonymous();
+
+// Status endpoint
+app.MapGet("/api/status", () => Results.Ok(new { 
+    service = "Enterprise Documentation Platform API (Minimal)",
+    version = "0.0.17-alpha",
+    status = "operational",
+    uptime = TimeSpan.FromMilliseconds(Environment.TickCount64),
+    deployment = "minimal-working-api",
+    features = new {
+        collaboration = "disabled",
+        workflowAutomation = "disabled",
+        basicOperations = "active",
+        database = "not-connected"
+    }
+})).AllowAnonymous();
+
+// Mock client and document endpoints
+app.MapGet("/api/clients", () => Results.Ok(new[] {
+    new {
+        id = "1",
+        name = "Acme Legal (Mock)",
+        industry = "Legal",
+        status = "active",
+        userCount = 3,
+        documentCount = 4,
+        subscription = "Professional"
+    },
+    new {
+        id = "2",
+        name = "TechStart Inc (Mock)",
+        industry = "Technology",
+        status = "trial",
+        userCount = 2,
+        documentCount = 2,
+        subscription = "Trial"
+    }
+})).AllowAnonymous();
+
+app.MapGet("/api/documents", () => Results.Ok(new[] {
+    new {
+        id = "1",
+        title = "Q4 2024 Strategic Plan (Mock)",
+        type = "Strategic Document",
+        status = "published",
+        lastModified = DateTime.UtcNow.AddDays(-2),
+        author = "Mock User"
+    },
+    new {
+        id = "2",
+        title = "Product Requirements Document (Mock)",
+        type = "Technical Document",
+        status = "draft",
+        lastModified = DateTime.UtcNow.AddHours(-6),
+        author = "Mock User"
+    }
+})).AllowAnonymous();
+
+// Authentication endpoint
+app.MapPost("/api/auth/login", ([FromBody] LoginRequest request) => {
+    return Results.Ok(new {
+        token = "jwt-token-" + DateTime.UtcNow.Ticks,
+        user = new {
+            id = Guid.NewGuid().ToString(),
+            email = request.Email,
+            firstName = "Mock",
+            lastName = "User",
+            tenantId = Guid.NewGuid().ToString()
+        },
+        refreshToken = "refresh-token-" + DateTime.UtcNow.Ticks
+    });
+}).AllowAnonymous();
+
+try
+{
+    Console.WriteLine("=== Minimal Enterprise Docs API Starting ===");
+    Console.WriteLine(\$"Environment: {app.Environment.EnvironmentName}");
+    Console.WriteLine(\$"Startup Time: {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC");
+    Console.WriteLine(\$"Port: {port}");
+    Console.WriteLine("=== API STARTUP COMPLETE ===");
+    
+    app.Run();
+}
+catch (Exception ex)
+{
+    Console.WriteLine(\$"=== CRITICAL STARTUP FAILURE ===");
+    Console.WriteLine(\$"Error: {ex.Message}");
+    throw;
+}
+
+// Request DTOs
+public record LoginRequest(string Email, string Password);
+public record CreateAdminRequest(string Email, string FirstName, string LastName);
+EOF
+
+# Build the minimal API
+RUN dotnet build -c Release -o /app/build
+
+# Publish stage
+FROM build AS publish
+RUN dotnet publish -c Release -o /app/publish /p:UseAppHost=false
+
+# Production stage
+FROM base AS production
+WORKDIR /app
+
+# Install curl for health checks
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
+# Copy published application
+COPY --from=publish /app/publish .
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:5000/health || exit 1
+
+# Start the API
+ENTRYPOINT ["dotnet", "MinimalAPI.dll"]
