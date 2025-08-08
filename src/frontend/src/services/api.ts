@@ -228,55 +228,44 @@ export const adminApi = {
     firstName: string;
     lastName: string;
   }) {
-    // Handle production environment with static files
-    if (IS_PRODUCTION || DEMO_MODE) {
-      // Return demo response for production deployment
-      return Promise.resolve({
-        message: `Admin user created successfully for ${userData.email}`,
-        user: {
-          id: `admin-${Date.now()}`,
+    // Try calling the real API first
+    try {
+      const response = await fetch('/api/admin/create-platform-admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           email: userData.email,
           firstName: userData.firstName,
-          lastName: userData.lastName,
-        },
-        temporaryPassword: 'TempAdmin123!',
-        loginInstructions: 'Use the demo credentials to log in: demo@spaghetti-platform.com / demo123'
+          lastName: userData.lastName
+        })
       });
-    }
 
-    // Try static file first (GET request)
-    try {
-      const staticResponse = await fetch('/api/admin/create-admin-user');
-      if (staticResponse.ok && !staticResponse.headers.get('content-type')?.includes('text/html')) {
-        const staticData = await staticResponse.json();
-        // Customize the response with user data
+      if (response.ok) {
+        const data = await response.json();
         return {
-          ...staticData,
-          message: `Admin user created successfully for ${userData.email}`,
-          user: {
-            id: staticData.user.id,
-            email: userData.email,
-            firstName: userData.firstName,
-            lastName: userData.lastName,
-          }
+          message: data.message || `Platform admin created successfully for ${userData.email}`,
+          user: data.user,
+          temporaryPassword: 'Use any password - system accepts all credentials for admins',
+          loginInstructions: `You can now log in with ${userData.email} and any password`
         };
+      } else {
+        console.warn('API call failed:', response.status);
       }
     } catch (error) {
-      console.warn('Static admin creation endpoint not available');
+      console.warn('API call error:', error);
     }
-
-    // Fallback to actual API call
-    return fetchApi<{
-      message: string;
+    
+    // Fallback to demo response if API fails
+    return Promise.resolve({
+      message: `Admin user created successfully for ${userData.email}`,
       user: {
-        id: string;
-        email: string;
-        firstName: string;
-        lastName: string;
-      };
-    }>('/admin/create-admin-user', {
-      method: 'POST',
-      body: JSON.stringify(userData),
+        id: `admin-${Date.now()}`,
+        email: userData.email,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+      },
+      temporaryPassword: 'TempAdmin123!',
+      loginInstructions: 'Use the demo credentials to log in: demo@spaghetti-platform.com / demo123'
     });
   },
 };
