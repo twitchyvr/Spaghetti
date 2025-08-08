@@ -18,6 +18,12 @@ This document provides a complete overview of the project documentation structur
 | **[CLAUDE.md](./CLAUDE.md)** | Anthropic Claude development guide | 450+ lines | Detailed development practices |
 | **[GEMINI.md](./GEMINI.md)** | Google Gemini development guide | Medium | Alternative AI agent instructions |
 
+## 🚀 Product & Strategy
+
+| File | Purpose | Audience |
+|------|---------|----------|
+| **[docs/platform-blueprint.md](./docs/platform-blueprint.md)** | The complete strategic and technical blueprint for the platform | All stakeholders, from leadership to engineering |
+
 ## 🎨 Design & UI Documentation
 
 | File | Purpose | Size | Focus |
