@@ -30,6 +30,11 @@ public class ApplicationDbContext : DbContext
     public DbSet<ImpersonationSession> ImpersonationSessions => Set<ImpersonationSession>();
     public DbSet<PlatformAdminAuditLog> PlatformAdminAuditLogs => Set<PlatformAdminAuditLog>();
     
+    // Enhanced Authentication Entity Sets
+    public DbSet<AuthenticationSession> AuthenticationSessions => Set<AuthenticationSession>();
+    public DbSet<UserPermission> UserPermissions => Set<UserPermission>();
+    public DbSet<UserAuthenticationMethod> UserAuthenticationMethods => Set<UserAuthenticationMethod>();
+    
     // Health Monitoring Entity Sets
     public DbSet<SystemHealthMetric> SystemHealthMetrics => Set<SystemHealthMetric>();
     public DbSet<Incident> Incidents => Set<Incident>();
@@ -507,10 +512,10 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<DocumentSignatureRequest>()
             .HasIndex(e => e.ExternalRequestId);
 
-        modelBuilder.Entity<DocumentSignature>()
+        modelBuilder.Entity<EnterpriseDocsCore.Domain.Entities.DocumentSignature>()
             .HasIndex(e => new { e.SignatureRequestId, e.SigningOrder });
 
-        modelBuilder.Entity<DocumentSignature>()
+        modelBuilder.Entity<EnterpriseDocsCore.Domain.Entities.DocumentSignature>()
             .HasIndex(e => new { e.SignerEmail, e.Status });
 
         modelBuilder.Entity<SignedDocument>()
@@ -741,13 +746,13 @@ public class ApplicationDbContext : DbContext
             .HasForeignKey(dsr => dsr.CreatedBy)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<DocumentSignature>()
+        modelBuilder.Entity<EnterpriseDocsCore.Domain.Entities.DocumentSignature>()
             .HasOne(ds => ds.SignatureRequest)
             .WithMany(dsr => dsr.Signatures)
             .HasForeignKey(ds => ds.SignatureRequestId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<DocumentSignature>()
+        modelBuilder.Entity<EnterpriseDocsCore.Domain.Entities.DocumentSignature>()
             .HasOne(ds => ds.User)
             .WithMany()
             .HasForeignKey(ds => ds.UserId)

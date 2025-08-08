@@ -81,6 +81,21 @@ public class UserRole
     [Required]
     public Guid CreatedBy { get; set; }
     public User? CreatedByUser { get; set; }
+    
+    /// <summary>
+    /// User who assigned this role (alias for CreatedBy for compatibility)
+    /// </summary>
+    public Guid AssignedBy 
+    { 
+        get => CreatedBy; 
+        set => CreatedBy = value; 
+    }
+    
+    public User? AssignedByUser 
+    { 
+        get => CreatedByUser; 
+        set => CreatedByUser = value; 
+    }
 }
 
 /// <summary>

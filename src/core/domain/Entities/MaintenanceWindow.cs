@@ -26,6 +26,16 @@ public class MaintenanceWindow
     public DateTime ScheduledEnd { get; set; }
     
     /// <summary>
+    /// Alias for ScheduledStart for compatibility
+    /// </summary>
+    public DateTime StartTime => ScheduledStart;
+    
+    /// <summary>
+    /// Alias for ScheduledEnd for compatibility  
+    /// </summary>
+    public DateTime EndTime => ScheduledEnd;
+    
+    /// <summary>
     /// When the maintenance actually started
     /// </summary>
     public DateTime? ActualStart { get; set; }
@@ -87,7 +97,8 @@ public enum MaintenanceStatus
     InProgress,
     Completed,
     Cancelled,
-    Delayed
+    Delayed,
+    Failed
 }
 
 public enum MaintenanceType

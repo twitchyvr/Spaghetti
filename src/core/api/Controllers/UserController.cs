@@ -118,7 +118,7 @@ public class UserController : ControllerBase
             LastName = user.LastName,
             IsActive = user.IsActive,
             CreatedAt = user.CreatedAt,
-            TenantId = user.TenantId,
+            TenantId = user.TenantId ?? Guid.Empty,
             LastLoginAt = user.LastLoginAt
         };
     }

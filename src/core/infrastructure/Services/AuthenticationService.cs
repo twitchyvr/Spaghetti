@@ -38,10 +38,10 @@ public class AuthenticationService : IAuthenticationService
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         
         // Load configuration with defaults
-        _defaultSessionTimeout = TimeSpan.FromHours(_configuration.GetValue("Authentication:SessionTimeoutHours", 8));
-        _defaultImpersonationTimeout = TimeSpan.FromHours(_configuration.GetValue("Authentication:ImpersonationTimeoutHours", 4));
-        _maxFailedAttempts = _configuration.GetValue("Authentication:MaxFailedAttempts", 5);
-        _lockoutDuration = TimeSpan.FromMinutes(_configuration.GetValue("Authentication:LockoutDurationMinutes", 30));
+        _defaultSessionTimeout = TimeSpan.FromHours(_configuration.GetValue<int>("Authentication:SessionTimeoutHours", 8));
+        _defaultImpersonationTimeout = TimeSpan.FromHours(_configuration.GetValue<int>("Authentication:ImpersonationTimeoutHours", 4));
+        _maxFailedAttempts = _configuration.GetValue<int>("Authentication:MaxFailedAttempts", 5);
+        _lockoutDuration = TimeSpan.FromMinutes(_configuration.GetValue<int>("Authentication:LockoutDurationMinutes", 30));
     }
 
     public async Task<EnhancedAuthenticationResult> AuthenticateAsync(LoginRequest request, CancellationToken cancellationToken = default)
@@ -609,9 +609,9 @@ public class AuthenticationService : IAuthenticationService
             var rolePermissions = await _unitOfWork.RolePermissions.GetByRoleIdAsync(userRole.RoleId, cancellationToken);
             foreach (var rolePermission in rolePermissions.Where(rp => rp.IsGranted))
             {
-                var permissionName = string.IsNullOrEmpty(rolePermission.Resource)
+                var permissionName = string.IsNullOrEmpty(rolePermission.ResourceFilter)
                     ? rolePermission.Permission
-                    : $"{rolePermission.Permission}.{rolePermission.Resource}";
+                    : $"{rolePermission.Permission}.{rolePermission.ResourceFilter}";
                 permissions.Add(permissionName);
             }
         }

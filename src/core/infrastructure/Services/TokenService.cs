@@ -265,13 +265,13 @@ public class TokenService : ITokenService
         {
             _logger.LogDebug("Revoking refresh token");
             
-            var success = await _unitOfWork.RefreshTokens.RevokeTokenAsync(refreshToken, cancellationToken: cancellationToken);
-            if (success)
+            var revokedCount = await _unitOfWork.RefreshTokens.RevokeTokenAsync(refreshToken, cancellationToken: cancellationToken);
+            if (revokedCount > 0)
             {
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
             }
             
-            return success;
+            return revokedCount > 0;
         }
         catch (Exception ex)
         {
@@ -360,9 +360,9 @@ public class TokenService : ITokenService
                 var rolePermissions = await _unitOfWork.RolePermissions.GetByRoleIdAsync(userRole.RoleId, cancellationToken);
                 foreach (var rolePermission in rolePermissions.Where(rp => rp.IsGranted))
                 {
-                    var permissionName = string.IsNullOrEmpty(rolePermission.Resource) 
+                    var permissionName = string.IsNullOrEmpty(rolePermission.ResourceFilter) 
                         ? rolePermission.Permission 
-                        : $"{rolePermission.Permission}.{rolePermission.Resource}";
+                        : $"{rolePermission.Permission}.{rolePermission.ResourceFilter}";
                     permissions.Add(permissionName);
                 }
             }

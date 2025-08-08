@@ -97,9 +97,9 @@ public class AuthorizationService : IAuthorizationService
                 var rolePermissions = await _unitOfWork.RolePermissions.GetByRoleIdAsync(userRole.RoleId, cancellationToken);
                 foreach (var rolePermission in rolePermissions.Where(rp => rp.IsGranted))
                 {
-                    var permissionName = string.IsNullOrEmpty(rolePermission.Resource)
+                    var permissionName = string.IsNullOrEmpty(rolePermission.ResourceFilter)
                         ? rolePermission.Permission
-                        : $"{rolePermission.Permission}.{rolePermission.Resource}";
+                        : $"{rolePermission.Permission}.{rolePermission.ResourceFilter}";
                     permissions.Add(permissionName);
                 }
             }

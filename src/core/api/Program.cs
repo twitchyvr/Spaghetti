@@ -7,10 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Npgsql;
 
-// Request DTOs
-public record LoginRequest(string Email, string Password);
-public record CreateAdminRequest(string Email, string FirstName, string LastName);
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure listening port for DigitalOcean
@@ -571,9 +567,12 @@ static string? BuildConnectionStringFromEnvironment()
         Username = username,
         Password = password,
         Database = database,
-        SslMode = Enum.TryParse<Npgsql.SslMode>(sslMode, true, out var mode) ? mode : Npgsql.SslMode.Require,
-        TrustServerCertificate = true
+        SslMode = Enum.TryParse<Npgsql.SslMode>(sslMode, true, out var mode) ? mode : Npgsql.SslMode.Require
     };
 
     return connBuilder.ToString();
 }
+
+// Request DTOs
+public record LoginRequest(string Email, string Password);
+public record CreateAdminRequest(string Email, string FirstName, string LastName);

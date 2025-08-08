@@ -173,11 +173,11 @@ public class DocumentController : ControllerBase
             Title = document.Title,
             Content = document.Content,
             DocumentType = document.DocumentType,
-            Status = document.Status?.ToString(),
+            Status = document.Status.ToString(),
             CreatedAt = document.CreatedAt,
             UpdatedAt = document.UpdatedAt,
             CreatedBy = document.CreatedBy,
-            TenantId = document.TenantId
+            TenantId = document.TenantId ?? Guid.Empty
         };
     }
 

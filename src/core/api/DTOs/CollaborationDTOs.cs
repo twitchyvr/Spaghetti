@@ -60,7 +60,7 @@ public record DocumentOperationRequest
 {
     public string DocumentId { get; init; } = string.Empty;
     public string UserId { get; init; } = string.Empty;
-    public string Operation { get; init; } = string.Empty; // insert, delete, replace
+    public virtual string Operation { get; init; } = string.Empty; // insert, delete, replace
     public int Position { get; init; }
     public string Content { get; init; } = string.Empty;
     public int Length { get; init; }

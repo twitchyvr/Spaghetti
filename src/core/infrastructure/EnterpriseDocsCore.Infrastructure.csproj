@@ -18,6 +18,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.0" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.1" />
     <PackageReference Include="Elasticsearch.Net" Version="7.17.5" />
@@ -33,6 +34,7 @@
     <Compile Remove="Services/WorkflowService.cs" />
     <Compile Remove="Services/EnterpriseIntegrationService.cs" />
     <Compile Remove="Services/AI/EnterpriseAIService.cs" />
+    <Compile Remove="Services/AI/CognitiveServicesEngine.cs" />
     <Compile Remove="Services/MaintenanceService.cs" />
     <Compile Remove="Services/ZeroTrustSecurityService.cs" />
     <Compile Remove="Extensions/AIServiceExtensions.cs" />

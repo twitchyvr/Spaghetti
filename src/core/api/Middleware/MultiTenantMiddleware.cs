@@ -1,4 +1,5 @@
 using EnterpriseDocsCore.Domain.Interfaces;
+using EnterpriseDocsCore.API.Services;
 
 namespace EnterpriseDocsCore.API.Middleware;
 

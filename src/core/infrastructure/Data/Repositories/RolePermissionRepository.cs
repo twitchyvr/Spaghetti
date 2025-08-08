@@ -28,7 +28,7 @@ public class RolePermissionRepository : BaseRepository<RolePermission, Guid>, IR
     {
         return await FirstOrDefaultAsync(rp => rp.RoleId == roleId && 
                                               rp.Permission == permission && 
-                                              rp.Resource == resource, 
+                                              rp.ResourceFilter == resource, 
                                         cancellationToken,
                                         rp => rp.Role!);
     }
@@ -37,7 +37,7 @@ public class RolePermissionRepository : BaseRepository<RolePermission, Guid>, IR
     {
         return await ExistsAsync(rp => rp.RoleId == roleId && 
                                       rp.Permission == permission && 
-                                      rp.Resource == resource && 
+                                      rp.ResourceFilter == resource && 
                                       rp.IsGranted, 
                                 cancellationToken);
     }
