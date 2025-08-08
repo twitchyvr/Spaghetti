@@ -41,6 +41,7 @@ const RealTimeEditor = React.lazy(() => import('./pages/RealTimeEditor'));
 const KnowledgeGraph = React.lazy(() => import('./pages/KnowledgeGraph'));
 const MobileApp = React.lazy(() => import('./pages/MobileApp'));
 const PerformanceMonitoring = React.lazy(() => import('./pages/PerformanceMonitoring'));
+const AdminSetup = React.lazy(() => import('./pages/AdminSetup'));
 
 // Layout components
 const AppLayout = React.lazy(() => import('./components/pantry/layout/AppLayout'));
@@ -137,6 +138,12 @@ function App() {
             }
           />
           
+          {/* Admin Setup - Public route for initial setup */}
+          <Route
+            path="/admin-setup"
+            element={<AdminSetup />}
+          />
+          
           {/* Protected routes */}
           <Route
             path="/*"
@@ -185,6 +192,7 @@ function App() {
                     <Route path="/knowledge-graph" element={<KnowledgeGraph />} />
                     <Route path="/mobile-app" element={<MobileApp />} />
                     <Route path="/performance-monitoring" element={<PerformanceMonitoring />} />
+                    <Route path="/admin-setup" element={<AdminSetup />} />
                     <Route path="/settings/*" element={<Settings />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/notifications" element={<Notifications />} />

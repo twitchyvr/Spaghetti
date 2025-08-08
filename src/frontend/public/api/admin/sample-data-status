@@ -1,0 +1,20 @@
+{
+  "hasSampleData": true,
+  "hasDemoUser": true,
+  "sampleTenantsCount": 3,
+  "totalUsers": 8,
+  "totalDocuments": 7,
+  "lastChecked": "2025-08-07T16:30:00Z",
+  "demoCredentials": {
+    "email": "demo@spaghetti-platform.com",
+    "password": "demo123",
+    "organization": "acme-legal"
+  },
+  "adminAccounts": [
+    {
+      "email": "admin@enterprise-docs.com",
+      "role": "Platform.Admin",
+      "status": "active"
+    }
+  ]
+}

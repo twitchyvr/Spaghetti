@@ -1,0 +1,11 @@
+{
+  "message": "Admin user created successfully",
+  "user": {
+    "id": "admin-user-001",
+    "email": "admin@enterprise-docs.com",
+    "firstName": "Platform",
+    "lastName": "Administrator"
+  },
+  "temporaryPassword": "TempAdmin123!",
+  "loginInstructions": "Use this email and temporary password to log in. You will be prompted to change the password on first login."
+}
