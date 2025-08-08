@@ -35,7 +35,6 @@ This document provides a complete overview of the project documentation structur
 
 | File | Purpose | Size | Audience |
 |------|---------|------|----------|
-| **[docs/code-quality-standards.md](./docs/code-quality-standards.md)** | Anti-rapid-iteration guidelines | 292 lines | All developers and agents |
 | **[docs/sprint-planning.md](./docs/sprint-planning.md)** | Sprint coordination framework | Medium | Scrum masters and leads |
 
 ## 🏗️ Architecture Documentation
@@ -66,9 +65,8 @@ This document provides a complete overview of the project documentation structur
 4. Check [project-architecture.yaml](./project-architecture.yaml) for technical details
 
 ### For Developers
-1. **Code Quality**: [docs/code-quality-standards.md](./docs/code-quality-standards.md)
-2. **Agent Instructions**: [AGENTS.md](./AGENTS.md)
-3. **UI Components**: [docs/ui-design-system.md](./docs/ui-design-system.md)
+1. **Agent Instructions & Quality Standards**: [AGENTS.md](./AGENTS.md)
+2. **UI Components**: [docs/ui-design-system.md](./docs/ui-design-system.md)
 4. **Architecture**: [docs/architecture/](./docs/architecture/)
 
 ### For Project Managers
