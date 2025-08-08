@@ -436,7 +436,7 @@ app.MapPost("/api/admin/create-platform-admin", (CreateAdminRequest request) => 
         },
         loginInstructions = "You can now log in with the provided email and any password"
     });
-}).AllowAnonymous();
+}).AllowAnonymous().RequireCors("AllowFrontend");
 
 // Feature Flag Management Endpoints
 app.MapGet("/api/features", () => Results.Ok(FeatureFlags.GetFlagsByCategory())).AllowAnonymous();
