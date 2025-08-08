@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import { LoadingSpinner } from './components/pantry/feedback/LoadingSpinner';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import { RequirePermission } from './components/auth/PermissionGate';
 import { PWAStatus } from './components/pwa/PWAStatus';
 import { PWAInstallPrompt } from './components/pwa/PWAInstallPrompt';
 import { PWANotificationBar } from './components/pwa/PWANotificationBar';
@@ -193,7 +194,24 @@ function App() {
                     <Route path="/mobile-app" element={<MobileApp />} />
                     <Route path="/performance-monitoring" element={<PerformanceMonitoring />} />
                     <Route path="/admin-setup" element={<AdminSetup />} />
-                    <Route path="/database-admin" element={<DatabaseAdmin />} />
+                    <Route 
+                      path="/database-admin" 
+                      element={
+                        <RequirePermission 
+                          permission="database-admin" 
+                          fallback={
+                            <div className="flex items-center justify-center min-h-screen bg-gray-50">
+                              <div className="text-center">
+                                <h1 className="text-2xl font-bold text-red-600 mb-4">Access Denied</h1>
+                                <p className="text-gray-600">You don't have permission to access the database admin panel.</p>
+                              </div>
+                            </div>
+                          }
+                        >
+                          <DatabaseAdmin />
+                        </RequirePermission>
+                      } 
+                    />
                     <Route path="/settings/*" element={<Settings />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/notifications" element={<Notifications />} />

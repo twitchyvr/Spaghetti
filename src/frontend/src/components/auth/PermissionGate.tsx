@@ -195,6 +195,15 @@ function getUserPermissions(user: any): string[] {
     });
   }
 
+  // Check for permissions stored in customFields or customSettings
+  const customPermissions: string[] = [];
+  if (user.profile?.customFields?.permissions) {
+    customPermissions.push(...user.profile.customFields.permissions);
+  }
+  if (user.settings?.customSettings?.permissions) {
+    customPermissions.push(...user.settings.customSettings.permissions);
+  }
+
   // For demo purposes, assign permissions based on user type
   const demoPermissions: string[] = [];
   
@@ -246,5 +255,5 @@ function getUserPermissions(user: any): string[] {
       break;
   }
 
-  return [...new Set([...rolePermissions, ...demoPermissions])];
+  return [...new Set([...rolePermissions, ...customPermissions, ...demoPermissions])];
 }
