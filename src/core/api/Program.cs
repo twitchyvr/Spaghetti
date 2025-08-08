@@ -241,11 +241,20 @@ app.MapGet("/api/status", () => Results.Ok(new {
     status = "operational",
     uptime = TimeSpan.FromMilliseconds(Environment.TickCount64),
     sprint = "Sprint 7 - Deployment Architecture Optimization",
+    deploymentTest = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss UTC"),
     features = new {
         collaboration = "feature-flagged",
         workflowAutomation = "feature-flagged",
         basicOperations = "active"
     }
+})).AllowAnonymous();
+
+// Simple POST test endpoint to verify POST routing works
+app.MapPost("/api/test-post", (object payload) => Results.Ok(new {
+    message = "POST request successful!",
+    timestamp = DateTime.UtcNow,
+    payloadReceived = payload?.ToString() ?? "null",
+    testResult = "PASS"
 })).AllowAnonymous();
 
 // Enhanced monitoring endpoints for Phase 2
