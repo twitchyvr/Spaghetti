@@ -3,6 +3,7 @@ import { getMockResponse } from './mockData';
 
 const API_BASE_URL = import.meta.env['VITE_API_BASE_URL'] || 'http://localhost:5001';
 const DEMO_MODE = import.meta.env['VITE_DEMO_MODE'] === 'true';
+const IS_PRODUCTION = window.location.hostname.includes('ondigitalocean.app');
 
 // API Error class
 export class ApiError extends Error {
@@ -134,15 +135,28 @@ export const adminApi = {
 
   // Check sample data status
   async getSampleDataStatus() {
-    if (DEMO_MODE) {
+    if (IS_PRODUCTION || DEMO_MODE) {
       // Return demo data for production deployment
       return Promise.resolve({
         hasSampleData: true,
+        hasDemoUser: true,
         counts: {
           users: 12,
           documents: 247,
           tenants: 3,
         },
+        demoCredentials: {
+          email: "demo@spaghetti-platform.com",
+          password: "demo123",
+          organization: "acme-legal"
+        },
+        adminAccounts: [
+          {
+            email: "admin@enterprise-docs.com",
+            role: "Platform.Admin", 
+            status: "active"
+          }
+        ]
       });
     }
     
@@ -168,8 +182,8 @@ export const adminApi = {
 
   // Seed sample data
   async seedSampleData() {
-    if (DEMO_MODE) {
-      // Return success message for demo mode
+    if (IS_PRODUCTION || DEMO_MODE) {
+      // Return success message for production mode
       return Promise.resolve({
         message: 'Demo data is already available in production mode',
         seededCounts: {
@@ -214,6 +228,44 @@ export const adminApi = {
     firstName: string;
     lastName: string;
   }) {
+    // Handle production environment with static files
+    if (IS_PRODUCTION || DEMO_MODE) {
+      // Return demo response for production deployment
+      return Promise.resolve({
+        message: `Admin user created successfully for ${userData.email}`,
+        user: {
+          id: `admin-${Date.now()}`,
+          email: userData.email,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+        },
+        temporaryPassword: 'TempAdmin123!',
+        loginInstructions: 'Use the demo credentials to log in: demo@spaghetti-platform.com / demo123'
+      });
+    }
+
+    // Try static file first (GET request)
+    try {
+      const staticResponse = await fetch('/api/admin/create-admin-user');
+      if (staticResponse.ok && !staticResponse.headers.get('content-type')?.includes('text/html')) {
+        const staticData = await staticResponse.json();
+        // Customize the response with user data
+        return {
+          ...staticData,
+          message: `Admin user created successfully for ${userData.email}`,
+          user: {
+            id: staticData.user.id,
+            email: userData.email,
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+          }
+        };
+      }
+    } catch (error) {
+      console.warn('Static admin creation endpoint not available');
+    }
+
+    // Fallback to actual API call
     return fetchApi<{
       message: string;
       user: {

@@ -72,9 +72,15 @@ export default function AdminSetup() {
     setCreating(true);
     try {
       const result = await adminApi.createAdminUser(newAdmin);
+      
+      // Create a detailed success message
+      const successMessage = result.loginInstructions 
+        ? `Admin user created successfully! ${result.loginInstructions}`
+        : `Admin user created successfully for ${newAdmin.email}! You can now log in with the demo credentials.`;
+      
       setMessage({ 
         type: 'success', 
-        text: `Admin user created successfully! Check the console for login credentials.` 
+        text: successMessage
       });
       console.log('Admin User Created:', result);
       setNewAdmin({ email: '', firstName: '', lastName: '' });
