@@ -12,9 +12,9 @@ routes:
   component_name: api
 
 services:
-# Minimal .NET Core API service for Sprint 7 deployment optimization
+# Full-stack .NET Core API service with proper dependency resolution
 - name: api
-  source_dir: src/core/api
+  source_dir: src/core
   github:
     repo: twitchyvr/Spaghetti
     branch: main
@@ -30,8 +30,8 @@ services:
     timeout_seconds: 10
     success_threshold: 1
     failure_threshold: 5
-  build_command: dotnet restore EnterpriseDocsCore.API.csproj && dotnet publish EnterpriseDocsCore.API.csproj -c Release -o out --self-contained false
-  run_command: cd out && dotnet EnterpriseDocsCore.API.dll --urls http://0.0.0.0:$PORT
+  build_command: dotnet restore api/EnterpriseDocsCore.API.csproj && dotnet publish api/EnterpriseDocsCore.API.csproj -c Release -o api/out --self-contained false
+  run_command: cd api/out && dotnet EnterpriseDocsCore.API.dll --urls http://0.0.0.0:$PORT
   envs:
   - key: ASPNETCORE_ENVIRONMENT
     value: Production
