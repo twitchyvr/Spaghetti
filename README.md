@@ -17,7 +17,8 @@ A comprehensive multi-level enterprise platform that enables large organizations
 
 ### Three-Tier Documentation System
 - **Tier 1 (Living Core)**: README.md, INSTRUCTIONS.md, CLAUDE.md, GEMINI.md, project-architecture.yaml, CHANGELOG.md
-- **Tier 2 (Working Sprint)**: `docs/` - Current sprint planning and decisions
+- **Tier 2 (Working Sprint)**: `docs/` - Current sprint planning and decisions.
+  - **⭐ Platform Blueprint**: For the complete product vision and technical strategy, see the **[Platform Blueprint](./docs/platform-blueprint.md)**.
 - **Tier 3 (Archive)**: `docs/archive/` - Historical sprint documents organized by sprint number
 
 For real-time project status, see `project-architecture.yaml`.
