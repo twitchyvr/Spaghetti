@@ -1,89 +1,115 @@
-name: spaghetti-platform
+# DigitalOcean App Platform specification for Enterprise Documentation Platform
+# This configures a multi-service deployment with separate frontend and API services
 
-# Global routing configuration - API routes must be first to override catch_all
-routes:
-- path: /api
-  component_name: api
-- path: /health
-  component_name: api
-- path: /swagger
-  component_name: api
-- path: /hubs
-  component_name: api
+name: spaghetti-platform
+region: nyc
+
+# Global environment variables (inherited by all services)
+# Note: These will be configured as encrypted secrets in DigitalOcean App Platform
+envs:
+- key: dbhost
+  scope: RUN_AND_BUILD_TIME
+  type: SECRET
+- key: dbport
+  scope: RUN_AND_BUILD_TIME
+  type: SECRET
+- key: dbusername
+  scope: RUN_AND_BUILD_TIME
+  type: SECRET
+- key: dbpassword
+  scope: RUN_AND_BUILD_TIME
+  type: SECRET
+- key: dbdatabase
+  scope: RUN_AND_BUILD_TIME
+  type: SECRET
+- key: dbsslmode
+  scope: RUN_AND_BUILD_TIME
+  type: SECRET
+- key: DATABASE_URL
+  scope: RUN_AND_BUILD_TIME
+  type: SECRET
+
+# Enable Ubuntu 22 buildpack stack
+features:
+- buildpack-stack=ubuntu-22
 
 services:
-# Full-stack .NET Core API service with proper dependency resolution
-- name: api
-  source_dir: src/core
+# .NET Core API Service
+- name: spaghetti-api
+  dockerfile_path: src/core/api/Dockerfile
+  source_dir: /
   github:
     repo: twitchyvr/Spaghetti
     branch: main
     deploy_on_push: true
-  environment_slug: dotnet
+  
+  # Resource configuration
   instance_count: 1
-  instance_size_slug: basic-xxs
-  http_port: 8080
-  health_check:
-    http_path: /health
-    initial_delay_seconds: 60
-    period_seconds: 15
-    timeout_seconds: 10
-    success_threshold: 1
-    failure_threshold: 5
-  build_command: dotnet restore api/EnterpriseDocsCore.API.csproj && dotnet publish api/EnterpriseDocsCore.API.csproj -c Release -o api/out --self-contained false
-  run_command: cd api/out && dotnet EnterpriseDocsCore.API.dll --urls http://0.0.0.0:$PORT
+  instance_size_slug: apps-s-1vcpu-0.5gb
+  
+  # API runs on port 5000 internally
+  http_port: 5000
+  
+  # Environment variables specific to API service
   envs:
   - key: ASPNETCORE_ENVIRONMENT
     value: Production
-  - key: ASPNETCORE_URLS
-    value: http://0.0.0.0:$PORT
   - key: PORT
-    value: "8080"
-  - key: DATABASE_URL
-    value: "${db-postgresql-nyc1-09943.DATABASE_URL}"
-  - key: ConnectionStrings__DefaultConnection
-    value: "${DATABASE_URL}"
-  - key: ConnectionStrings__RedisConnection
-    value: "localhost:6379"  # Update this with your Redis connection if needed
-  - key: Authentication__SecretKey
-    value: "Sprint6-Enterprise-JWT-Secret-Key-For-Production-Deployment-2025"
-  - key: Authentication__Issuer
-    value: "EnterpriseDocsAPI"
-  - key: Authentication__Audience
-    value: "EnterpriseDocsClient"
-  - key: Storage__Provider
-    value: "local"
-  - key: Logging__LogLevel__Default
-    value: "Information"
-  - key: Logging__LogLevel__Microsoft.AspNetCore
-    value: "Information"
+    value: "5000"
+  - key: ASPNETCORE_URLS
+    value: http://0.0.0.0:5000
+  
+  # Health check for API service
+  health_check:
+    http_path: /health
 
-# Frontend service with catch-all route MUST be listed last
-- name: frontend
-  source_dir: src/frontend
+# React Frontend Service  
+- name: spaghetti-frontend
+  dockerfile_path: Dockerfile
+  source_dir: /
   github:
     repo: twitchyvr/Spaghetti
     branch: main
     deploy_on_push: true
-  build_command: npm ci && npm run build
-  run_command: npm run serve
-  environment_slug: node-js
+  
+  # Resource configuration
   instance_count: 1
-  instance_size_slug: basic-xxs
+  instance_size_slug: apps-s-1vcpu-0.5gb
+  
+  # Frontend runs on port 8080 (nginx)
   http_port: 8080
-  catch_all: true
+  
+  # Environment variables for frontend build
   envs:
   - key: VITE_API_BASE_URL
-    value: /api
+    value: "/api"
   - key: VITE_ENVIRONMENT
-    value: production
-  - key: NODE_ENV
-    value: production
-  - key: PORT
-    value: "8080"
+    value: "production"
+  - key: VITE_DEPLOYMENT_TYPE
+    value: "digitalocean"
+  - key: VITE_DEMO_MODE
+    value: "false"
 
-databases:
-- name: db-postgresql-nyc1-09943
-  engine: PG
-  version: "15"
-  production: true
+# Ingress routing configuration
+ingress:
+  rules:
+  # API requests go to the API service
+  - component:
+      name: spaghetti-api
+    match:
+      path:
+        prefix: /api
+  
+  # Health check requests go to the API service
+  - component:
+      name: spaghetti-api
+    match:
+      path:
+        prefix: /health
+  
+  # All other requests go to the frontend service
+  - component:
+      name: spaghetti-frontend
+    match:
+      path:
+        prefix: /

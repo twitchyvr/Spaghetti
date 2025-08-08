@@ -1,9 +1,0 @@
-{
-  "status": "healthy",
-  "timestamp": "2025-08-03T05:00:00Z",
-  "service": "enterprise-docs-api-sprint7",
-  "version": "0.0.16-alpha",
-  "phase": "Sprint 7 - Deployment Architecture Optimization",
-  "database": "connection-pending",
-  "deployment": "static-fallback"
-}

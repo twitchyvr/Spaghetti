@@ -5,6 +5,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 EXPOSE 5000
 ENV ASPNETCORE_URLS=http://+:5000
+ENV PORT=5000
 
 # Create non-root user for security
 RUN groupadd -r appuser && useradd -r -g appuser appuser

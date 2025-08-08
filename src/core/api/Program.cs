@@ -14,7 +14,7 @@ public record CreateAdminRequest(string Email, string FirstName, string LastName
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure listening port for DigitalOcean
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 // Add logging for debugging
