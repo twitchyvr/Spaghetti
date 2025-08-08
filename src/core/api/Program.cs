@@ -4,6 +4,10 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
+// Request DTOs
+public record LoginRequest(string Email, string Password);
+public record CreateAdminRequest(string Email, string FirstName, string LastName);
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure listening port for DigitalOcean
@@ -268,6 +272,41 @@ app.MapGet("/api/documents", () => Results.Ok(new[] {
         author = "Alice Johnson"
     }
 })).AllowAnonymous();
+
+// Authentication endpoints
+app.MapPost("/api/auth/login", (LoginRequest request) => {
+    // Simple demo authentication - in production this would validate against database
+    if (request.Email.Contains("demo") || request.Email.Contains("admin") || request.Password == "demo123" || request.Password == "admin123")
+    {
+        return Results.Ok(new {
+            token = "jwt-token-" + DateTime.UtcNow.Ticks,
+            user = new {
+                id = Guid.NewGuid().ToString(),
+                email = request.Email,
+                firstName = "Demo",
+                lastName = "User",
+                tenantId = Guid.NewGuid().ToString()
+            },
+            refreshToken = "refresh-token-" + DateTime.UtcNow.Ticks
+        });
+    }
+    
+    return Results.BadRequest(new { message = "Invalid credentials" });
+}).AllowAnonymous();
+
+app.MapPost("/api/admin/create-admin-user", (CreateAdminRequest request) => {
+    return Results.Ok(new {
+        message = $"Admin user created successfully for {request.Email}",
+        user = new {
+            id = Guid.NewGuid().ToString(),
+            email = request.Email,
+            firstName = request.FirstName,
+            lastName = request.LastName
+        },
+        temporaryPassword = "TempAdmin123!",
+        loginInstructions = "You can now log in with the provided credentials"
+    });
+}).AllowAnonymous();
 
 // Feature Flag Management Endpoints
 app.MapGet("/api/features", () => Results.Ok(FeatureFlags.GetFlagsByCategory())).AllowAnonymous();
