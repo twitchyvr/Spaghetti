@@ -25,26 +25,5 @@ public class MaintenanceRequest
     public Guid CreatedBy { get; set; }
 }
 
-public enum MaintenanceType
-{
-    Scheduled,
-    Emergency,
-    Preventive,
-    Corrective
-}
-
-public enum MaintenanceStatus
-{
-    Scheduled,
-    InProgress,
-    Completed,
-    Cancelled,
-    Failed
-}
-
-public enum MaintenanceImpact
-{
-    Low,
-    Medium,
-    High
-}
+// Enums are defined in EnterpriseDocsCore.Domain.Entities namespace
+// to avoid duplication and ambiguous references

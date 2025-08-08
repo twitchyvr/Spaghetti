@@ -58,35 +58,5 @@ public class IncidentUpdateRecord
     public Guid UserId { get; set; }
 }
 
-public enum IncidentSeverity
-{
-    Low,
-    Medium,
-    High,
-    Critical
-}
-
-public enum IncidentStatus
-{
-    Open,
-    Investigating,
-    Identified,
-    Monitoring,
-    Resolved,
-    Closed
-}
-
-public enum IncidentImpact
-{
-    Minor,
-    Major,
-    Critical
-}
-
-public enum IncidentUpdateType
-{
-    Comment,
-    StatusUpdate,
-    Resolution,
-    Escalation
-}
+// Enums are defined in EnterpriseDocsCore.Domain.Entities namespace
+// to avoid duplication and ambiguous references
