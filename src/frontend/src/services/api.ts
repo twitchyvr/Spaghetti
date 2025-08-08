@@ -30,6 +30,10 @@ export async function fetchApi<T>(
     defaultHeaders['Authorization'] = `Bearer ${token}`;
   }
 
+  // Add tenant context header for multi-tenancy
+  const tenantId = localStorage.getItem('tenant_id') || '11111111-1111-1111-1111-111111111111';
+  defaultHeaders['X-Tenant-Id'] = tenantId;
+
   try {
     const response = await fetch(url, {
       ...options,

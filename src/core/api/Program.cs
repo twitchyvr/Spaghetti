@@ -1,7 +1,10 @@
 using EnterpriseDocsCore.API;
+using EnterpriseDocsCore.API.Middleware;
+using EnterpriseDocsCore.API.Services;
 using EnterpriseDocsCore.Infrastructure.Data;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using Npgsql;
 
 // Request DTOs
@@ -33,9 +36,34 @@ else
     Console.WriteLine("Warning: No database connection string configured.");
 }
 
-// Add minimal services for a working API
+// Add comprehensive services for Phase 2
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// Register Unit of Work and Repository pattern
+builder.Services.AddScoped<EnterpriseDocsCore.Domain.Interfaces.IUnitOfWork, EnterpriseDocsCore.Infrastructure.Data.UnitOfWork>();
+
+// Register individual repositories
+builder.Services.AddScoped<EnterpriseDocsCore.Domain.Interfaces.IDocumentRepository, EnterpriseDocsCore.Infrastructure.Data.Repositories.DocumentRepository>();
+builder.Services.AddScoped<EnterpriseDocsCore.Domain.Interfaces.IUserRepository, EnterpriseDocsCore.Infrastructure.Data.Repositories.UserRepository>();
+builder.Services.AddScoped<EnterpriseDocsCore.Domain.Interfaces.ITenantRepository, EnterpriseDocsCore.Infrastructure.Data.Repositories.TenantRepository>();
+builder.Services.AddScoped<EnterpriseDocsCore.Domain.Interfaces.IRoleRepository, EnterpriseDocsCore.Infrastructure.Data.Repositories.RoleRepository>();
+builder.Services.AddScoped<EnterpriseDocsCore.Domain.Interfaces.IRefreshTokenRepository, EnterpriseDocsCore.Infrastructure.Data.Repositories.RefreshTokenRepository>();
+
+// Add Enterprise Services
+builder.Services.AddScoped<EnterpriseDocsCore.Infrastructure.Services.DatabaseSeedingService>();
+builder.Services.AddScoped<EnterpriseDocsCore.Infrastructure.Services.HealthMonitoringService>();
+
+// Add authentication services
+builder.Services.AddAuthentication().AddJwtBearer();
+builder.Services.AddAuthorization();
+
+// Add Multi-tenant context service (placeholder)
+builder.Services.AddScoped<ITenantContextService, TenantContextService>();
+
+// Add HTTP context accessor for tenant resolution
+builder.Services.AddHttpContextAccessor();
 
 // Configure forwarded headers for reverse proxy support (DigitalOcean)
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
@@ -96,7 +124,7 @@ using (var scope = app.Services.CreateScope())
 // Simple in-memory flag to track if sample data has been seeded
 var sampleDataSeeded = false;
 
-// Configure minimal pipeline
+// Configure comprehensive pipeline
 if (app.Environment.IsProduction())
 {
     // In production (DigitalOcean), trust the proxy for HTTPS
@@ -105,7 +133,16 @@ if (app.Environment.IsProduction())
 else
 {
     app.UseHttpsRedirection();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
+
+// Add multi-tenant middleware (before authentication)
+app.UseMiddleware<MultiTenantMiddleware>();
+
+// Add authentication and authorization
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseCors("AllowFrontend");
 app.MapControllers();
@@ -212,15 +249,89 @@ app.MapGet("/api/status", () => Results.Ok(new {
     }
 })).AllowAnonymous();
 
-// Platform monitoring endpoints
-app.MapGet("/api/platform/metrics", () => Results.Ok(new {
-    cpu = new { usage = 35, trend = "stable" },
-    memory = new { usage = 62, available = 38 },
-    requests = new { total = 1250, perMinute = 42 },
-    errors = new { count = 0, rate = 0 },
-    activeUsers = 3,
-    timestamp = DateTime.UtcNow
-})).AllowAnonymous();
+// Enhanced monitoring endpoints for Phase 2
+app.MapGet("/api/platform/metrics", async (ApplicationDbContext? db) => {
+    var dbConnected = false;
+    var dbLatency = 0;
+    
+    if (db != null)
+    {
+        try
+        {
+            var start = DateTime.UtcNow;
+            dbConnected = await db.Database.CanConnectAsync();
+            dbLatency = (int)(DateTime.UtcNow - start).TotalMilliseconds;
+        }
+        catch
+        {
+            dbConnected = false;
+            dbLatency = -1;
+        }
+    }
+    
+    return Results.Ok(new {
+        cpu = new { usage = 35, trend = "stable" },
+        memory = new { usage = 62, available = 38 },
+        requests = new { total = 1250, perMinute = 42 },
+        errors = new { count = 0, rate = 0 },
+        database = new { 
+            connected = dbConnected, 
+            latency = dbLatency,
+            status = dbConnected ? "operational" : "degraded"
+        },
+        activeUsers = 3,
+        timestamp = DateTime.UtcNow,
+        phase = "Phase 2 - Enhanced Database Integration"
+    });
+}).AllowAnonymous();
+
+// Database-specific health endpoint
+app.MapGet("/api/admin/database-health", async (ApplicationDbContext db) => {
+    try
+    {
+        var start = DateTime.UtcNow;
+        var canConnect = await db.Database.CanConnectAsync();
+        var latency = (DateTime.UtcNow - start).TotalMilliseconds;
+        
+        if (!canConnect)
+        {
+            return Results.Ok(new {
+                status = "unhealthy",
+                connected = false,
+                latency = -1,
+                message = "Database connection failed",
+                timestamp = DateTime.UtcNow
+            });
+        }
+        
+        // Test a simple query
+        var userCount = await db.Users.CountAsync();
+        var documentCount = await db.Documents.CountAsync();
+        var tenantCount = await db.Tenants.CountAsync();
+        
+        return Results.Ok(new {
+            status = "healthy",
+            connected = true,
+            latency = Math.Round(latency, 2),
+            entityCounts = new {
+                users = userCount,
+                documents = documentCount,
+                tenants = tenantCount
+            },
+            message = "Database fully operational",
+            timestamp = DateTime.UtcNow
+        });
+    }
+    catch (Exception ex)
+    {
+        return Results.Ok(new {
+            status = "unhealthy",
+            connected = false,
+            error = ex.Message,
+            timestamp = DateTime.UtcNow
+        });
+    }
+}).AllowAnonymous();
 
 // Client management endpoints
 app.MapGet("/api/clients", () => Results.Ok(new[] {

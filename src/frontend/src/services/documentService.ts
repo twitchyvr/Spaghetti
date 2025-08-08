@@ -1,4 +1,5 @@
 import { apiClient } from '../config/api';
+import { fetchApi } from './api';
 
 export interface Document {
   id: string;
