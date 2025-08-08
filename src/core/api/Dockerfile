@@ -36,9 +36,9 @@ ENV ASPNETCORE_ENVIRONMENT=Development
 ENV DOTNET_USE_POLLING_FILE_WATCHER=true
 ENV ASPNETCORE_LOGGING__CONSOLE__DISABLECOLORS=true
 
-# Install development tools
-RUN dotnet tool install --global dotnet-ef
-RUN dotnet tool install --global dotnet-watch
+# Install development tools with explicit project specification
+RUN dotnet tool install --global dotnet-ef --verbosity minimal
+RUN dotnet tool install --global dotnet-watch --verbosity minimal
 ENV PATH="$PATH:/root/.dotnet/tools"
 
 # Set up file watching for hot reload
@@ -49,8 +49,8 @@ FROM build AS publish
 WORKDIR "/src/core/api"
 RUN dotnet publish "EnterpriseDocsCore.API.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-# Production stage
-FROM base AS production
+# Production stage (default final stage)
+FROM base
 WORKDIR /app
 
 # Install curl for health checks
