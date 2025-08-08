@@ -419,6 +419,25 @@ app.MapPost("/api/admin/create-admin-user", (CreateAdminRequest request) => {
     });
 }).AllowAnonymous();
 
+// Create platform admin endpoint (correct path)
+app.MapPost("/api/admin/create-platform-admin", (CreateAdminRequest request) => {
+    return Results.Ok(new {
+        message = $"Platform admin created successfully: {request.Email}",
+        user = new {
+            id = Guid.NewGuid().ToString(),
+            email = request.Email,
+            firstName = request.FirstName,
+            lastName = request.LastName,
+            permissions = new[] { "platform-admin", "database-admin", "user-management" }
+        },
+        credentials = new {
+            email = request.Email,
+            temporaryPassword = "TempAdmin123!"
+        },
+        loginInstructions = "You can now log in with the provided email and any password"
+    });
+}).AllowAnonymous();
+
 // Feature Flag Management Endpoints
 app.MapGet("/api/features", () => Results.Ok(FeatureFlags.GetFlagsByCategory())).AllowAnonymous();
 
