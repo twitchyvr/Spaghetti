@@ -40,7 +40,7 @@ services:
   - key: PORT
     value: "8080"
   - key: DATABASE_URL
-    value: "${db-postgresql-nyc1-09943.CONNECTION_STRING}"
+    value: "${db-postgresql-nyc1-09943.DATABASE_URL}"
   - key: ConnectionStrings__DefaultConnection
     value: "${DATABASE_URL}"
   - key: ConnectionStrings__RedisConnection
@@ -82,6 +82,8 @@ services:
   - key: PORT
     value: "8080"
 
-# Using external managed databases - no need to create new ones
-# PostgreSQL: db-postgresql-nyc1-09943 (already created and configured above)
-# Redis: You may need to create a separate Redis instance or use the existing one
+databases:
+- name: db-postgresql-nyc1-09943
+  engine: PG
+  version: "15"
+  production: true
