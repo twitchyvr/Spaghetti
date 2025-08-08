@@ -435,7 +435,7 @@ app.MapPost("/api/admin/create-platform-admin", (CreateAdminRequest request) => 
         },
         loginInstructions = "You can now log in with the provided email and any password"
     });
-}).AllowAnonymous().RequireCors("AllowFrontend");
+}).AllowAnonymous();
 
 // Feature Flag Management Endpoints
 app.MapGet("/api/features", () => Results.Ok(FeatureFlags.GetFlagsByCategory())).AllowAnonymous();
@@ -575,4 +575,4 @@ static string? BuildConnectionStringFromEnvironment()
 
 // Request DTOs
 public record LoginRequest(string Email, string Password);
-public record CreateAdminRequest(string Email, string FirstName, string LastName);
+public record CreateAdminRequest(string Email, string FirstName, string LastName, string Password);
