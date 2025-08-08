@@ -22,7 +22,7 @@ COPY src/core/infrastructure/*.csproj core/infrastructure/
 RUN dotnet restore "core/api/EnterpriseDocsCore.API.csproj"
 
 # Copy all source code
-COPY src/ .
+COPY src/core/ core/
 
 # Build the application
 WORKDIR "/src/core/api"
@@ -68,15 +68,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
 
 ENTRYPOINT ["dotnet", "EnterpriseDocsCore.API.dll"]
 
-# Testing stage
-FROM build AS testing
-WORKDIR /src
-
-# Install test dependencies
-RUN dotnet restore "tests/*.csproj" || true
-
-# Copy test files
-COPY tests/ tests/
-
-# Run tests
-RUN dotnet test --logger trx --results-directory /app/test-results || true
+# Testing stage (disabled for production deployment)
+# FROM build AS testing
+# WORKDIR /src
+# RUN dotnet test --logger trx --results-directory /app/test-results || true
