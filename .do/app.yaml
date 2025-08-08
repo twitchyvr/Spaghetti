@@ -30,8 +30,8 @@ services:
     timeout_seconds: 10
     success_threshold: 1
     failure_threshold: 5
-  build_command: dotnet restore SimpleAPI.csproj && dotnet publish SimpleAPI.csproj -c Release -o out --self-contained false
-  run_command: cd out && dotnet EnterpriseDocsCore.SimpleAPI.dll --urls http://0.0.0.0:$PORT
+  build_command: dotnet restore && dotnet publish -c Release -o out --self-contained false
+  run_command: cd out && dotnet EnterpriseDocsCore.API.dll --urls http://0.0.0.0:$PORT
   envs:
   - key: ASPNETCORE_ENVIRONMENT
     value: Production
