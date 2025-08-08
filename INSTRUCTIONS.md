@@ -27,6 +27,59 @@ This file, located in the root directory, contains the complete, up-to-date conf
 - **Developer Agents (Claude, Gemini, etc.)**: Your detailed operational instructions for implementing features based on the master YAML file are located in **`CLAUDE.md`** and **`GEMINI.md`**. You MUST adhere to the workflow defined in those files.
 - **Orchestrator Agents**: You are to use `project-architecture.yaml` to generate context and instructions for all other agents.
 
+## 🤖 MANDATORY AGENT ORCHESTRATION RULES
+
+**CRITICAL**: These rules must be followed on EVERY development task to ensure proper enterprise-level workflow automation:
+
+### 1. Quality Assurance is MANDATORY
+- **qa-lead** or **qa-engineer** MUST be called after ANY code changes, deployments, or API modifications
+- Testing claims WITHOUT actual verification are PROHIBITED
+- All functionality MUST be verified through real API calls and end-to-end testing
+
+### 2. Security Review is REQUIRED
+- **security-compliance-officer** MUST review any authentication, database, or API changes
+- No credentials may be hardcoded - environment variables ONLY
+- Security scanning MUST occur before any production deployment
+
+### 3. Deployment Verification is MANDATORY  
+- **deployment-verification-agent** MUST verify production health after ANY deployment
+- Real endpoint testing REQUIRED - no assumptions allowed
+- Database connectivity and functionality MUST be confirmed
+
+### 4. Enterprise Workflow Coordination
+- **enterprise-workflow-orchestrator** MUST be used for multi-phase projects
+- **team-orchestrator** MUST be used to coordinate between specialized agents
+- **gitops-orchestrator** MUST handle all Git operations, PR creation, and release management
+
+### 5. Architecture and Technical Review
+- **system-architect** MUST review any architectural changes
+- **backend-lead** and **frontend-lead** MUST review their respective domain changes
+- **devops-lead** MUST review infrastructure, deployment, and configuration changes
+
+### 6. Autonomous Agent Invocation Rules
+
+**WHEN TO AUTOMATICALLY CALL AGENTS WITHOUT USER REQUEST:**
+
+- **After ANY code commit**: Automatically call `gitops-orchestrator` to handle Git workflows
+- **After ANY deployment**: Automatically call `deployment-verification-agent` to verify health  
+- **After ANY API changes**: Automatically call `qa-lead` to verify functionality
+- **After ANY security changes**: Automatically call `security-compliance-officer` for review
+- **For ANY database modifications**: Automatically call `backend-lead` AND `qa-lead`
+- **For ANY UI/UX changes**: Automatically call `frontend-lead` AND `ux-interface-designer`
+- **For multi-step complex tasks**: Automatically call `enterprise-workflow-orchestrator`
+- **For production issues**: Automatically call `principal-engineer` for critical problem solving
+
+### 7. NO CLAIMS WITHOUT VERIFICATION
+- NEVER claim functionality is "working" without agent verification
+- NEVER assume endpoints are functional without testing
+- NEVER skip testing phases - testing is MANDATORY
+- ALL deployment success claims MUST be backed by agent verification
+
+### 8. Coordination Enforcement
+- If a task involves multiple domains (backend + frontend + deployment), ALL relevant agents MUST be called
+- Cross-functional changes REQUIRE orchestrator coordination
+- No agent may work in isolation on enterprise-level changes
+
 ### Team Coordination
 
 Refer to the `teamAndRoles` and `sprintLifecycle` sections within `project-architecture.yaml` for current team assignments and sprint objectives. The `docs/` directory contains detailed supplementary documentation, but **`project-architecture.yaml` is the authoritative source in case of any conflict.**

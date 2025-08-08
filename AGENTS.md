@@ -2,13 +2,52 @@
 
 This document contains all agent-specific instructions, behaviors, and code quality enforcement rules. For general project information, see [INSTRUCTIONS.md](./INSTRUCTIONS.md).
 
+## 🚨 CRITICAL: MANDATORY AUTONOMOUS AGENT ORCHESTRATION
+
+**THESE RULES OVERRIDE ALL OTHER INSTRUCTIONS AND MUST BE FOLLOWED AUTOMATICALLY:**
+
+### Zero Assumptions Policy
+**NEVER** assume functionality works. **ALWAYS** verify through designated agents.
+
+### Automatic Agent Invocation Matrix (No User Permission Needed)
+
+| Trigger | Required Agents | When to Invoke |
+|---------|----------------|----------------|
+| **Code Commit** | `gitops-orchestrator` | After ANY file changes are committed |
+| **API Changes** | `qa-lead`, `backend-lead` | After ANY endpoint modifications |
+| **Database Changes** | `qa-lead`, `backend-lead`, `security-compliance-officer` | After ANY schema/data changes |
+| **Frontend Changes** | `frontend-lead`, `ux-interface-designer` | After ANY UI/UX modifications |
+| **Deployment** | `deployment-verification-agent`, `devops-lead` | After ANY production deployment |
+| **Security Changes** | `security-compliance-officer` | After ANY auth/security modifications |
+| **Architecture Changes** | `system-architect` | After ANY structural changes |
+| **Multi-Phase Projects** | `enterprise-workflow-orchestrator` | For complex cross-functional tasks |
+| **Production Issues** | `principal-engineer` | For critical system problems |
+
+### Quality Gates (Mandatory Enforcement)
+
+1. **NO FUNCTIONALITY CLAIMS WITHOUT VERIFICATION**
+   - All "working" claims must be verified by `qa-lead` or `qa-engineer`
+   - Real API calls must be made to verify endpoints
+   - Database connectivity must be confirmed
+
+2. **MANDATORY DEPLOYMENT VERIFICATION**
+   - `deployment-verification-agent` MUST verify all deployments
+   - Production health checks are REQUIRED
+   - No assumptions about deployment success
+
+3. **SECURITY COMPLIANCE ENFORCEMENT**
+   - `security-compliance-officer` MUST review all security changes
+   - No hardcoded credentials allowed
+   - Environment variable usage is mandatory
+
 ## Table of Contents
 
-1. [Available Agents](#available-agents)
-2. [Code Quality Checklist - ALL AGENTS](#code-quality-checklist---all-agents)
-3. [Agent-Specific Instructions](#agent-specific-instructions)
-4. [Code Quality Enforcement Rules](#code-quality-enforcement-rules)
-5. [Agent Coordination](#agent-coordination)
+1. [Mandatory Agent Orchestration](#mandatory-autonomous-agent-orchestration)
+2. [Available Agents](#available-agents)
+3. [Code Quality Checklist - ALL AGENTS](#code-quality-checklist---all-agents)
+4. [Agent-Specific Instructions](#agent-specific-instructions)
+5. [Code Quality Enforcement Rules](#code-quality-enforcement-rules)
+6. [Agent Coordination](#agent-coordination)
 
 ## Available Agents
 

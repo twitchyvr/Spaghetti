@@ -335,6 +335,45 @@ projectConfiguration:
       - file: "docs/code-quality-standards.md"
         purpose: "Comprehensive code quality standards and anti-rapid-iteration guidelines."
   agentConfiguration:
+    mandatoryOrchestration:
+      enabled: true
+      severity: "critical"
+      description: "All agents MUST be invoked automatically per coordination matrix"
+      rules:
+        - trigger: "ANY_CODE_COMMIT"
+          requiredAgents: ["gitops-orchestrator"]
+          automatic: true
+        - trigger: "ANY_DEPLOYMENT"
+          requiredAgents: ["deployment-verification-agent", "devops-lead"]
+          automatic: true
+        - trigger: "API_DATABASE_CHANGES"
+          requiredAgents: ["qa-lead", "backend-lead", "security-compliance-officer"]
+          automatic: true
+        - trigger: "UI_UX_CHANGES"
+          requiredAgents: ["frontend-lead", "ux-interface-designer"]
+          automatic: true
+        - trigger: "MULTI_PHASE_PROJECTS"
+          requiredAgents: ["enterprise-workflow-orchestrator"]
+          automatic: true
+        - trigger: "PRODUCTION_ISSUES"
+          requiredAgents: ["principal-engineer"]
+          automatic: true
+        - trigger: "ARCHITECTURE_CHANGES"
+          requiredAgents: ["system-architect"]
+          automatic: true
+    qualityGates:
+      noClaimsWithoutVerification:
+        enabled: true
+        description: "NEVER claim functionality works without agent verification"
+        enforcement: "mandatory"
+      realTestingRequired:
+        enabled: true
+        description: "All endpoints must be tested with real API calls"
+        enforcement: "mandatory"
+      deploymentVerificationRequired:
+        enabled: true
+        description: "All deployment success claims must be agent-verified"
+        enforcement: "mandatory"
     codeQualityEnforcement:
       enabled: true
       severity: "strict"
