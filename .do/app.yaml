@@ -58,10 +58,17 @@ services:
     value: "5000"
   - key: ASPNETCORE_URLS
     value: http://0.0.0.0:5000
+  - key: ASPNETCORE_ALLOWEDHOSTS
+    value: "*"
   
   # Health check for API service
   health_check:
-    http_path: /health
+    http_path: /api/health
+    initial_delay_seconds: 30
+    period_seconds: 10
+    timeout_seconds: 5
+    failure_threshold: 3
+    success_threshold: 1
 
 # React Frontend Service  
 - name: spaghetti-frontend
@@ -90,17 +97,17 @@ services:
   - key: VITE_DEMO_MODE
     value: "false"
 
-# Ingress routing configuration
+# Ingress routing configuration with explicit HTTP method support
 ingress:
   rules:
-  # API requests go to the API service
+  # API requests go to the API service - ALL HTTP methods
   - component:
       name: spaghetti-api
     match:
       path:
         prefix: /api
   
-  # Health check requests go to the API service
+  # Health check requests go to the API service - ALL HTTP methods
   - component:
       name: spaghetti-api
     match:
