@@ -47,7 +47,7 @@ This document contains all agent-specific instructions, behaviors, and code qual
 2. ✅ Check for existing type definitions before creating new ones
 3. ✅ Search for similar functionality to avoid duplication
 4. ✅ Review `project-architecture.yaml` for current standards
-5. ✅ Check `docs/code-quality-standards.md` for detailed guidelines
+5. ✅ Adhere to all guidelines within this document (`AGENTS.md`).
 
 ### During Development
 
@@ -77,6 +77,42 @@ This document contains all agent-specific instructions, behaviors, and code qual
 - When types differ slightly, extend or compose existing types
 - Use type aliases for backwards compatibility during refactors
 - Document any type changes in commit messages
+
+***Example: Fixing Type Fragmentation***
+
+❌ **BAD** - Multiple definitions in different files:
+```typescript
+// File 1: components/Comment.tsx
+interface Comment { id: string; text: string; timestamp: Date; resolved: boolean; }
+// File 2: services/api.ts
+interface CommentDTO { id: string; content: string; createdAt: string; isResolved: boolean; }
+// File 3: types/models.ts
+interface DocumentComment { commentId: string; message: string; dateCreated: Date; status: 'resolved' | 'open'; }
+```
+
+✅ **GOOD** - A single, centralized definition with compatibility aliases:
+```typescript
+// types/comments.ts
+export interface Comment {
+  id: string;
+  content: string;
+  timestamp: Date;
+  resolved: boolean;
+  userId: string;
+  documentId: string;
+}
+
+// For API compatibility
+export type CommentDTO = Omit<Comment, 'timestamp'> & { timestamp: string; };
+
+// For legacy code compatibility (temporary)
+export type LegacyComment = Comment & {
+  /** @deprecated Use content instead */
+  text?: string;
+  /** @deprecated Use resolved instead */
+  isResolved?: boolean;
+};
+```
 
 **Refactoring Requirements:**
 - Use TypeScript's built-in refactoring tools
@@ -280,4 +316,26 @@ Each phase must complete these before handoff:
 4. Code review completed
 5. No outstanding TODOs
 
-For more detailed quality standards, see [docs/code-quality-standards.md](./docs/code-quality-standards.md).
+## Developer Tooling
+
+Here are some useful scripts for maintaining code quality.
+
+### Type Duplication Detector
+```bash
+#!/bin/bash
+# find-duplicate-types.sh
+echo "Searching for duplicate interface definitions..."
+for type in $(grep -h "interface\s\+\w\+" -r src/ | sed 's/interface\s\+\(\w\+\).*/\1/' | sort | uniq -d); do
+  echo "Duplicate interface: $type"
+  grep -n "interface\s\+$type" -r src/
+  echo "---"
+done
+```
+
+### Import Validator
+```bash
+#!/bin/bash
+# validate-imports.sh
+echo "Checking for imports from non-centralized locations..."
+grep -r "from.*types" src/ | grep -v "src/types" | grep -v "node_modules"
+```
