@@ -7,9 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Dual admin endpoint strategy for reliable admin user creation (/api/admin/create-platform-admin and /api/admin/create-admin-user).
+- PostCSS configuration for proper Tailwind CSS processing in production builds.
+- Frontend graceful fallback mechanism for admin creation API calls.
+
 ### Fixed
+- **CRITICAL**: Resolved persistent 405 Method Not Allowed errors for admin user creation.
+- **CRITICAL**: Fixed Tailwind CSS styling not rendering in production - UI now displays professional styling instead of plain HTML.
+- Enhanced PostCSS configuration comments for better deployment debugging.
 - Corrected login page syntax error and restyled screen using Pantry design system components.
 - Configured database connection via environment variables with health check endpoint.
+
+### Security
+- Removed hardcoded database credentials, using environment variables only.
+- Compliance with GitHub security policies and industry best practices.
 
 ## [0.0.15-alpha] - 2025-08-01
 
