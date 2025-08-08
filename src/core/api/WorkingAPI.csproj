@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="WorkingProgram.cs" />
+    <Compile Include="MinimalWorkingProgram.cs" />
   </ItemGroup>
 
 </Project>
