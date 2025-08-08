@@ -193,6 +193,7 @@ function App() {
                     <Route path="/mobile-app" element={<MobileApp />} />
                     <Route path="/performance-monitoring" element={<PerformanceMonitoring />} />
                     <Route path="/admin-setup" element={<AdminSetup />} />
+                    <Route path="/database-admin" element={<DatabaseAdmin />} />
                     <Route path="/settings/*" element={<Settings />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/notifications" element={<Notifications />} />
