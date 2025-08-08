@@ -30,7 +30,7 @@ services:
     timeout_seconds: 10
     success_threshold: 1
     failure_threshold: 5
-  build_command: dotnet restore && dotnet publish -c Release -o out --self-contained false
+  build_command: dotnet restore WorkingAPI.csproj && dotnet publish WorkingAPI.csproj -c Release -o out --self-contained false
   run_command: cd out && dotnet EnterpriseDocsCore.API.dll --urls http://0.0.0.0:$PORT
   envs:
   - key: ASPNETCORE_ENVIRONMENT
@@ -39,6 +39,8 @@ services:
     value: http://0.0.0.0:$PORT
   - key: PORT
     value: "8080"
+  - key: DATABASE_URL
+    value: "${db-postgresql-nyc1-09943.CONNECTION_STRING}"
   - key: ConnectionStrings__DefaultConnection
     value: "${DATABASE_URL}"
   - key: ConnectionStrings__RedisConnection

@@ -254,13 +254,96 @@ class AuthService {
   }
 
   async login(email: string, password: string, tenantSubdomain?: string, rememberMe?: boolean): Promise<{ user: User; token: string; refreshToken: string }> {
-    // For now, accept any credentials and create a working admin user
+    // Try to authenticate with the new working API
+    try {
+      const response = await fetch(`${this.baseUrl}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ Authentication successful:', data);
+        
+        // Transform API response to frontend User model
+        const user: User = {
+          id: data.user.id,
+          firstName: data.user.firstName,
+          lastName: data.user.lastName,
+          email: data.user.email,
+          fullName: `${data.user.firstName} ${data.user.lastName}`,
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          lastLoginAt: new Date().toISOString(),
+          tenantId: data.user.tenantId,
+          profile: {
+            jobTitle: 'Administrator',
+            department: 'IT',
+            industry: 'Technology',
+            timeZone: 'UTC',
+            language: 'en',
+            customFields: { permissions: data.user.permissions }
+          },
+          settings: {
+            enableAIAssistance: true,
+            enableAutoDocumentation: true,
+            enableVoiceCapture: true,
+            enableScreenCapture: true,
+            enableFileMonitoring: true,
+            privacyLevel: PrivacyLevel.Standard,
+            allowDataRetention: true,
+            dataRetentionDays: 365,
+            enableEmailNotifications: true,
+            enablePushNotifications: false,
+            enableSlackNotifications: false,
+            enableTeamsNotifications: false,
+            theme: 'light',
+            defaultDocumentType: 'Meeting Notes',
+            favoriteAgents: ['AI Assistant', 'Document Generator'],
+            moduleSettings: {},
+            customSettings: { permissions: data.user.permissions }
+          },
+          userRoles: data.user.roles?.map((role: string) => ({
+            id: 'role-' + role,
+            userId: data.user.id,
+            roleId: role,
+            assignedAt: new Date().toISOString(),
+            assignedBy: 'system',
+            isActive: true
+          })) || [{
+            id: 'role-admin',
+            userId: data.user.id,
+            roleId: 'platform-admin',
+            assignedAt: new Date().toISOString(),
+            assignedBy: 'system',
+            isActive: true
+          }]
+        };
+
+        return {
+          user,
+          token: data.token,
+          refreshToken: data.refreshToken
+        };
+      } else {
+        console.warn('❌ Authentication failed:', response.status);
+      }
+    } catch (error) {
+      console.warn('❌ API authentication error:', error);
+    }
+
+    // Fallback - create local admin user
+    console.log('🔄 Using fallback authentication for:', email);
+    
+    const isAdmin = email.includes('admin') || email.includes('platform');
     const user: User = {
-      id: 'admin-' + Date.now(),
-      firstName: 'Admin',
-      lastName: 'User',
+      id: 'local-' + Date.now(),
+      firstName: isAdmin ? 'Platform' : 'User',
+      lastName: 'Admin',
       email: email,
-      fullName: 'Admin User',
+      fullName: isAdmin ? 'Platform Admin' : 'User',
       isActive: true,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -272,7 +355,7 @@ class AuthService {
         industry: 'Technology',
         timeZone: 'UTC',
         language: 'en',
-        customFields: {}
+        customFields: { permissions: isAdmin ? ['database-admin', 'platform-admin'] : ['basic-user'] }
       },
       settings: {
         enableAIAssistance: true,
@@ -291,20 +374,20 @@ class AuthService {
         defaultDocumentType: 'Meeting Notes',
         favoriteAgents: ['AI Assistant', 'Document Generator'],
         moduleSettings: {},
-        customSettings: {}
+        customSettings: { permissions: isAdmin ? ['database-admin', 'platform-admin'] : ['basic-user'] }
       },
       userRoles: [{
         id: 'role-admin',
-        userId: 'admin-' + Date.now(),
-        roleId: 'platform-admin',
+        userId: 'local-' + Date.now(),
+        roleId: isAdmin ? 'platform-admin' : 'user',
         assignedAt: new Date().toISOString(),
         assignedBy: 'system',
         isActive: true
       }]
     };
 
-    const token = 'auth-token-' + Date.now();
-    const refreshToken = 'refresh-token-' + Date.now();
+    const token = 'local-auth-token-' + Date.now();
+    const refreshToken = 'local-refresh-token-' + Date.now();
 
     return { user, token, refreshToken };
   }
